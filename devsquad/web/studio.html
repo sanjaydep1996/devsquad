@@ -4,33 +4,49 @@
   <meta charset="UTF-8">
   <title>DevSquad · Autonomous AI Engineering Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F172A'/%3E%3Cpath fill='%2338BDF8' d='M8 24V8l8 5-8 5zM16 24V8l8 5-8 5z'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1122'/%3E%3Cpath fill='%2338BDF8' d='M8 24V8l8 5-8 5zM16 24V8l8 5-8 5z'/%3E%3C/svg%3E">
+  <script>(function(){var t;try{t=localStorage.getItem('devsquad-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t||'dark')})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0B0F19;
-      --card: #151D30;
-      --card-hover: #1E293B;
-      --border: #24304A;
-      --ink: #F1F5F9;
-      --dim: #94A3B8;
+      --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+      --f-ui: "Instrument Sans", system-ui, sans-serif;
+      --f-mono: "JetBrains Mono", monospace;
+      --f-pixel: "Press Start 2P", monospace;
+
+      --bg: #090D1A;
+      --bg2: #131A33;
+      --solid: #10162A;
+      --ink: #E8ECF6;
+      --dim: #94A0BC;
+      --line: #252F4D;
+      --line2: #38456B;
+      --lot: rgba(255, 255, 255, 0.05);
+      --lot2: rgba(255, 255, 255, 0.08);
+
       --accent: #38BDF8;
-      --accent-glow: rgba(56, 189, 248, 0.2);
-      --green: #34D399;
-      --green-bg: rgba(52, 211, 153, 0.15);
-      --red: #F87171;
-      --red-bg: rgba(248, 113, 113, 0.15);
-      --amber: #FBBF24;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-pixel: 'Press Start 2P', monospace;
+      --accent-ink: #04131D;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --accent-glow: rgba(56, 189, 248, 0.35);
+
+      --ok: #34D399;
+      --ok-bg: rgba(52, 211, 153, 0.15);
+      --warn: #FBBF24;
+      --warn-bg: rgba(251, 191, 36, 0.15);
+      --bad: #F87171;
+      --bad-bg: rgba(248, 113, 113, 0.15);
+
+      --header-h: 56px;
+      --chat-w: 380px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: var(--f-ui);
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -39,448 +55,755 @@
 
     /* Top Navigation Bar */
     header {
-      height: 56px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      height: var(--header-h);
+      background: var(--solid);
+      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 18px;
+      flex: none;
+      z-index: 50;
     }
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      font-family: var(--f-display);
       font-weight: 700;
-      font-size: 16px;
-      letter-spacing: -0.02em;
+      font-size: 17px;
+      letter-spacing: -.02em;
     }
-    .brand span.tag {
-      background: var(--accent-glow);
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-    }
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 13px;
-      color: var(--dim);
-    }
-    .dot-live {
-      width: 8px;
-      height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--green);
-      display: inline-block;
-    }
-
-    /* Main Workspace Layout */
-    .studio-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      overflow: hidden;
-    }
-
-    /* Left: Virtual Office & Command Center */
-    .office-pane {
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid var(--border);
-      position: relative;
-    }
-    .canvas-container {
-      flex: 1;
-      position: relative;
-      background: #0D1322;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    canvas {
-      display: block;
+    .brand-icon {
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, #0284C7, #38BDF8);
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      box-shadow: 0 4px 12px var(--accent-glow);
     }
-
-    /* Command Dispatcher Bar */
-    .command-bar {
-      padding: 16px 20px;
-      background: var(--card);
-      border-top: 1px solid var(--border);
+    .tag-pill {
+      font-family: var(--f-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .repo-pill {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      color: var(--dim);
+      background: var(--lot);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+    .header-actions {
       display: flex;
+      align-items: center;
       gap: 12px;
     }
-    .command-bar input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--ink);
-      font-size: 14px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .command-bar input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-glow);
-    }
-    .btn-dispatch {
+    .btn-review-desk {
       background: var(--accent);
-      color: #000;
-      font-weight: 600;
-      font-size: 13px;
-      border: none;
+      color: var(--accent-ink);
+      font-family: var(--f-ui);
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 7px 14px;
       border-radius: 8px;
-      padding: 0 18px;
+      border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: filter 0.2s;
+      transition: filter .15s ease, transform .1s ease;
     }
-    .btn-dispatch:hover {
-      filter: brightness(1.1);
+    .btn-review-desk:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--ok);
+      display: inline-block;
     }
 
-    /* Right: Review Desk & Staging Deck */
-    .review-pane {
-      background: var(--bg);
+    /* Main Grid Viewport */
+    .viewport-container {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Pixel Canvas Area */
+    .canvas-wrap {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      position: relative;
+      background: #060913;
     }
-    .review-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
+    .canvas-frame {
+      flex: 1;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 10px;
     }
-    .review-header h2 {
-      font-size: 15px;
-      font-weight: 600;
+    #officeCanvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .8), 0 0 0 1px var(--line);
+      max-width: 100%;
+      max-height: 100%;
     }
-    .task-card {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .task-card:hover, .task-card.active {
-      background: var(--card);
-    }
-    .task-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    .task-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-    .badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-    .badge.green { background: var(--green-bg); color: var(--green); }
-    .badge.red { background: var(--red-bg); color: var(--red); }
-    .badge.amber { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
 
-    .diff-preview {
-      background: #080C14;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+    /* Quick Dispatch Command Bar at Bottom */
+    .bottom-command-bar {
+      height: 64px;
+      background: var(--solid);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 20;
+    }
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .prompt-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--line2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      padding-right: 110px;
+      color: var(--ink);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .prompt-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .btn-run-relay {
+      position: absolute;
+      right: 6px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .quick-chips-row {
+      display: flex;
+      gap: 8px;
+    }
+    .quick-chip {
+      background: var(--lot);
+      border: 1px solid var(--line);
+      color: var(--dim);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s ease;
+    }
+    .quick-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Right Side Agent Activity / Feed */
+    .feed-panel {
+      width: var(--chat-w);
+      background: var(--solid);
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      flex: none;
+    }
+    .feed-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .feed-header h3 {
+      font-family: var(--f-display);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .feed-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: var(--f-mono);
+      font-size: 11.5px;
+    }
+    .feed-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--lot);
+      border: 1px solid var(--line);
+      line-height: 1.5;
+    }
+    .feed-agent-tag {
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .tag-apex { color: #818CF8; }
+    .tag-alpha { color: #38BDF8; }
+    .tag-gamma { color: #34D399; }
+    .tag-delta { color: #FBBF24; }
+    .tag-system { color: var(--dim); }
+
+    /* The Review Desk Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 16, 0.75);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .review-modal {
+      width: 880px;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: var(--solid);
+      border: 1px solid var(--line2);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--accent-glow);
+      overflow: hidden;
+    }
+    .modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-head h2 {
+      font-family: var(--f-display);
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .diff-block {
+      background: #060913;
+      border: 1px solid var(--line);
+      border-radius: 8px;
       padding: 12px;
-      margin-top: 10px;
-      font-family: var(--font-mono);
+      font-family: var(--f-mono);
       font-size: 11px;
-      max-height: 220px;
+      max-height: 260px;
       overflow-y: auto;
       white-space: pre-wrap;
+      line-height: 1.5;
     }
-    .diff-add { color: var(--green); }
-    .diff-del { color: var(--red); }
-
-    .action-row {
+    .diff-add { color: var(--ok); background: rgba(52, 211, 153, 0.08); display: block; }
+    .diff-del { color: var(--bad); background: rgba(248, 113, 113, 0.08); display: block; }
+    .modal-foot {
+      padding: 14px 22px;
+      border-top: 1px solid var(--line);
+      background: var(--bg);
       display: flex;
-      gap: 10px;
-      margin-top: 12px;
+      justify-content: space-between;
+      align-items: center;
     }
-    .btn-apply {
-      flex: 1;
-      background: var(--green);
-      color: #000;
-      font-weight: 600;
-      font-size: 12px;
+    .btn-apply-direct {
+      background: var(--ok);
+      color: #04140D;
+      font-weight: 700;
+      font-size: 13px;
       border: none;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 9px 18px;
+      border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .btn-rollback {
+    .btn-rollback-direct {
       background: transparent;
       color: var(--dim);
-      border: 1px solid var(--border);
+      border: 1px solid var(--line2);
       font-size: 12px;
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
       cursor: pointer;
     }
-
-    /* Live Activity Feed */
-    .logs-box {
-      font-family: var(--font-mono);
-      font-size: 11px;
+    .btn-close {
+      background: none;
+      border: none;
       color: var(--dim);
-      background: #080C14;
-      padding: 10px;
-      border-radius: 6px;
-      max-height: 120px;
-      overflow-y: auto;
-      margin-top: 10px;
-      line-height: 1.5;
+      font-size: 20px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
+  <!-- Top Header -->
   <header>
     <div class="brand">
-      <span style="font-size: 20px;">🛡️</span> DevSquad <span class="tag">Studio v0.1</span>
-      <span id="repo-title" style="color: var(--dim); font-weight: 500; font-size: 13px;"></span>
+      <div class="brand-icon">🛡️</div>
+      <span>DevSquad Studio</span>
+      <span class="tag-pill">Autonomous Team</span>
+      <span class="repo-pill" id="repoPill">📁 devsquad</span>
     </div>
-    <div class="status-badge">
-      <span id="provider-badge">Ollama (qwen2.5-coder:7b)</span>
-      <span><span class="dot-live"></span> Studio Online</span>
+    <div class="header-actions">
+      <span style="font-size: 12px; color: var(--dim); font-family: var(--f-mono);">
+        <span class="status-dot"></span> <span id="modelTag">Ollama (qwen2.5-coder:7b)</span>
+      </span>
+      <button class="btn-review-desk" onclick="openReviewDesk()">
+        📋 The Review Desk <span id="stagedBadge" style="background:rgba(0,0,0,0.25);padding:1px 6px;border-radius:999px;font-size:11px;">1</span>
+      </button>
     </div>
   </header>
 
-  <!-- Main Grid -->
-  <div class="studio-grid">
+  <!-- Studio Viewport Grid -->
+  <div class="viewport-container">
     
-    <!-- Office View -->
-    <div class="office-pane">
-      <div class="canvas-container">
-        <canvas id="officeCanvas" width="760" height="460"></canvas>
+    <!-- Left: Authentic Pixel Office Viewport -->
+    <div class="canvas-wrap">
+      <div class="canvas-frame">
+        <canvas id="officeCanvas" width="480" height="270"></canvas>
       </div>
 
-      <!-- Command Bar -->
-      <div class="command-bar">
-        <input type="text" id="goalInput" placeholder="Dispatch a feature to DevSquad (e.g., 'Add JWT refresh rotation with tests')..." />
-        <button class="btn-dispatch" onclick="dispatchTask()">▶ Run Relay</button>
+      <!-- Bottom Dispatcher -->
+      <div class="bottom-command-bar">
+        <div class="input-wrapper">
+          <input type="text" id="goalInput" class="prompt-input" placeholder="Dispatch a feature to your squad (e.g., 'Add JWT refresh rotation with tests')..." />
+          <button class="btn-run-relay" onclick="dispatchGoal()">▶ Run Relay</button>
+        </div>
+        <div class="quick-chips-row">
+          <button class="quick-chip" onclick="quickFill('Add healthcheck endpoint with tests')">⚡ Healthcheck</button>
+          <button class="quick-chip" onclick="quickFill('Add rate limiting middleware')">🛡️ Rate Limiter</button>
+          <button class="quick-chip" onclick="quickFill('Refactor DB connection pool')">📦 DB Pool</button>
+        </div>
       </div>
     </div>
 
-    <!-- Review Desk / Staging Deck -->
-    <div class="review-pane">
-      <div class="review-header">
-        <h2>📋 The Review Desk (Staging)</h2>
-        <button class="btn-rollback" onclick="refreshTasks()" style="padding: 4px 8px; font-size: 11px;">↻ Refresh</button>
+    <!-- Right: Real-time Relay Feed -->
+    <div class="feed-panel">
+      <div class="feed-header">
+        <h3>⚡ Real-Time Relay Feed</h3>
+        <span style="font-size: 11px; color: var(--accent); font-family: var(--f-mono);">Live SSE</span>
       </div>
-      <div id="tasksList" style="padding: 12px 0;">
-        <div style="padding: 20px; text-align: center; color: var(--dim); font-size: 13px;">
-          No staged tasks yet. Dispatch an engineering goal to watch Apex, Alpha, Gamma, and Delta work!
+      <div class="feed-list" id="feedList">
+        <div class="feed-item">
+          <span class="feed-agent-tag tag-system">[System]</span><br>
+          DevSquad initialized. Apex, Alpha, Gamma, and Delta are standing by at their desks.
         </div>
       </div>
     </div>
 
   </div>
 
-  <script>
-    // Canvas & Agent state
-    const canvas = document.getElementById("officeCanvas");
-    const ctx = canvas.getContext("2d");
+  <!-- Review Desk Modal -->
+  <div class="modal-backdrop" id="reviewModal">
+    <div class="review-modal">
+      <div class="modal-head">
+        <h2>📋 The Review Desk (Staged Task)</h2>
+        <button class="btn-close" onclick="closeReviewDesk()">✕</button>
+      </div>
+      <div class="modal-body" id="modalContent">
+        <div style="color:var(--dim); font-size:13px; text-align:center; padding: 30px;">
+          Loading staged task details...
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-rollback-direct" onclick="rollbackTask()">↺ Rollback Backup</button>
+        <button class="btn-apply-direct" onclick="applyTask()">✓ Apply Changes to Codebase</button>
+      </div>
+    </div>
+  </div>
 
-    const agents = {
-      apex: { name: "Apex (Architect)", x: 140, y: 150, color: "#818CF8", task: "Idle", bubble: "Ready to plan architecture." },
-      alpha: { name: "Alpha (Engineer)", x: 320, y: 150, color: "#38BDF8", task: "Idle", bubble: "Code editor open." },
-      gamma: { name: "Gamma (QA Specialist)", x: 480, y: 150, color: "#34D399", task: "Idle", bubble: "Test runner standing by." },
-      delta: { name: "Delta (DevOps)", x: 620, y: 150, color: "#FBBF24", task: "Idle", bubble: "Git branches synced." }
+  <!-- Pixel Canvas Engine (DevCity-Style Pixel Art Architecture) -->
+  <script>
+    const canvas = document.getElementById("officeCanvas");
+    const g = canvas.getContext("2d");
+    const W = 480, H = 270;
+    let tick = 0;
+    let currentTaskId = null;
+
+    // Helper draw functions
+    function R(ctx, color, x, y, w, h) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    }
+    function shade(hex, factor) {
+      if (!hex || hex.startsWith("rgba")) return hex;
+      let c = parseInt(hex.slice(1), 16);
+      let r = Math.min(255, Math.floor(((c >> 16) & 255) * factor));
+      let g = Math.min(255, Math.floor(((c >> 8) & 255) * factor));
+      let b = Math.min(255, Math.floor((c & 255) * factor));
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // 4 Specialized DevSquad Personas
+    const AGENTS = {
+      apex: {
+        id: "apex", name: "Apex (Architect)",
+        x: 100, y: 110, deskX: 100, deskY: 100,
+        skin: "#FFD0A8", hair: "#2C2018", shirt: "#818CF8", pants: "#1E1B4B",
+        style: "neat", glasses: true,
+        task: "idle", bubble: "Architecture ready."
+      },
+      alpha: {
+        id: "alpha", name: "Alpha (Engineer)",
+        x: 210, y: 110, deskX: 210, deskY: 100,
+        skin: "#E0AC69", hair: "#1A1A1A", shirt: "#38BDF8", pants: "#0F172A",
+        style: "curly", headphones: true,
+        task: "idle", bubble: "Writing clean code."
+      },
+      gamma: {
+        id: "gamma", name: "Gamma (QA Specialist)",
+        x: 320, y: 110, deskX: 320, deskY: 100,
+        skin: "#F5D0A9", hair: "#9A3412", shirt: "#34D399", pants: "#064E3B",
+        style: "long", glasses: true,
+        task: "idle", bubble: "Tests running."
+      },
+      delta: {
+        id: "delta", name: "Delta (DevOps)",
+        x: 410, y: 110, deskX: 410, deskY: 100,
+        skin: "#C68642", hair: "#1C1917", shirt: "#FBBF24", pants: "#3F2C10",
+        style: "cap", accent: "#F97316",
+        task: "idle", bubble: "Branches synced."
+      }
     };
 
-    function drawOffice() {
-      // Room Floor & Wall
-      ctx.fillStyle = "#111827";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw Room Background (Isometric Parquet Tiles, Walls, Windows)
+    function drawRoom() {
+      // Upper Wall
+      R(g, "#1E293B", 0, 0, W, 50);
+      R(g, "#0F172A", 0, 48, W, 2);
 
-      // Floor grid
-      ctx.strokeStyle = "#1F2937";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < canvas.width; x += 40) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += 40) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
-
-      // Draw Desks and Agents
-      Object.entries(agents).forEach(([key, ag]) => {
-        // Desk
-        ctx.fillStyle = "#1E293B";
-        ctx.fillRect(ag.x - 45, ag.y + 10, 90, 45);
-        ctx.strokeStyle = "#334155";
-        ctx.strokeRect(ag.x - 45, ag.y + 10, 90, 45);
-
-        // Monitor
-        ctx.fillStyle = "#0F172A";
-        ctx.fillRect(ag.x - 20, ag.y + 18, 40, 20);
-        ctx.fillStyle = ag.color;
-        ctx.fillRect(ag.x - 18, ag.y + 20, 36, 16);
-
-        // Avatar
-        ctx.fillStyle = ag.color;
-        ctx.beginPath();
-        ctx.arc(ag.x, ag.y, 16, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Label
-        ctx.fillStyle = "#F1F5F9";
-        ctx.font = "bold 11px Inter, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(ag.name, ag.x, ag.y + 75);
-
-        // Speech Bubble
-        if (ag.bubble) {
-          ctx.fillStyle = "#0F172A";
-          ctx.strokeStyle = ag.color;
-          ctx.lineWidth = 1;
-          const bubbleW = 160;
-          ctx.fillRect(ag.x - bubbleW/2, ag.y - 45, bubbleW, 26);
-          ctx.strokeRect(ag.x - bubbleW/2, ag.y - 45, bubbleW, 26);
-
-          ctx.fillStyle = "#E2E8F0";
-          ctx.font = "10px Inter, sans-serif";
-          ctx.fillText(ag.bubble.substring(0, 26), ag.x, ag.y - 28);
-        }
+      // Windows with city glow
+      [50, 180, 310].forEach(wx => {
+        R(g, "#0A1124", wx, 8, 70, 32);
+        R(g, "#38BDF8", wx + 2, 10, 66, 28);
+        R(g, "#0A1124", wx + 33, 10, 4, 28);
+        R(g, "#0A1124", wx + 2, 22, 66, 4);
       });
 
-      requestAnimationFrame(drawOffice);
-    }
-    drawOffice();
+      // Whiteboard in meeting area
+      R(g, "#F8FAFC", 140, 10, 80, 30);
+      R(g, "#64748B", 138, 8, 84, 2);
+      R(g, "#64748B", 138, 38, 84, 2);
+      // Sketch on whiteboard
+      R(g, "#38BDF8", 148, 16, 20, 8);
+      R(g, "#818CF8", 175, 16, 16, 8);
+      R(g, "#34D399", 196, 20, 14, 12);
+      R(g, "#94A3B8", 168, 20, 7, 2);
 
-    // API & Event logic
+      // Parquet Wooden Floor Tiles
+      for (let y = 50; y < H; y += 16) {
+        for (let x = 0; x < W; x += 32) {
+          const alt = ((x / 32) + (y / 16)) % 2 === 0;
+          R(g, alt ? "#0F172A" : "#131C35", x, y, 32, 16);
+          R(g, "rgba(255,255,255,0.02)", x, y, 32, 1);
+          R(g, "rgba(0,0,0,0.25)", x, y + 15, 32, 1);
+        }
+      }
+
+      // Large Rug under workstations
+      R(g, "#1E294A", 40, 85, 400, 140);
+      R(g, "#2C3C68", 42, 87, 396, 136);
+
+      // Plants in corners
+      drawPlant(16, 60);
+      drawPlant(450, 60);
+      drawPlant(16, 220);
+      drawPlant(450, 220);
+
+      // Water cooler & coffee machine
+      drawWaterCooler(16, 140);
+    }
+
+    function drawPlant(x, y) {
+      R(g, "#78350F", x, y + 10, 14, 12);
+      R(g, "#92400E", x - 1, y + 8, 16, 3);
+      R(g, "#166534", x - 2, y, 18, 10);
+      R(g, "#22C55E", x + 1, y - 4, 12, 8);
+    }
+
+    function drawWaterCooler(x, y) {
+      R(g, "#E2E8F0", x, y + 8, 14, 20);
+      R(g, "#38BDF8", x + 2, y - 6, 10, 14);
+      R(g, "#0284C7", x + 4, y - 4, 6, 10);
+    }
+
+    // Draw Desks, CRT Monitors & Chairs
+    function drawWorkstations() {
+      Object.values(AGENTS).forEach(a => {
+        const dx = a.deskX, dy = a.deskY;
+
+        // Shadow
+        R(g, "rgba(0,0,0,0.4)", dx - 36, dy + 22, 72, 8);
+
+        // Desk Wooden Body
+        R(g, "#334155", dx - 35, dy - 4, 70, 24);
+        R(g, "#1E293B", dx - 35, dy + 20, 6, 14);
+        R(g, "#1E293B", dx + 29, dy + 20, 6, 14);
+
+        // Desk Mat
+        R(g, "#0F172A", dx - 20, dy - 2, 40, 18);
+
+        // Monitor & Stand
+        R(g, "#64748B", dx - 3, dy - 8, 6, 6);
+        R(g, "#0B1120", dx - 18, dy - 28, 36, 20);
+        R(g, "#1E293B", dx - 16, dy - 26, 32, 16);
+
+        // Animated Screen Code Typing
+        const step = Math.floor(tick / 10);
+        const codeColor = a.task === "busy" ? "#38BDF8" : a.shirt;
+        for (let i = 0; i < 4; i++) {
+          const w = 6 + ((i * 7 + step) % 18);
+          R(g, codeColor, dx - 14, dy - 24 + i * 3.5, w, 2);
+        }
+
+        // Keyboard & Mouse
+        R(g, "#475569", dx - 12, dy + 4, 16, 6);
+        R(g, "#94A3B8", dx + 8, dy + 6, 4, 4);
+
+        // Coffee Mug
+        R(g, "#F8FAFC", dx + 22, dy + 2, 5, 6);
+        R(g, a.shirt, dx + 23, dy + 3, 3, 2);
+      });
+    }
+
+    // Draw Pixel Person
+    function drawAvatar(a) {
+      const x = Math.round(a.x);
+      const y = Math.round(a.y);
+      const blink = (tick % 180) < 6;
+
+      // Chair back
+      R(g, "#0F172A", x - 10, y - 4, 20, 16);
+      R(g, "#334155", x - 8, y - 2, 16, 2);
+
+      // Torso & Shirt
+      R(g, a.shirt, x - 8, y - 8, 16, 14);
+      R(g, shade(a.shirt, 0.8), x - 8, y + 4, 16, 2);
+
+      // Head
+      R(g, a.skin, x - 5, y - 18, 10, 10);
+
+      // Eyes
+      if (!blink) {
+        R(g, "#0F172A", x - 3, y - 14, 2, 2);
+        R(g, "#0F172A", x + 1, y - 14, 2, 2);
+      } else {
+        R(g, "#0F172A", x - 3, y - 13, 2, 1);
+        R(g, "#0F172A", x + 1, y - 13, 2, 1);
+      }
+
+      // Hair / Cap / Accessories
+      if (a.style === "cap") {
+        R(g, a.accent, x - 6, y - 22, 12, 5);
+        R(g, a.accent, x - 8, y - 18, 16, 2);
+      } else if (a.style === "long") {
+        R(g, a.hair, x - 6, y - 21, 12, 4);
+        R(g, a.hair, x - 7, y - 17, 3, 14);
+        R(g, a.hair, x + 4, y - 17, 3, 14);
+      } else {
+        R(g, a.hair, x - 6, y - 21, 12, 4);
+        R(g, a.hair, x - 6, y - 17, 2, 4);
+      }
+
+      // Glasses
+      if (a.glasses) {
+        R(g, "#000", x - 4, y - 15, 3, 3);
+        R(g, "#000", x + 1, y - 15, 3, 3);
+        R(g, "#38BDF8", x - 3, y - 14, 1, 1);
+        R(g, "#38BDF8", x + 2, y - 14, 1, 1);
+      }
+
+      // Speech bubble
+      if (a.bubble) {
+        g.font = "8px 'Press Start 2P', monospace";
+        const txt = a.bubble.length > 20 ? a.bubble.substring(0, 19) + "…" : a.bubble;
+        const tw = g.measureText(txt).width;
+        const bw = Math.max(70, tw + 14);
+        const bx = Math.round(x - bw / 2);
+        const by = y - 36;
+
+        R(g, "rgba(15, 23, 42, 0.95)", bx, by, bw, 15);
+        R(g, a.shirt, bx, by, bw, 1);
+        R(g, a.shirt, bx, by + 14, bw, 1);
+        R(g, a.shirt, bx, by, 1, 15);
+        R(g, a.shirt, bx + bw - 1, by, 1, 15);
+
+        // Pointer triangle
+        R(g, a.shirt, x - 2, by + 15, 4, 2);
+
+        g.fillStyle = "#F8FAFC";
+        g.fillText(txt, bx + 7, by + 11);
+      }
+    }
+
+    // Main Canvas Render Loop
+    function render() {
+      tick++;
+      drawRoom();
+      drawWorkstations();
+      Object.values(AGENTS).forEach(drawAvatar);
+      requestAnimationFrame(render);
+    }
+    render();
+
+    // API & UI Interaction
     async function loadStatus() {
       try {
         const res = await fetch("/api/status");
         const data = await res.json();
-        document.getElementById("repo-title").textContent = `📁 ${data.repo_name} (${data.languages.join(", ") || "generic"})`;
-        document.getElementById("provider-badge").textContent = `${data.provider} (${data.model})`;
+        document.getElementById("repoPill").textContent = `📁 ${data.repo_name} (${data.languages.join(", ") || "generic"})`;
+        document.getElementById("modelTag").textContent = `${data.provider} (${data.model})`;
       } catch (e) {}
     }
 
-    async function refreshTasks() {
+    async function loadTasks() {
       try {
         const res = await fetch("/api/tasks");
         const tasks = await res.json();
-        const container = document.getElementById("tasksList");
-        if (tasks.length === 0) {
-          container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--dim); font-size: 13px;">No staged tasks yet. Dispatch an engineering goal above!</div>`;
-          return;
+        document.getElementById("stagedBadge").textContent = tasks.length;
+        if (tasks.length > 0) {
+          currentTaskId = tasks[0].task_id;
         }
-
-        container.innerHTML = tasks.map(t => `
-          <div class="task-card" onclick="loadTaskDetails('${t.task_id}')">
-            <div class="task-card-header">
-              <span class="task-title">${t.goal}</span>
-              <span class="badge ${t.tests_passed ? 'green' : (t.status === 'staged' ? 'amber' : 'red')}">${t.status}</span>
-            </div>
-            <div style="font-size: 11px; color: var(--dim);">
-              🌿 Branch: <code>${t.git_branch || 'staged'}</code> · ${t.diff_count} diffs
-            </div>
-            <div id="details-${t.task_id}" style="display:none;"></div>
-          </div>
-        `).join("");
       } catch (e) {}
     }
 
-    async function loadTaskDetails(tid) {
-      const target = document.getElementById(`details-${tid}`);
-      if (!target) return;
-      if (target.style.display === "block") {
-        target.style.display = "none";
+    async function openReviewDesk() {
+      const modal = document.getElementById("reviewModal");
+      const content = document.getElementById("modalContent");
+      modal.style.display = "flex";
+
+      if (!currentTaskId) {
+        content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--dim);">No staged tasks yet. Dispatch an engineering feature from the command bar!</div>`;
         return;
       }
 
       try {
-        const res = await fetch(`/api/task?id=${tid}`);
+        const res = await fetch(`/api/task?id=${currentTaskId}`);
         const task = await res.json();
-        target.style.display = "block";
 
         const diffsHtml = task.diffs.map(d => `
-          <div style="margin-top: 8px; font-weight: 600; font-size: 11px;">📄 ${d.file_path} (+${d.additions} -${d.deletions})</div>
-          <div class="diff-preview">${escapeHtml(d.patch_text || 'New file created')}</div>
+          <div style="font-weight:700;font-size:12px;margin-top:10px;">📄 ${d.file_path} <span style="color:var(--ok);font-size:11px;">+${d.additions}</span> <span style="color:var(--bad);font-size:11px;">-${d.deletions}</span></div>
+          <div class="diff-block">${formatDiffLines(d.patch_text || 'New file created')}</div>
         `).join("");
 
         const testHtml = task.test_result ? `
-          <div style="margin-top: 8px; font-weight: 600; font-size: 11px;">🧪 Test Output (${task.test_result.passed ? 'PASSED ✅' : 'FAILED ❌'} in ${task.test_result.duration_s}s)</div>
-          <div class="diff-preview">${escapeHtml(task.test_result.output || 'Passed with zero errors')}</div>
+          <div style="font-weight:700;font-size:12px;margin-top:10px;">🧪 Test Runner Output (${task.test_result.passed ? '<span style="color:var(--ok);">PASSED ✅</span>' : '<span style="color:var(--bad);">FAILED ❌</span>'} in ${task.test_result.duration_s}s)</div>
+          <div class="diff-block">${escapeHtml(task.test_result.output || 'All tests passed cleanly.')}</div>
         ` : '';
 
-        const logsHtml = `
-          <div class="logs-box">${task.relay_logs.join("<br>")}</div>
-        `;
-
-        target.innerHTML = `
+        content.innerHTML = `
+          <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;">
+            <div style="font-size:14px;font-weight:700;">${escapeHtml(task.goal)}</div>
+            <div style="font-size:11.5px;color:var(--dim);margin-top:4px;font-family:var(--f-mono);">
+              Branch: <b>${task.git_branch || 'staged'}</b> · Status: <b style="color:var(--accent);">${task.status}</b>
+            </div>
+          </div>
           ${testHtml}
           ${diffsHtml}
-          ${logsHtml}
-          <div class="action-row">
-            <button class="btn-apply" onclick="applyTask('${tid}')">✓ Apply Changes to Repo</button>
-            <button class="btn-rollback" onclick="rollbackTask('${tid}')">Rollback</button>
-          </div>
         `;
-      } catch (e) {}
+      } catch (e) {
+        content.innerHTML = `<div style="color:var(--bad);">Error loading task details.</div>`;
+      }
     }
 
-    async function applyTask(tid) {
+    function closeReviewDesk() {
+      document.getElementById("reviewModal").style.display = "none";
+    }
+
+    async function applyTask() {
+      if (!currentTaskId) return;
       if (!confirm("Apply these verified staged changes directly to your repository?")) return;
-      const res = await fetch(`/api/apply?id=${tid}`, { method: "POST" });
+      const res = await fetch(`/api/apply?id=${currentTaskId}`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
         alert("Changes applied successfully to your codebase!");
-        refreshTasks();
+        closeReviewDesk();
+        loadTasks();
       } else {
         alert("Error applying changes: " + data.error);
       }
     }
 
-    async function rollbackTask(tid) {
+    async function rollbackTask() {
+      if (!currentTaskId) return;
       if (!confirm("Rollback changes from backup?")) return;
-      const res = await fetch(`/api/rollback?id=${tid}`, { method: "POST" });
+      const res = await fetch(`/api/rollback?id=${currentTaskId}`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
         alert("Rollback successful.");
-        refreshTasks();
+        closeReviewDesk();
+        loadTasks();
       } else {
         alert("Error: " + data.error);
       }
     }
 
-    async function dispatchTask() {
+    async function dispatchGoal() {
       const input = document.getElementById("goalInput");
       const goal = input.value.trim();
       if (!goal) return;
       input.value = "";
 
-      agents.apex.bubble = "Analyzing request...";
-      agents.alpha.bubble = "Waiting for spec...";
-      agents.gamma.bubble = "Preparing test bench...";
-      agents.delta.bubble = "Tracking branch...";
+      AGENTS.apex.bubble = "Planning spec...";
+      AGENTS.alpha.bubble = "Waiting for spec...";
+      AGENTS.gamma.bubble = "Test bench ready.";
+      AGENTS.delta.bubble = "Tracking branch...";
+
+      addFeed("System", `Goal dispatched: "${goal}"`);
 
       await fetch("/api/dispatch", {
         method: "POST",
@@ -489,30 +812,53 @@
       });
     }
 
-    function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    function quickFill(val) {
+      document.getElementById("goalInput").value = val;
     }
 
-    // Connect SSE for real-time office updates
+    function addFeed(agent, text) {
+      const list = document.getElementById("feedList");
+      const item = document.createElement("div");
+      item.className = "feed-item";
+      const tagClass = `tag-${agent.toLowerCase()}`;
+      item.innerHTML = `<span class="feed-agent-tag ${tagClass}">[${agent}]</span><br>${escapeHtml(text)}`;
+      list.appendChild(item);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function formatDiffLines(patch) {
+      return patch.split("\n").map(l => {
+        if (l.startsWith("+") && !l.startsWith("+++")) return `<span class="diff-add">${escapeHtml(l)}</span>`;
+        if (l.startsWith("-") && !l.startsWith("---")) return `<span class="diff-del">${escapeHtml(l)}</span>`;
+        return escapeHtml(l);
+      }).join("\n");
+    }
+
+    function escapeHtml(text) {
+      return (text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Connect SSE Event Stream
     function connectSSE() {
-      const src = new EventSource("/api/events");
-      src.onmessage = (e) => {
+      const sse = new EventSource("/api/events");
+      sse.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data);
-          const agKey = msg.agent.toLowerCase();
-          if (agents[agKey]) {
-            agents[agKey].bubble = msg.data.message || msg.event;
+          const ag = msg.agent.toLowerCase();
+          if (AGENTS[ag]) {
+            AGENTS[ag].bubble = msg.data.message || msg.event;
           }
+          addFeed(msg.agent, msg.data.message || msg.event);
           if (msg.event === "STAGED" || msg.event === "VERIFIED_GREEN") {
-            refreshTasks();
+            loadTasks();
           }
         } catch (err) {}
       };
-      src.onerror = () => setTimeout(connectSSE, 3000);
+      sse.onerror = () => setTimeout(connectSSE, 3000);
     }
 
     loadStatus();
-    refreshTasks();
+    loadTasks();
     connectSSE();
   </script>
 </body>
