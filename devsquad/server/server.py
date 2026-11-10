@@ -11,10 +11,14 @@ import threading
 import time
 import urllib.parse
 from typing import Dict, List, Optional
+from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.context import RepoContextEngine
+from ..core.memory import MemoryLake
 from ..core.staging import StagingDeck
+from ..core.worktree import WorktreeManager
 from ..llm.factory import get_provider
 from ..runtime.relay import AutonomousRelay
+from ..runtime.swarm import BugSwarm
 
 
 class StudioHandler(http.server.BaseHTTPRequestHandler):
@@ -115,6 +119,23 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                     for d in task.diffs
                 ],
             })
+        elif path == "/api/worktrees":
+            mgr = WorktreeManager(self.root)
+            self._serve_json(mgr.list_worktrees())
+        elif path == "/api/memory":
+            lake = MemoryLake(self.root)
+            self._serve_json(lake.data)
+        elif path == "/api/blast-radius":
+            tid = query.get("task_id", [""])[0]
+            files = [f.strip() for f in query.get("files", [""])[0].split(",") if f.strip()]
+            if tid and self.staging:
+                t = self.staging.load_task(tid)
+                if t:
+                    files = [d.file_path for d in t.diffs]
+            if not files:
+                files = ["devsquad/server/server.py"]
+            analyzer = BlastRadiusAnalyzer(self.root)
+            self._serve_json(analyzer.analyze(files))
         elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
@@ -205,6 +226,30 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             try:
                 results = self.staging.rollback_task(tid)
                 self._serve_json({"success": True, "results": results})
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/memory/ingest":
+            lake = MemoryLake(self.root)
+            results = lake.ingest_all()
+            self._serve_json({"success": True, "results": results, "data": lake.data})
+
+        elif path == "/api/bug-swarm":
+            title = payload.get("title", "").strip() or "Reported Issue"
+            trace = payload.get("trace", "").strip()
+            tf = payload.get("target_file")
+            provider = self.relay.provider if self.relay else get_provider()
+            swarm = BugSwarm(provider, self.root)
+            try:
+                task = swarm.run_swarm(title, trace, target_file=tf)
+                self._serve_json({
+                    "success": True,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                    "diff_count": len(task.diffs),
+                    "tests_passed": task.test_result.passed if task.test_result else False,
+                })
             except Exception as e:
                 self._serve_json({"success": False, "error": str(e)}, status=500)
         else:
