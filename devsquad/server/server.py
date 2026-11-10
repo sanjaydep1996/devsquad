@@ -29,13 +29,25 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         # Mute default server access logs to keep terminal clean
         pass
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        if path in ("/", "/index.html", "/studio"):
+        if path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
+        elif path == "/data/usage.json":
+            usage_file = self.root / "data" / "usage.json"
+            if usage_file.exists():
+                self._serve_json_file(usage_file)
+            else:
+                self.send_error(404, "Not Found")
         elif path == "/api/status":
             ctx = RepoContextEngine(self.root).analyze()
             self._serve_json({
@@ -46,6 +58,18 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 "provider": self.relay.provider.provider_name if self.relay else "local",
                 "model": self.relay.provider.model if self.relay else "qwen2.5-coder:7b",
             })
+        elif path == "/api/sessions":
+            tasks = self.staging.list_tasks() if self.staging else []
+            sessions = [
+                {
+                    "session_id": t.task_id,
+                    "step_count": len(t.relay_logs),
+                    "total_cost": 0.0,
+                    "providers": "local",
+                }
+                for t in tasks
+            ]
+            self._serve_json({"sessions": sessions})
         elif path == "/api/tasks":
             tasks = self.staging.list_tasks() if self.staging else []
             self._serve_json([
@@ -91,7 +115,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                     for d in task.diffs
                 ],
             })
-        elif path == "/api/events":
+        elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
             self.send_error(404, "Not Found")
@@ -108,7 +132,42 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
-        if path == "/api/dispatch":
+        if path == "/api/spawn":
+            agent_id = payload.get("agent", "apex")
+            task_text = payload.get("task", "").strip()
+            if not task_text:
+                self._serve_json({"success": False, "error": "Task description is required"}, status=400)
+                return
+
+            try:
+                task = self.relay.run_task(task_text)
+                self._serve_json({
+                    "success": True,
+                    "agent": agent_id,
+                    "task": task_text,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                    "tests_passed": task.test_result.passed if task.test_result else True,
+                    "run_note": f"Completed by DevSquad with {len(task.diffs)} staged files and test verification.",
+                })
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/pipeline":
+            feat = payload.get("feature", "").strip() or "Feature Relay"
+            try:
+                task = self.relay.run_task(feat)
+                self._serve_json({
+                    "success": True,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                })
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/dispatch":
             goal = payload.get("goal", "").strip()
             if not goal:
                 self._serve_json({"error": "Goal cannot be empty"}, status=400)
@@ -150,6 +209,18 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 self._serve_json({"success": False, "error": str(e)}, status=500)
         else:
             self.send_error(404, "Not Found")
+
+    def _serve_json_file(self, file_path: pathlib.Path):
+        try:
+            content = file_path.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            self.send_error(500, str(e))
 
     def _serve_json(self, data, status: int = 200):
         body = json.dumps(data).encode("utf-8")

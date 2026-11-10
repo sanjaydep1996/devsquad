@@ -2,864 +2,2597 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DevSquad · Autonomous AI Engineering Studio</title>
+  <title>DevSquad Studio · Autonomous Multi-Agent Engineering Office</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1122'/%3E%3Cpath fill='%2338BDF8' d='M8 24V8l8 5-8 5zM16 24V8l8 5-8 5z'/%3E%3C/svg%3E">
-  <script>(function(){var t;try{t=localStorage.getItem('devsquad-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t||'dark')})();</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1122'/%3E%3Cpath fill='%23FFB44C' d='M6 26V15l5-2.500V26zM13 26V7l7 3.500V26zM22 26V15l5 2.500V26z'/%3E%3C/svg%3E">
+  <script>(function(){var t;try{t=localStorage.getItem('ucity-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t||'dark')})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --f-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-      --f-ui: "Instrument Sans", system-ui, sans-serif;
-      --f-mono: "JetBrains Mono", monospace;
-      --f-pixel: "Press Start 2P", monospace;
+      --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      --f-ui: "Instrument Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --bg: #F2EBDD; --bg2: #E7DBC4; --ink: #1D1F27; --dim: #6B6657; --faint: #9B9483; --solid: #FFFBF3;
+      --card: rgba(255, 251, 243, .88); --line: rgba(64, 50, 24, .15); --line2: rgba(64, 50, 24, .28); --lot: rgba(64, 50, 24, .06); --lot2: rgba(64, 50, 24, .1); --hover: rgba(64, 50, 24, .08);
+      --accent: #B4580A; --accent-ink: #FFF8EC; --accent-soft: rgba(180, 88, 10, .13); --accent-glow: rgba(180, 88, 10, 0);
+      --shadow: 0 14px 36px rgba(64, 42, 10, .16);
+      --ok: #0E8A5C; --ok-bg: rgba(14, 138, 92, .12); --warn: #B4580A; --warn-bg: rgba(180, 88, 10, .12); --bad: #C4332B; --bad-bg: rgba(196, 51, 43, .1); --info: #2563C8;
+    }
+    :root[data-theme="dark"] {
+      --bg: #06080F; --bg2: #101627; --ink: #EDF0F7; --dim: #8F99B0; --faint: #5E6880; --solid: #0E1220;
+      --card: rgba(13, 17, 29, .8); --line: rgba(150, 165, 200, .15); --line2: rgba(150, 165, 200, .3); --lot: rgba(150, 165, 200, .07); --lot2: rgba(4, 6, 12, .55); --hover: rgba(150, 165, 200, .11);
+      --accent: #FFB44C; --accent-ink: #1A1103; --accent-soft: rgba(255, 180, 76, .14); --accent-glow: rgba(255, 180, 76, .3);
+      --shadow: 0 16px 40px rgba(0, 0, 0, .5);
+      --ok: #3DDC97; --ok-bg: rgba(61, 220, 151, .13); --warn: #FFB44C; --warn-bg: rgba(255, 180, 76, .13); --bad: #FF7A70; --bad-bg: rgba(255, 122, 112, .13); --info: #7DB4FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 13px; height: 100vh; display: flex; overflow: hidden; position: relative; -webkit-font-smoothing: antialiased; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    code { font-family: var(--f-mono); font-size: .92em; }
+    select, input { font-family: var(--f-ui); color: var(--ink); }
+    select option { background: var(--solid); color: var(--ink); }
+    input[type="checkbox"] { accent-color: var(--accent); }
+    input[type="range"] { accent-color: var(--accent); }
+    .nav-item:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent) !important; outline-offset: 2px !important; }
+    .i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .pixel-font { font-family: var(--f-ui); }
+    .mono-font { font-family: var(--f-mono); }
+    .pix { image-rendering: pixelated; display: block; }
+    .mascot { display: block; flex: none; }
 
-      --bg: #090D1A;
-      --bg2: #131A33;
-      --solid: #10162A;
-      --ink: #E8ECF6;
-      --dim: #94A0BC;
-      --line: #252F4D;
-      --line2: #38456B;
-      --lot: rgba(255, 255, 255, 0.05);
-      --lot2: rgba(255, 255, 255, 0.08);
+    /* Left navigation */
+    #sidebar { width: 172px; flex: none; display: flex; flex-direction: column; gap: 2px; padding: 12px 8px; border-right: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 96%, var(--ink) 2%); transition: left .25s cubic-bezier(.4, 0, .2, 1); }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--dim); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all .14s ease; user-select: none; line-height: 1.2; }
+    .nav-item:hover { background: var(--hover); color: var(--ink); }
+    .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+    .nav-item.logout:hover { color: var(--bad); background: var(--bad-bg); }
+    .nav-icon { display: grid; place-items: center; width: 18px; }
+    .nav-text { white-space: nowrap; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-overlay { display: none; }
 
-      --accent: #38BDF8;
-      --accent-ink: #04131D;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --accent-glow: rgba(56, 189, 248, 0.35);
+    /* Main area */
+    #main-viewport { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+    .viewport-topbar { min-height: 54px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+    .tb-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .company-title { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 18px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+    .token-badge { font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; color: var(--accent); padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--lot); }
+    .data-mode-badge { font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: 0; color: var(--ok); padding: 3px 8px; border-radius: 6px; background: var(--ok-bg); }
+    .data-mode-badge.sample { color: var(--warn); background: var(--warn-bg); }
+    .action-pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; min-height: 32px; font-family: var(--f-ui); font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--line2); background: var(--lot); color: var(--ink); transition: all .14s ease; white-space: nowrap; }
+    .action-pill-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .action-pill-btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+    .action-pill-btn.primary:hover { filter: brightness(1.08); color: var(--accent-ink); }
+    .room-dropdown { display: inline-flex; align-items: center; min-height: 32px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; font-family: var(--f-ui); font-size: 12px; font-weight: 600; color: var(--dim); cursor: pointer; white-space: nowrap; }
+    .room-dropdown:hover { color: var(--ink); background: var(--hover); }
+    .mobile-menu-btn, .mobile-chat-toggle { display: none; border: 1px solid var(--line); background: var(--lot); border-radius: 8px; min-height: 32px; padding: 0 9px; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 600; }
 
-      --ok: #34D399;
-      --ok-bg: rgba(52, 211, 153, 0.15);
-      --warn: #FBBF24;
-      --warn-bg: rgba(251, 191, 36, 0.15);
-      --bad: #F87171;
-      --bad-bg: rgba(248, 113, 113, 0.15);
+    .office-canvas-frame { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 12px; overflow: hidden; }
+    #officeCanvas { display: block; border-radius: 12px; border: 1px solid var(--line2); box-shadow: var(--shadow), 0 0 60px var(--accent-glow); cursor: default; }
 
-      --header-h: 56px;
-      --chat-w: 380px;
-    }
+    .viewport-bottombar { min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 14px; border-top: 1px solid var(--line); }
+    .energy-bar-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; max-width: 340px; }
+    .energy-label { font-family: var(--f-mono); font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); white-space: nowrap; }
+    .energy-track { flex: 1; height: 5px; background: var(--lot); border-radius: 5px; overflow: hidden; min-width: 40px; }
+    .energy-fill { height: 100%; border-radius: 5px; background: var(--ok); transition: width .4s ease; }
+    .energy-text { font-family: var(--f-mono); font-size: 11px; color: var(--ink); white-space: nowrap; }
+    .working-counter { display: flex; align-items: baseline; gap: 7px; font-family: var(--f-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); white-space: nowrap; }
+    .working-counter b { font-family: var(--f-display); font-size: 14px; letter-spacing: -.01em; text-transform: none; color: var(--ink); }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--f-ui);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+    /* Terminal drawer */
+    #terminalDrawer { position: absolute; left: 0; right: 0; bottom: 46px; height: 220px; display: none; flex-direction: column; z-index: 20; background: var(--solid); border-top: 1px solid var(--line2); box-shadow: 0 -10px 30px rgba(0, 0, 0, .3); }
+    .term-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; font-family: var(--f-mono); font-size: 11px; font-weight: 500; color: var(--dim); border-bottom: 1px solid var(--line); }
+    .term-toggle-btn { display: inline-flex; align-items: center; gap: 5px; background: var(--lot); border: 1px solid var(--line); border-radius: 6px; min-height: 28px; padding: 3px 9px; font-family: var(--f-mono); font-size: 11px; color: var(--ink); }
+    .term-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .term-logs { flex: 1; overflow-y: auto; padding: 10px 12px; font-family: var(--f-mono); font-size: 11.5px; line-height: 1.55; }
+    .term-line { margin-bottom: 3px; }
+    .term-line.info { color: var(--dim); } .term-line.success { color: var(--ok); } .term-line.warn { color: var(--warn); } .term-line.error { color: var(--bad); }
+    .term-input-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); }
+    .term-prompt { font-family: var(--f-mono); font-size: 11.5px; color: var(--accent); white-space: nowrap; }
+    .term-input { flex: 1; min-width: 0; background: none; border: 0; outline: none; font-family: var(--f-mono); font-size: 11.5px; }
 
-    /* Top Navigation Bar */
-    header {
-      height: var(--header-h);
-      background: var(--solid);
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 18px;
-      flex: none;
-      z-index: 50;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: var(--f-display);
-      font-weight: 700;
-      font-size: 17px;
-      letter-spacing: -.02em;
-    }
-    .brand-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #0284C7, #38BDF8);
-      display: grid;
-      place-items: center;
-      font-size: 15px;
-      box-shadow: 0 4px 12px var(--accent-glow);
-    }
-    .tag-pill {
-      font-family: var(--f-mono);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-    .repo-pill {
-      font-family: var(--f-mono);
-      font-size: 12px;
-      color: var(--dim);
-      background: var(--lot);
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .btn-review-desk {
-      background: var(--accent);
-      color: var(--accent-ink);
-      font-family: var(--f-ui);
-      font-weight: 700;
-      font-size: 12.5px;
-      padding: 7px 14px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: filter .15s ease, transform .1s ease;
-    }
-    .btn-review-desk:hover { filter: brightness(1.1); transform: translateY(-1px); }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--ok);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--ok);
-      display: inline-block;
-    }
+    /* Agent panel */
+    #chat-panel { width: 318px; flex: none; display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 96%, var(--ink) 2%); }
+    .chat-header { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    .chat-avatar-badge { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 10px; background: var(--lot); border: 1px solid var(--line); overflow: hidden; }
+    .chat-agent-info { min-width: 0; }
+    .chat-agent-info h4 { font-family: var(--f-display); font-size: 17px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+    .chat-agent-info span { display: block; margin-top: 2px; font-size: 11.5px; color: var(--dim); }
+    .chat-thread { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .msg-bubble { font-size: 12.5px; line-height: 1.5; padding: 10px 12px; border-radius: 10px; max-width: 94%; overflow-wrap: anywhere; }
+    .msg-agent { background: var(--lot); border: 1px solid var(--line); align-self: flex-start; }
+    .msg-user { background: var(--accent); color: var(--accent-ink); align-self: flex-end; }
+    .capabilities-card { font-size: 12px; line-height: 1.7; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); color: var(--dim); overflow-wrap: anywhere; }
+    .capabilities-card b { display: block; margin-bottom: 3px; font-family: var(--f-mono); font-size: 9.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+    .capabilities-card code { color: var(--ink); }
+    .fact { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+    .fact span:last-child { color: var(--ink); font-weight: 600; text-align: right; }
+    .quick-chips { display: flex; flex-direction: column; gap: 6px; }
+    .chip { display: flex; align-items: center; gap: 8px; text-align: left; padding: 8px 11px; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--ink); transition: all .14s ease; }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+    .chat-input-area { padding: 10px 12px; border-top: 1px solid var(--line); }
+    .input-row { display: flex; align-items: center; gap: 6px; }
+    .chat-input { flex: 1; min-width: 0; padding: 8px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); font-size: 12.5px; outline: none; }
+    .chat-input:focus { border-color: var(--accent); }
+    .btn-action, .btn-send { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); color: var(--dim); }
+    .btn-action:hover { color: var(--accent); border-color: var(--accent); }
+    .btn-send { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 
-    /* Main Grid Viewport */
-    .viewport-container {
-      flex: 1;
-      display: flex;
-      position: relative;
-      overflow: hidden;
-    }
+    /* Dialogs */
+    .modal-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; background: color-mix(in srgb, var(--bg) 62%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .retro-modal-box { width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 16px; border: 1px solid var(--line2); background: var(--solid); box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .modal-head h3 { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+    .modal-head h3 .i { width: 19px; height: 19px; color: var(--accent); }
+    .relay-stages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .relay-node { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 11px 8px; border-radius: 10px; border: 1px solid var(--line); text-align: center; transition: all .2s ease; }
+    .relay-node.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 22px var(--accent-glow); }
+    .relay-node.done { border-color: var(--ok); background: var(--ok-bg); }
+    .relay-node.failed { border-color: var(--bad); background: var(--bad-bg); }
+    .node-icon { height: 40px; display: grid; place-items: center; }
+    .node-name { font-size: 12px; font-weight: 700; }
+    .node-role { font-size: 10.5px; color: var(--dim); }
 
-    /* Pixel Canvas Area */
-    .canvas-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      background: #060913;
-    }
-    .canvas-frame {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      padding: 10px;
-    }
-    #officeCanvas {
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .8), 0 0 0 1px var(--line);
-      max-width: 100%;
-      max-height: 100%;
-    }
+    .gen-file { margin-top: 6px; }
+    .gen-file summary { cursor: pointer; }
+    .gen-file pre { margin: 6px 0 2px; max-height: 240px; overflow: auto; padding: 8px 10px; font: 11px/1.5 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+    .gen-note { margin-top: 8px; font-size: 11px; line-height: 1.45; color: var(--dim); }
 
-    /* Quick Dispatch Command Bar at Bottom */
-    .bottom-command-bar {
-      height: 64px;
-      background: var(--solid);
-      border-top: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-      z-index: 20;
+    @media (max-width: 1160px) { #chat-panel { width: 280px; } #sidebar { width: 54px; } .nav-text { display: none; } .nav-item { justify-content: center; padding: 10px 0; } .token-badge { display: none; } }
+    @media (max-width: 768px) {
+      body { display: block; }
+      #sidebar { position: fixed; top: 0; bottom: 0; left: -210px; width: 190px; z-index: 60; background: var(--solid); } #sidebar.open { left: 0; }
+      .nav-text { display: inline; } .nav-item { justify-content: flex-start; padding: 9px 10px; }
+      .sidebar-overlay.active { display: block; position: fixed; inset: 0; z-index: 55; background: rgba(0, 0, 0, .5); }
+      #main-viewport { height: 54vh; } .mobile-menu-btn, .mobile-chat-toggle { display: inline-flex; }
+      .viewport-topbar { padding: 7px 10px; } .room-dropdown, .data-mode-badge { display: none; }
+      .office-canvas-frame { padding: 6px; }
+      #chat-panel { position: fixed; left: 0; right: 0; bottom: 0; width: auto; height: 46vh; border-left: 0; border-top: 1px solid var(--line2); z-index: 30; } #chat-panel.collapsed { display: none; }
+      #terminalDrawer { bottom: 0; height: 190px; } .working-counter { font-size: 0; } .working-counter b { font-size: 12px; }
     }
-    .input-wrapper {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .prompt-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--line2);
-      border-radius: 10px;
-      padding: 10px 14px;
-      padding-right: 110px;
-      color: var(--ink);
-      font-size: 13.5px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease;
-    }
-    .prompt-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-glow);
-    }
-    .btn-run-relay {
-      position: absolute;
-      right: 6px;
-      background: var(--accent);
-      color: var(--accent-ink);
-      font-size: 12px;
-      font-weight: 700;
-      border: none;
-      border-radius: 7px;
-      padding: 7px 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .quick-chips-row {
-      display: flex;
-      gap: 8px;
-    }
-    .quick-chip {
-      background: var(--lot);
-      border: 1px solid var(--line);
-      color: var(--dim);
-      font-size: 11.5px;
-      font-weight: 600;
-      padding: 6px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all .15s ease;
-    }
-    .quick-chip:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-soft);
-    }
-
-    /* Right Side Agent Activity / Feed */
-    .feed-panel {
-      width: var(--chat-w);
-      background: var(--solid);
-      border-left: 1px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      flex: none;
-    }
-    .feed-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .feed-header h3 {
-      font-family: var(--f-display);
-      font-size: 14px;
-      font-weight: 700;
-    }
-    .feed-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-family: var(--f-mono);
-      font-size: 11.5px;
-    }
-    .feed-item {
-      padding: 10px 12px;
-      border-radius: 8px;
-      background: var(--lot);
-      border: 1px solid var(--line);
-      line-height: 1.5;
-    }
-    .feed-agent-tag {
-      font-weight: 700;
-      display: inline-block;
-      margin-bottom: 4px;
-    }
-    .tag-apex { color: #818CF8; }
-    .tag-alpha { color: #38BDF8; }
-    .tag-gamma { color: #34D399; }
-    .tag-delta { color: #FBBF24; }
-    .tag-system { color: var(--dim); }
-
-    /* The Review Desk Modal */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(4, 7, 16, 0.75);
-      -webkit-backdrop-filter: blur(8px);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 20px;
-    }
-    .review-modal {
-      width: 880px;
-      max-width: 95vw;
-      max-height: 90vh;
-      background: var(--solid);
-      border: 1px solid var(--line2);
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--accent-glow);
-      overflow: hidden;
-    }
-    .modal-head {
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-head h2 {
-      font-family: var(--f-display);
-      font-size: 18px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .modal-body {
-      padding: 20px 22px;
-      overflow-y: auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .diff-block {
-      background: #060913;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: var(--f-mono);
-      font-size: 11px;
-      max-height: 260px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
-    .diff-add { color: var(--ok); background: rgba(52, 211, 153, 0.08); display: block; }
-    .diff-del { color: var(--bad); background: rgba(248, 113, 113, 0.08); display: block; }
-    .modal-foot {
-      padding: 14px 22px;
-      border-top: 1px solid var(--line);
-      background: var(--bg);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .btn-apply-direct {
-      background: var(--ok);
-      color: #04140D;
-      font-weight: 700;
-      font-size: 13px;
-      border: none;
-      padding: 9px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-rollback-direct {
-      background: transparent;
-      color: var(--dim);
-      border: 1px solid var(--line2);
-      font-size: 12px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .btn-close {
-      background: none;
-      border: none;
-      color: var(--dim);
-      font-size: 20px;
-      cursor: pointer;
-    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
   </style>
 </head>
 <body>
 
-  <!-- Top Header -->
-  <header>
-    <div class="brand">
-      <div class="brand-icon">🛡️</div>
-      <span>DevSquad Studio</span>
-      <span class="tag-pill">Autonomous Team</span>
-      <span class="repo-pill" id="repoPill">📁 devsquad</span>
-    </div>
-    <div class="header-actions">
-      <span style="font-size: 12px; color: var(--dim); font-family: var(--f-mono);">
-        <span class="status-dot"></span> <span id="modelTag">Ollama (qwen2.5-coder:7b)</span>
-      </span>
-      <button class="btn-review-desk" onclick="openReviewDesk()">
-        📋 The Review Desk <span id="stagedBadge" style="background:rgba(0,0,0,0.25);padding:1px 6px;border-radius:999px;font-size:11px;">1</span>
-      </button>
-    </div>
-  </header>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-office" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16v4M7 8.5h5M7 11.5h8"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M8 4v16M16 4v16M3 9h5M3 15h5M16 9h5M16 15h5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.600 2.700-6 6-6s6 2.400 6 6M16 4.800a3.500 3.500 0 0 1 0 6.400M18 14.500c1.900.8 3 2.800 3 5.500"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M8 16l4-5 3 3 5-7"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.500v9L12 21l-8-4.500v-9z"/><path d="M4 7.500l8 4.500 8-4.500M12 12v9"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM17 10h1.500a2.500 2.500 0 0 1 0 5H17M8 3v3M12 3v3"/></symbol>
+    <symbol id="i-mega" viewBox="0 0 24 24"><path d="M4 10v4l3 .5L18 19V5L7 9.500zM7 14.500l1.500 5H11l-1-4.500M21 10v4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.500-3.200 7.700-8 9-4.800-1.300-8-4.500-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M5.600 18.400l2.100-2.100M16.300 7.700l2.100-2.100"/></symbol>
+    <symbol id="i-exit" viewBox="0 0 24 24"><path d="M10 3H5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h5M20 12H9M16 8l4 4-4 4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.700 3h10.600a2 2 0 0 0 1.700-3l-5-9V3M7.500 15h9"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-6z"/><path d="M11 14l9-10"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 10-13h-7z"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.500"/><path d="M7 9l3.500 3L7 15M13 15h4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  </svg>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 
-  <!-- Studio Viewport Grid -->
-  <div class="viewport-container">
-    
-    <!-- Left: Authentic Pixel Office Viewport -->
-    <div class="canvas-wrap">
-      <div class="canvas-frame">
-        <canvas id="officeCanvas" width="480" height="270"></canvas>
-      </div>
+  <!-- LEFT SIDEBAR -->
+  <aside id="sidebar" aria-label="Virtual Office Navigation">
+    <div class="nav-item active" role="button" tabindex="0" onclick="switchNav(this, 'office')" onkeydown="if(event.key==='Enter'||event.key===' ')switchNav(this, 'office')">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-office"/></svg></span> <span class="nav-text">Office HQ</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="openReplayModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openReplayModal()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg></span> <span class="nav-text">Session Replay</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="switchNav(this, 'agents')" onkeydown="if(event.key==='Enter'||event.key===' ')switchNav(this, 'agents')">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></span> <span class="nav-text">AI Agents</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="switchNav(this, 'projects')" onkeydown="if(event.key==='Enter'||event.key===' ')switchNav(this, 'projects')">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg></span> <span class="nav-text">Projects</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="switchNav(this, 'storage')" onkeydown="if(event.key==='Enter'||event.key===' ')switchNav(this, 'storage')">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg></span> <span class="nav-text">Storage Room</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="triggerCoffeeBreak()" onkeydown="if(event.key==='Enter'||event.key===' ')triggerCoffeeBreak()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-cup"/></svg></span> <span class="nav-text">Coffee Break</span>
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="triggerMeeting()" onkeydown="if(event.key==='Enter'||event.key===' ')triggerMeeting()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-mega"/></svg></span> <span class="nav-text">All-Hands</span>
+    </div>
+    <div class="nav-item" id="nav-safety" role="button" tabindex="0" onclick="toggleSafetyMode()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleSafetyMode()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></span> <span class="nav-text">Safety Fence</span>
+    </div>
 
-      <!-- Bottom Dispatcher -->
-      <div class="bottom-command-bar">
-        <div class="input-wrapper">
-          <input type="text" id="goalInput" class="prompt-input" placeholder="Dispatch a feature to your squad (e.g., 'Add JWT refresh rotation with tests')..." />
-          <button class="btn-run-relay" onclick="dispatchGoal()">▶ Run Relay</button>
+    <div class="sidebar-spacer"></div>
+
+    <div class="nav-item" role="button" tabindex="0" onclick="openSettingsModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openSettingsModal()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></span> <span class="nav-text">Settings</span>
+    </div>
+    <div class="nav-item logout" role="button" tabindex="0" onclick="exitOffice()" onkeydown="if(event.key==='Enter'||event.key===' ')exitOffice()">
+      <span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-exit"/></svg></span> <span class="nav-text">Exit Office</span>
+    </div>
+  </aside>
+
+  <!-- CENTER MAIN VIEWPORT -->
+  <main id="main-viewport">
+    <div class="viewport-topbar">
+      <div class="tb-group">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Toggle navigation menu"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+        <div class="company-title">
+          DevSquad Studio <span class="token-badge" id="topTokenBadge">$0.00 · 0 tokens</span>
+          <span class="data-mode-badge" id="dataModeBadge">Your data</span>
         </div>
-        <div class="quick-chips-row">
-          <button class="quick-chip" onclick="quickFill('Add healthcheck endpoint with tests')">⚡ Healthcheck</button>
-          <button class="quick-chip" onclick="quickFill('Add rate limiting middleware')">🛡️ Rate Limiter</button>
-          <button class="quick-chip" onclick="quickFill('Refactor DB connection pool')">📦 DB Pool</button>
-        </div>
+      </div>
+      <div class="tb-group">
+        <button class="mobile-chat-toggle" onclick="toggleMobileChat()"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>Chat</button>
+        <div class="room-dropdown" id="roomSelector" onclick="toggleFloorSelector()" role="button" tabindex="0" title="Call everyone to the War Room or send them back">Work floor</div>
+        <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>The Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
+        <button class="action-pill-btn" onclick="openReplayModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Replay</button>
+        <button class="action-pill-btn primary" onclick="openRelayModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Run a relay</button>
       </div>
     </div>
 
-    <!-- Right: Real-time Relay Feed -->
-    <div class="feed-panel">
-      <div class="feed-header">
-        <h3>⚡ Real-Time Relay Feed</h3>
-        <span style="font-size: 11px; color: var(--accent); font-family: var(--f-mono);">Live SSE</span>
-      </div>
-      <div class="feed-list" id="feedList">
-        <div class="feed-item">
-          <span class="feed-agent-tag tag-system">[System]</span><br>
-          DevSquad initialized. Apex, Alpha, Gamma, and Delta are standing by at their desks.
+    <div class="office-canvas-frame">
+      <canvas id="officeCanvas" width="840" height="520" role="img" aria-label="DevSquad 2D Pixel Office floorplan showing desks for Apex, Alpha BE, Beta FE, Gamma QA, Delta DevOps, Zeta Docs, and Director"></canvas>
+    </div>
+
+    <!-- Slide-Up Terminal Drawer -->
+    <div id="terminalDrawer">
+      <div class="term-header">
+        <span>Terminal and agent logs <span id="daemonBadge" style="margin-left:8px;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--lot);color:var(--dim);">Checking…</span></span>
+        <div style="display:flex;gap:8px;">
+          <button class="term-toggle-btn" onclick="clearTermLogs()">Clear</button>
+          <button class="term-toggle-btn" onclick="toggleTerminal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
         </div>
+      </div>
+      <div class="term-logs" id="termLogs">
+        <div class="term-line info">[System] DevSquad autonomous agents ready. Type 'help' for commands.</div>
+      </div>
+      <div class="term-input-row">
+        <span class="term-prompt">user@devsquad:~$</span>
+        <input type="text" class="term-input" id="termInput" placeholder="e.g. 'pipeline UserAuth', 'status', 'spend', 'tools'" onkeydown="if(event.key==='Enter') execTerminal()">
       </div>
     </div>
 
-  </div>
+    <div class="viewport-bottombar">
+      <div class="energy-bar-wrap">
+        <span class="energy-label">AI health</span>
+        <div class="energy-track">
+          <div class="energy-fill" id="energyFill" style="width:90%;"></div>
+        </div>
+        <span class="energy-text pixel-font" id="energyText">90 / 100</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button class="term-toggle-btn" onclick="toggleTerminal()"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg>Terminal</button>
+        <div class="working-counter pixel-font">
+          On real tasks <b id="workingCount">0 of 6</b>
+        </div>
+      </div>
+    </div>
+  </main>
 
-  <!-- Review Desk Modal -->
-  <div class="modal-backdrop" id="reviewModal">
-    <div class="review-modal">
+  <!-- RIGHT CHAT / AGENT INSPECTOR PANEL -->
+  <aside id="chat-panel" aria-label="Agent Chat and Inspector Panel">
+    <div class="chat-header">
+      <div class="chat-avatar-badge" id="chatAvatar"></div>
+      <div class="chat-agent-info">
+        <h4 id="chatName">Apex</h4>
+        <span id="chatRole">Tech Lead & System Architect</span>
+      </div>
+    </div>
+
+    <div class="chat-thread" id="chatThread">
+      <div class="msg-bubble msg-agent">
+        I am currently available. What would you like to build or verify today?
+      </div>
+      <div class="quick-chips">
+        <button class="chip" onclick="quickPrompt('Scaffold User Authentication API with zero-downtime DDL')">
+          Scaffold User API with rollback DDL
+        </button>
+        <button class="chip" onclick="quickPrompt('Scan diff for AST test gaps and generate test suites')">
+          Run Sentinel AST Test-Gap Scan
+        </button>
+        <button class="chip" onclick="quickPrompt('Generate Docker container with unprivileged user')">
+          Build Non-Root Docker Pipeline
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-row">
+        <input type="text" class="chat-input" id="taskInput" placeholder="Type a message or prompt..." onkeydown="if(event.key==='Enter') sendTaskPrompt()">
+        <button class="btn-action" title="Add a schema or document" aria-label="Add a schema or document" onclick="quickPrompt('Attach Database Schema')"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg></button>
+        <button class="btn-action" title="Add test context" aria-label="Add test context" onclick="quickPrompt('Verify against Testcontainers')"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg></button>
+        <button class="btn-send" onclick="sendTaskPrompt()" aria-label="Send"><svg class="i" aria-hidden="true"><use href="#i-send"/></svg></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Safety Permission Modal -->
+  <div class="modal-overlay" id="safetyModal">
+    <div class="retro-modal-box" style="border-color:var(--warn);">
       <div class="modal-head">
-        <h2>📋 The Review Desk (Staged Task)</h2>
-        <button class="btn-close" onclick="closeReviewDesk()">✕</button>
+        <h3><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>An agent needs your approval</h3>
+        <button class="term-toggle-btn" onclick="closeSafetyModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </div>
-      <div class="modal-body" id="modalContent">
-        <div style="color:var(--dim); font-size:13px; text-align:center; padding: 30px;">
-          Loading staged task details...
+      <div style="font-size:12px;line-height:1.6;color:var(--ink);">
+        An autonomous agent is requesting permission to execute a sensitive operation:
+        <div style="margin:10px 0;padding:10px;background:var(--lot2);border:1px solid var(--line);border-radius:6px;font-family:var(--f-mono);" id="safetyCommand">
+          DROP TABLE legacy_users;
+        </div>
+        <div style="color:var(--warn);font-size:11px;" id="safetyReason">
+          Reason: Destructive DROP TABLE DDL requires human sign-off.
         </div>
       </div>
-      <div class="modal-foot">
-        <button class="btn-rollback-direct" onclick="rollbackTask()">↺ Rollback Backup</button>
-        <button class="btn-apply-direct" onclick="applyTask()">✓ Apply Changes to Codebase</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+        <label style="font-size:11px;color:var(--dim);cursor:pointer;">
+          <input type="checkbox" id="autoApproveCheck"> Remember: auto-approve for session
+        </label>
+        <div style="display:flex;gap:8px;">
+          <button style="background:var(--bad);color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer;" onclick="resolveSafety(false)">Block Action</button>
+          <button style="background:var(--ok);color:#06140E;border:none;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer;" onclick="resolveSafety(true)">Approve Action</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Pixel Canvas Engine (DevCity-Style Pixel Art Architecture) -->
+  <!-- 6-Stage Feature Relay Modal -->
+  <div class="modal-overlay" id="relayModal">
+    <div class="retro-modal-box">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Run a feature relay</h3>
+        <button class="term-toggle-btn" onclick="closeRelayModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;color:var(--ink);">
+        Sends one feature through all six agents, one after another.
+      </div>
+      <div class="relay-stages-grid" id="relayStagesGrid">
+        <div class="relay-node" id="node-apex"><div class="node-icon"></div><div class="node-name">1. Apex</div><div class="node-role">Spec & Architecture</div></div>
+        <div class="relay-node" id="node-alpha_be"><div class="node-icon"></div><div class="node-name">2. Alpha BE</div><div class="node-role">DB Schema & API</div></div>
+        <div class="relay-node" id="node-beta_fe"><div class="node-icon"></div><div class="node-name">3. Beta FE</div><div class="node-role">React UI & Hooks</div></div>
+        <div class="relay-node" id="node-gamma_qa"><div class="node-icon"></div><div class="node-name">4. Gamma QA</div><div class="node-role">QA & Test Suite</div></div>
+        <div class="relay-node" id="node-delta_devops"><div class="node-icon"></div><div class="node-name">5. Delta DevOps</div><div class="node-role">Docker & CI/CD</div></div>
+        <div class="relay-node" id="node-zeta_docs"><div class="node-icon"></div><div class="node-name">6. Zeta Docs</div><div class="node-role">API Guides & Notes</div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="relayFeatureInput" class="chat-input" placeholder="Feature Name" value="Stripe Billing & Webhooks">
+        <select id="relayPlaybookSelect" style="background:var(--lot);border:1px solid var(--line);color:var(--ink);padding:8px;border-radius:6px;font-size:11px;">
+          <option value="react-springboot-postgres">React 19 + Spring Boot 3</option>
+          <option value="python-fastapi">Python 3.12 FastAPI</option>
+          <option value="nextjs-fullstack">Next.js 15 Fullstack</option>
+        </select>
+        <button class="action-pill-btn" onclick="startFeatureRelay()" id="btnStartRelay" style="font-size:11px;padding:8px 14px;">Launch</button>
+      </div>
+      <div id="relayStatusText" style="font-size:11px;color:var(--accent);font-family:var(--f-mono);"></div>
+    </div>
+  </div>
+
+  <!-- The Review Desk: Staging, Diffs & Auto-Healing Modal -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="retro-modal-box" style="max-width:880px;width:95%;max-height:88vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>The Review Desk · Quarantined Staging Deck</h3>
+        <button class="term-toggle-btn" onclick="closeReviewDesk()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">
+        Review quarantined multi-agent patches, auto-healing test results, and diffs before applying to your workspace.
+      </div>
+      <div style="display:flex;gap:12px;flex:1;min-height:360px;overflow:hidden;">
+        <!-- Left: Task list -->
+        <div style="width:260px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--lot);display:flex;flex-direction:column;overflow:hidden;">
+          <div style="padding:8px 10px;font-weight:600;font-size:11px;border-bottom:1px solid var(--line);background:var(--lot2);display:flex;justify-content:space-between;align-items:center;">
+            <span>STAGED RUNS (<span id="reviewTaskListCount">0</span>)</span>
+            <button class="term-toggle-btn" onclick="loadReviewTasks()" style="font-size:10px;padding:2px 6px;">Refresh</button>
+          </div>
+          <div id="reviewTaskList" style="flex:1;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:6px;">
+            <div style="padding:12px;text-align:center;color:var(--dim);font-size:11px;">No staged tasks found.</div>
+          </div>
+        </div>
+        <!-- Right: Task details and diffs -->
+        <div id="reviewTaskDetail" style="flex:1;border:1px solid var(--line);border-radius:8px;background:var(--lot);display:flex;flex-direction:column;overflow-y:auto;padding:12px;">
+          <div style="text-align:center;color:var(--dim);margin:auto;font-size:12px;">Select a staged task from the left to inspect diffs and test results.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="retro-modal-box">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg>Office settings</h3>
+        <button class="term-toggle-btn" onclick="closeSettingsModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;line-height:1.7;color:var(--ink);display:flex;flex-direction:column;gap:12px;">
+        <label style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:10px 12px;border-radius:8px;">
+          <div>
+            <b>Data Source Mode</b>
+            <div style="font-size:11px;color:var(--dim);">Load real local usage data vs mock sample</div>
+          </div>
+          <select id="settingDataMode" style="background:var(--lot2);border:1px solid var(--line);color:var(--accent);padding:6px 10px;border-radius:6px;font-size:11px;" onchange="saveSettings()">
+            <option value="real">Real Local Data</option>
+            <option value="sample">Sample Demo Data</option>
+          </select>
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:10px 12px;border-radius:8px;cursor:pointer;">
+          <div>
+            <b>Anonymize Project Names</b>
+            <div style="font-size:11px;color:var(--dim);">Mask repo names to Project A, B for screenshots</div>
+          </div>
+          <input type="checkbox" id="settingAnonymize" onchange="saveSettings()">
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:10px 12px;border-radius:8px;cursor:pointer;">
+          <div>
+            <b>Safety Fence Auto-Approve</b>
+            <div style="font-size:11px;color:var(--dim);">Skip manual approval on sensitive actions</div>
+          </div>
+          <input type="checkbox" id="settingAutoSafety" onchange="saveSettings()">
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:10px 12px;border-radius:8px;cursor:pointer;">
+          <div>
+            <b>Typing Animations & Motion</b>
+            <div style="font-size:11px;color:var(--dim);">Enable character bounce and activity states</div>
+          </div>
+          <input type="checkbox" id="settingAnimations" checked onchange="saveSettings()">
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+        <button class="action-pill-btn" onclick="closeSettingsModal()" style="font-size:11px;padding:8px 16px;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AgentOps-Style Session Replay & Counterfactual Cost Modal -->
+  <div class="modal-overlay" id="replayModal">
+    <div class="retro-modal-box" style="width:720px;max-width:95vw;max-height:90vh;overflow-y:auto;border-color:var(--accent);">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Session replay</h3>
+        <button class="term-toggle-btn" onclick="closeReplayModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label style="font-size:11px;color:var(--dim);">Select Session:</label>
+        <select id="replaySessionSelect" style="flex:1;background:var(--lot);border:1px solid var(--line);color:var(--accent);padding:6px 10px;border-radius:6px;font-size:11px;" onchange="loadSelectedSessionReplay(this.value)">
+          <option value="">Loading sessions...</option>
+        </select>
+        <button class="action-pill-btn" onclick="refreshReplaySessions()" style="font-size:10px;padding:4px 10px;">↻ Refresh</button>
+      </div>
+
+      <!-- Session Meta Bar -->
+      <div id="replayMetaBar" style="display:flex;justify-content:space-between;background:var(--lot);padding:8px 12px;border-radius:6px;font-size:11px;border:1px solid var(--line);">
+        <div><b>Source:</b> <span id="replaySource">-</span></div>
+        <div><b>Total Steps:</b> <span id="replayTotalSteps">-</span></div>
+        <div><b>Total Tokens:</b> <span id="replayTotalTokens" style="color:var(--accent);">-</span></div>
+        <div><b>Actual Cost:</b> <span id="replayActualCost" style="color:var(--ok);font-weight:700;">$0.00</span></div>
+      </div>
+
+      <!-- Scrubber & Controls -->
+      <div style="background:var(--lot);padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+          <span style="font-weight:700;color:var(--ink);">Timeline Scrubber</span>
+          <span id="replayStepLabel" style="font-family:var(--f-mono);color:var(--accent);">Step 1 of 1</span>
+        </div>
+        <input type="range" id="replayScrubber" min="1" max="1" value="1" style="width:100%;accent-color:var(--accent);cursor:pointer;" oninput="onReplayScrub(parseInt(this.value))">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;gap:6px;">
+            <button class="action-pill-btn" id="btnReplayPlay" onclick="toggleReplayPlay()" style="font-size:11px;padding:4px 10px;">Play</button>
+            <button class="action-pill-btn" onclick="stepReplay(-1)" style="font-size:10px;padding:4px 8px;">Previous</button>
+            <button class="action-pill-btn" onclick="stepReplay(1)" style="font-size:10px;padding:4px 8px;">Next</button>
+          </div>
+          <div id="replayProviderTag" style="font-size:10px;color:var(--dim);font-family:var(--f-mono);"></div>
+        </div>
+      </div>
+
+      <!-- Active Step Execution Card -->
+      <div id="replayActiveStepCard" style="background:var(--lot2);border:1px solid var(--accent);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="replayStepAgentAvatar"></span>
+            <div>
+              <b id="replayStepAgentName" style="color:var(--ink);font-size:12px;">Agent</b>
+              <div id="replayStepTool" style="font-size:10px;color:var(--dim);font-family:var(--f-mono);">tool_action</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div id="replayStepCost" style="font-weight:700;color:var(--ok);font-size:12px;">$0.0000</div>
+            <div id="replayStepDuration" style="font-size:10px;color:var(--dim);">0.0s</div>
+          </div>
+        </div>
+        <!-- Mini Token breakdown bar -->
+        <div style="display:flex;gap:8px;font-size:10px;font-family:var(--f-mono);color:var(--ink);border-top:1px solid var(--line);padding-top:6px;">
+          <div>In: <span id="replayStepIn">0</span></div>
+          <div>Out: <span id="replayStepOut">0</span></div>
+          <div>Cache: <span id="replayStepCache">0</span></div>
+          <div style="margin-left:auto;">Model: <span id="replayStepModel" style="color:var(--accent);">-</span></div>
+        </div>
+      </div>
+
+      <!-- Counterfactual "What would this have cost?" Section -->
+      <div style="background:var(--lot);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <b style="font-size:12px;color:var(--accent);">What would this have cost?</b>
+          <span style="font-size:10px;color:var(--dim);">Same tokens, other models</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;font-size:10px;border-collapse:collapse;text-align:left;" id="replayWhatIfTable">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line);color:var(--dim);">
+                <th style="padding:4px 6px;">Model</th>
+                <th style="padding:4px 6px;">Est. Cost</th>
+                <th style="padding:4px 6px;">Variance vs Current</th>
+              </tr>
+            </thead>
+            <tbody id="replayWhatIfBody">
+              <tr><td colspan="3" style="padding:6px;color:var(--dim);">Select a session to calculate estimates...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:9px;color:var(--faint);">* Figures are estimates based on published API list prices per 1M tokens.</div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+        <button class="action-pill-btn" onclick="closeReplayModal()" style="font-size:11px;padding:6px 16px;">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const canvas = document.getElementById("officeCanvas");
-    const g = canvas.getContext("2d");
-    const W = 480, H = 270;
-    let tick = 0;
-    let currentTaskId = null;
+    const ctx = canvas.getContext("2d");
+    let dpr = 1;
 
-    // Helper draw functions
-    function R(ctx, color, x, y, w, h) {
-      ctx.fillStyle = color;
-      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
-    }
-    function shade(hex, factor) {
-      if (!hex || hex.startsWith("rgba")) return hex;
-      let c = parseInt(hex.slice(1), 16);
-      let r = Math.min(255, Math.floor(((c >> 16) & 255) * factor));
-      let g = Math.min(255, Math.floor(((c >> 8) & 255) * factor));
-      let b = Math.min(255, Math.floor((c & 255) * factor));
-      return `rgb(${r},${g},${b})`;
-    }
-
-    // 4 Specialized DevSquad Personas
+    // The team, and where each person sits on the floor plan
     const AGENTS = {
-      apex: {
-        id: "apex", name: "Apex (Architect)",
-        x: 100, y: 110, deskX: 100, deskY: 100,
-        skin: "#FFD0A8", hair: "#2C2018", shirt: "#818CF8", pants: "#1E1B4B",
-        style: "neat", glasses: true,
-        task: "idle", bubble: "Architecture ready."
-      },
-      alpha: {
-        id: "alpha", name: "Alpha (Engineer)",
-        x: 210, y: 110, deskX: 210, deskY: 100,
-        skin: "#E0AC69", hair: "#1A1A1A", shirt: "#38BDF8", pants: "#0F172A",
-        style: "curly", headphones: true,
-        task: "idle", bubble: "Writing clean code."
-      },
-      gamma: {
-        id: "gamma", name: "Gamma (QA Specialist)",
-        x: 320, y: 110, deskX: 320, deskY: 100,
-        skin: "#F5D0A9", hair: "#9A3412", shirt: "#34D399", pants: "#064E3B",
-        style: "long", glasses: true,
-        task: "idle", bubble: "Tests running."
-      },
-      delta: {
-        id: "delta", name: "Delta (DevOps)",
-        x: 410, y: 110, deskX: 410, deskY: 100,
-        skin: "#C68642", hair: "#1C1917", shirt: "#FBBF24", pants: "#3F2C10",
-        style: "cap", accent: "#F97316",
-        task: "idle", bubble: "Branches synced."
-      }
+      apex: { id: "apex", name: "Apex", role: "Tech Lead & System Architect", shirtColor: "#3B82F6", pants: "#252B3D", skin: "#E0A97E", hair: "#2A2320", style: "neat", glasses: true, tie: "#FFC56E", accent: "#FFC56E", deskX: 180, deskY: 190, speech: "Ready to plan. What should we build?", tokens: 0, state: "idle" },
+      alpha_be: { id: "alpha_be", name: "Alpha BE", role: "Backend & API Specialist", shirtColor: "#8B5CF6", pants: "#2D3346", skin: "#8D5A3B", hair: "#17130F", style: "beard", hoodie: true, accent: "#D6C8FF", deskX: 340, deskY: 190, speech: "Backend and database ready.", tokens: 0, state: "idle" },
+      beta_fe: { id: "beta_fe", name: "Beta FE", role: "Frontend & UI Engineer", shirtColor: "#06B6D4", pants: "#3A3F55", skin: "#F1C9A5", hair: "#7A3B1E", style: "long", headphones: true, accent: "#FF7F76", deskX: 500, deskY: 190, speech: "Frontend ready.", tokens: 0, state: "idle" },
+      gamma_qa: { id: "gamma_qa", name: "Gamma QA", role: "QA & Test Automation", shirtColor: "#10B981", pants: "#2F3A4A", skin: "#B97F55", hair: "#101114", style: "curly", lanyard: true, accent: "#B8FFDF", deskX: 180, deskY: 350, speech: "Tests ready to run.", tokens: 0, state: "idle" },
+      zeta_docs: { id: "zeta_docs", name: "Zeta", role: "Docs & Technical Writer", shirtColor: "#EAB308", pants: "#3C2F4F", skin: "#6F4A33", hair: "#1E1410", style: "bun", glasses: true, accent: "#FFF6E2", deskX: 340, deskY: 350, speech: "Docs ready.", tokens: 0, state: "idle" },
+      delta_devops: { id: "delta_devops", name: "Delta", role: "DevOps & CI/CD Runner", shirtColor: "#F97316", pants: "#22293A", skin: "#E8B48C", hair: "#C2691F", style: "beanie", vest: true, accent: "#2F6FB0", deskX: 500, deskY: 350, speech: "CI and releases ready.", tokens: 0, state: "idle" },
+      you: { id: "you", name: "You", role: "Engineering Director", shirtColor: "#E5484D", pants: "#1F2536", skin: "#C98F65", hair: "#1B1512", style: "cap", accent: "#E5484D", deskX: 634, deskY: 184, speech: "Running the show", tokens: 0, state: "idle", isUser: true }
     };
 
-    // Draw Room Background (Isometric Parquet Tiles, Walls, Windows)
-    function drawRoom() {
-      // Upper Wall
-      R(g, "#1E293B", 0, 0, W, 50);
-      R(g, "#0F172A", 0, 48, W, 2);
 
-      // Windows with city glow
-      [50, 180, 310].forEach(wx => {
-        R(g, "#0A1124", wx, 8, 70, 32);
-        R(g, "#38BDF8", wx + 2, 10, 66, 28);
-        R(g, "#0A1124", wx + 33, 10, 4, 28);
-        R(g, "#0A1124", wx + 2, 22, 66, 4);
-      });
+    let selectedAgentId = "apex";
+    let isMeetingMode = false;
+    let isAutoSafety = false;
+    let tick = 0;
+    let hasLiveDaemon = false;
 
-      // Whiteboard in meeting area
-      R(g, "#F8FAFC", 140, 10, 80, 30);
-      R(g, "#64748B", 138, 8, 84, 2);
-      R(g, "#64748B", 138, 38, 84, 2);
-      // Sketch on whiteboard
-      R(g, "#38BDF8", 148, 16, 20, 8);
-      R(g, "#818CF8", 175, 16, 16, 8);
-      R(g, "#34D399", 196, 20, 14, 12);
-      R(g, "#94A3B8", 168, 20, 7, 2);
+    // Real Data Adapter & Office Metrics State
+    let officeMetrics = {
+      isSampleData: true,
+      totalCost: 0,
+      totalTokens: 0,
+      cacheSaved: 0,
+      cacheHitRate: 0.85,
+      activeHours: 0,
+      healthScore: 90,
+      tools: [],
+      projects: [],
+      raw: null
+    };
 
-      // Parquet Wooden Floor Tiles
-      for (let y = 50; y < H; y += 16) {
-        for (let x = 0; x < W; x += 32) {
-          const alt = ((x / 32) + (y / 16)) % 2 === 0;
-          R(g, alt ? "#0F172A" : "#131C35", x, y, 32, 16);
-          R(g, "rgba(255,255,255,0.02)", x, y, 32, 1);
-          R(g, "rgba(0,0,0,0.25)", x, y + 15, 32, 1);
+    function formatNumber(num) {
+      if (!num || isNaN(num)) return "0";
+      if (num >= 1e9) return (num / 1e9).toFixed(1) + "B";
+      if (num >= 1e6) return (num / 1e6).toFixed(0) + "M";
+      if (num >= 1e3) return (num / 1e3).toFixed(1) + "k";
+      return Math.round(num).toString();
+    }
+
+    function formatMoney(amount) {
+      if (amount === undefined || amount === null || isNaN(amount)) return "$0.00";
+      return "$" + Number(amount).toFixed(2);
+    }
+
+    function getAnonymizedProjectName(name, index) {
+      const isAnon = localStorage.getItem("devcity_anonymize") === "true";
+      if (!isAnon) return name;
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      return `Project ${letters[index % letters.length] || (index + 1)}`;
+    }
+
+    async function loadOfficeUsageData() {
+      const mode = localStorage.getItem("devcity_data_mode") || "real";
+      let data = null;
+
+      // 1. Try real local usage first if requested
+      if (mode === "real") {
+        try {
+          const res = await fetch("data/usage.json");
+          if (res.ok) {
+            data = await res.json();
+            if (data.totals && data.projects && data.projects.length > 0) {
+              officeMetrics.isSampleData = !!data._sample;
+            } else {
+              data = null; // empty local data, fallback
+            }
+          }
+        } catch (e) {
+          data = null;
         }
       }
 
-      // Large Rug under workstations
-      R(g, "#1E294A", 40, 85, 400, 140);
-      R(g, "#2C3C68", 42, 87, 396, 136);
+      // 2. Fall back to sample data if real data failed or sample mode requested
+      if (!data) {
+        try {
+          const res = await fetch("data/sample-usage.json");
+          if (res.ok) {
+            data = await res.json();
+            officeMetrics.isSampleData = true;
+          }
+        } catch (e) {
+          data = null;
+        }
+      }
 
-      // Plants in corners
-      drawPlant(16, 60);
-      drawPlant(450, 60);
-      drawPlant(16, 220);
-      drawPlant(450, 220);
+      // 3. Fallback defaults if static offline with no files
+      if (!data) {
+        data = {
+          mock: true,
+          totals: {
+            costUSD: 45.20,
+            tokens: { input: 1200000, output: 400000, cacheRead: 14000000, cacheWrite: 2000000 },
+            costSavedUSD: 38.50,
+            cacheHitRate: 0.88,
+            activeHours: 24.5,
+            toolCalls: 1850
+          },
+          tools: [["Bash", 650], ["Read", 420], ["Edit", 310], ["run_command", 280]],
+          projects: [{ id: "demo-app", name: "demo-app", costUSD: 45.20, tokens: { input: 1200000, output: 400000 } }]
+        };
+        officeMetrics.isSampleData = true;
+      }
 
-      // Water cooler & coffee machine
-      drawWaterCooler(16, 140);
+      officeMetrics.raw = data;
+      const t = data.totals || {};
+      const tk = t.tokens || {};
+      const totalTokens = (tk.input || 0) + (tk.output || 0) + (tk.cacheRead || 0) + (tk.cacheWrite || 0);
+      const totalCost = t.costUSD || 0;
+      const cacheSaved = t.costSavedUSD || 0;
+      const cacheHit = t.cacheHitRate || (totalTokens ? (tk.cacheRead || 0) / ((tk.input || 0) + (tk.cacheRead || 0) + (tk.cacheWrite || 0)) : 0.85);
+      const leaks = (data.projects || []).filter(p => p.cacheLeak);
+      const healthScore = Math.round(Math.max(10, Math.min(100, (cacheHit * 100) - (leaks.length * 8))));
+
+      officeMetrics.totalCost = totalCost;
+      officeMetrics.totalTokens = totalTokens;
+      officeMetrics.cacheSaved = cacheSaved;
+      officeMetrics.cacheHitRate = cacheHit;
+      officeMetrics.healthScore = healthScore;
+      officeMetrics.activeHours = t.activeHours || 0;
+      officeMetrics.tools = data.tools || [];
+      officeMetrics.projects = data.projects || [];
+
+      // Update Topbar Token Badge
+      const topBadge = document.getElementById("topTokenBadge");
+      if (topBadge) {
+        topBadge.textContent = `${formatMoney(totalCost)} · ${formatNumber(totalTokens)} tokens`;
+      }
+
+      // Update Data Mode Badge
+      const modeBadge = document.getElementById("dataModeBadge");
+      if (modeBadge) {
+        if (officeMetrics.isSampleData) {
+          modeBadge.className = "data-mode-badge sample";
+          modeBadge.textContent = "Sample data";
+          modeBadge.title = "Viewing sample demonstration dataset. Switch to Real Local Data in Settings.";
+        } else {
+          modeBadge.className = "data-mode-badge";
+          modeBadge.textContent = "Your data";
+          modeBadge.title = "Grounded in active local AI developer usage metrics (data/usage.json)";
+        }
+      }
+
+      // Update Energy Bar
+      const energyFill = document.getElementById("energyFill");
+      const energyText = document.getElementById("energyText");
+      if (energyFill && energyText) {
+        energyFill.style.width = `${healthScore}%`;
+        if (healthScore >= 80) energyFill.style.background = "var(--ok)";
+        else if (healthScore >= 60) energyFill.style.background = "var(--warn)";
+        else energyFill.style.background = "var(--bad)";
+        energyText.textContent = `${healthScore} / 100`;
+      }
+
+      // What each agent is responsible for. Tokens and cost only come from real office runs.
+      const agentFocus = {
+        apex: "Architecture and planning",
+        alpha_be: "Database schemas and APIs",
+        beta_fe: "Screens and components",
+        gamma_qa: "Tests and quality checks",
+        delta_devops: "CI, containers and releases",
+        zeta_docs: "Guides and release notes"
+      };
+      Object.entries(agentFocus).forEach(([id, focus]) => { if (AGENTS[id]) AGENTS[id].focus = focus; });
+
+
+      // Refresh currently selected agent card
+      selectAgent(selectedAgentId);
     }
 
-    function drawPlant(x, y) {
-      R(g, "#78350F", x, y + 10, 14, 12);
-      R(g, "#92400E", x - 1, y + 8, 16, 3);
-      R(g, "#166534", x - 2, y, 18, 10);
-      R(g, "#22C55E", x + 1, y - 4, 12, 8);
+    /* ---------- Pixel Office: real pixel people living a working day ---------- */
+    const W = 840, H = 520, LW = 420, LH = 260, UP = 4;
+    let viewScale = 1, lastFrame = 0, frameScale = 1, wbInk = 0, wbBusy = null;
+    const fgCanvas = document.createElement("canvas"); fgCanvas.width = LW; fgCanvas.height = LH;
+    const fg = fgCanvas.getContext("2d");
+    const upCanvas = document.createElement("canvas"); upCanvas.width = LW * UP; upCanvas.height = LH * UP;
+    const up = upCanvas.getContext("2d"); up.imageSmoothingEnabled = false;
+    const hashStr = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+    const seeded = (seed) => () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16); const ch = (v) => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, "0"); return "#" + ch(n >> 16) + ch((n >> 8) & 255) + ch(n & 255); };
+    const R = (g, c, x, y, w, h) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
+    const isNight = () => document.documentElement.getAttribute("data-theme") !== "light";
+    const between = (a, b) => a + Math.random() * (b - a);
+    const WINDOWS = [[46, 72], [124, 72]];
+
+    const PAL = {
+      dark: { wall: "#1A2136", wall2: "#232C47", trim: "#0B0F1C", wood1: "#2B2533", wood2: "#262030", seam: "#1B1722", carpet: "#1C2640", carpet2: "#202B49", carpetEdge: "#34426B", tile: "#20192E", tile2: "#2A2138", glass: "rgba(125,170,255,.2)", glassEdge: "#5A6C9E", desk: "#6B5240", desk2: "#7C6049", deskFront: "#3B2C24", metal: "#39435F", metal2: "#5B6890", sky1: "#090D22", sky2: "#141A3C", sky3: "#2A2B5C", city: "#0A0E20", city2: "#10152B", win: "#FFD08A", sofa: "#2C4A6E", sofa2: "#3B6189", table: "#5A3F27", table2: "#83603F", rug: "#3C2B4D", rug2: "#4B3660", leaf: "#1F7F5C", leaf2: "#31A67B", pot: "#8A5A3A", shelf: "#463225", screen: "#080B16", counter: "#2A3048", paper: "#C9CEDC", shadow: "rgba(0,0,0,.35)", chair: "#141927", chair2: "#2B3350", board: "#D6DCE6", bin: "#262C42", box: "#7A5C3C" },
+      light: { wall: "#EFE6D4", wall2: "#E2D6BF", trim: "#8C7F69", wood1: "#C9A981", wood2: "#C1A078", seam: "#AE8D66", carpet: "#B9BEC9", carpet2: "#B3B8C4", carpetEdge: "#8E94A6", tile: "#DAD2C4", tile2: "#D2C9B9", glass: "rgba(120,170,220,.25)", glassEdge: "#6F7E96", desk: "#E2C49B", desk2: "#EED3AD", deskFront: "#B48F63", metal: "#6E7788", metal2: "#A6AEBD", sky1: "#BFE0F5", sky2: "#D6ECF8", sky3: "#EEF6FA", city: "#8FA6BC", city2: "#A6BACD", win: "#E8F2FA", sofa: "#4F7EA8", sofa2: "#6495BE", table: "#946C42", table2: "#C2965F", rug: "#C69A87", rug2: "#D3AB99", leaf: "#3F9163", leaf2: "#5FB583", pot: "#B47A52", shelf: "#9C7650", screen: "#1A2030", counter: "#C7C2B6", paper: "#FFFFFF", shadow: "rgba(40,25,5,.22)", chair: "#3A4154", chair2: "#596178", board: "#FAFBFC", bin: "#6E7788", box: "#B48F63" }
+    };
+    const bakedScenes = {};
+
+    const GLYPH = {
+      D: "110101101101110",
+      E: "111100110100111",
+      V: "101101101101010",
+      S: "111100111001111",
+      Q: "111101101111001",
+      U: "101101101101111",
+      A: "010101111101101",
+      C: "011100100100011",
+      I: "111010010010111",
+      T: "111010010010010",
+      Y: "101101010010010"
+    };
+    function sign(g, text, x, y, col, sp = 7) {
+      for (const ch of text) {
+        const b = GLYPH[ch];
+        if (b) {
+          for (let i = 0; i < 15; i++) if (b[i] === "1") R(g, col, x + (i % 3) * 2, y + Math.floor(i / 3) * 2, 2, 2);
+        }
+        x += sp;
+      }
     }
 
-    function drawWaterCooler(x, y) {
-      R(g, "#E2E8F0", x, y + 8, 14, 20);
-      R(g, "#38BDF8", x + 2, y - 6, 10, 14);
-      R(g, "#0284C7", x + 4, y - 4, 6, 10);
+    function bakeScene(theme) {
+      const P = PAL[theme], c = document.createElement("canvas"); c.width = LW; c.height = LH;
+      const g = c.getContext("2d"), r = seeded(77);
+      // Plank floor
+      for (let y = 44, row = 0; y < LH; y += 10, row++) {
+        for (let x = -(row % 3) * 11; x < LW; x += 34) { R(g, r() > .5 ? P.wood1 : P.wood2, x, y, 34, 10); R(g, P.seam, x, y, 1, 10); }
+        R(g, P.seam, 0, y, LW, 1);
+      }
+      // Work carpet
+      for (let y = 58; y < 238; y += 2) for (let x = 40; x < 302; x += 2) R(g, ((x + y) / 2) % 2 ? P.carpet : P.carpet2, x, y, 2, 2);
+      [[40, 58, 262, 2], [40, 236, 262, 2], [40, 58, 2, 180], [300, 58, 2, 180]].forEach(a => R(g, P.carpetEdge, ...a));
+      // War room floor
+      for (let y = 46; y < 150; y += 8) for (let x = 312; x < LW; x += 8) R(g, ((x / 8 + y / 8) | 0) % 2 ? P.tile : P.tile2, x, y, 8, 8);
+      // Lounge rug
+      R(g, P.rug2, 322, 164, 90, 86); R(g, P.rug, 325, 167, 84, 80);
+      for (let x = 327; x < 407; x += 6) { R(g, P.rug2, x, 169, 3, 1); R(g, P.rug2, x, 244, 3, 1); }
+
+      // Back wall
+      R(g, P.wall, 0, 0, LW, 40); R(g, P.wall2, 0, 30, LW, 10); R(g, P.trim, 0, 40, LW, 4); R(g, P.wall2, 0, 0, LW, 2);
+      // Two windows onto the city
+      WINDOWS.forEach(([wx, ww]) => {
+        for (let y = 6; y < 32; y++) R(g, y < 15 ? P.sky1 : y < 24 ? P.sky2 : P.sky3, wx, y, ww, 1);
+        if (wx === 124) { R(g, theme === "dark" ? "#E8ECF6" : "#FFF7D6", wx + 50, 9, 6, 6); R(g, P.sky1, wx + 49, 8, 3, 3); }
+        for (let bx = wx; bx < wx + ww;) {
+          const bw = 5 + Math.floor(r() * 8), bh = 6 + Math.floor(r() * 16), top = 32 - bh, w2 = Math.min(bw, wx + ww - bx);
+          R(g, r() > .5 ? P.city : P.city2, bx, top, w2, bh);
+          for (let wy = top + 2; wy < 31; wy += 3) for (let wxx = bx + 1; wxx < bx + w2 - 1; wxx += 2) if (r() > .55) R(g, P.win, wxx, wy, 1, 1);
+          bx += w2;
+        }
+        R(g, P.metal, wx - 2, 4, ww + 4, 2); R(g, P.metal, wx - 2, 32, ww + 4, 3); R(g, P.metal, wx - 2, 4, 2, 30); R(g, P.metal, wx + ww, 4, 2, 30); R(g, P.metal, wx + ww / 2 - 1, 6, 1, 26);
+        R(g, P.metal2, wx - 2, 32, ww + 4, 1);
+      });
+      // Whiteboard
+      R(g, P.metal, 202, 4, 72, 30); R(g, P.board, 204, 6, 68, 26); R(g, P.metal2, 214, 33, 18, 2);
+      R(g, "#E5604F", 216, 32, 4, 1); R(g, "#4F8DF7", 222, 32, 4, 1);
+      // Wall clock
+      R(g, P.metal, 278, 7, 9, 11); R(g, P.metal, 277, 8, 11, 9); R(g, "#F4F0E6", 278, 8, 9, 9);
+      // Neon sign
+      sign(g, "DEVSQUAD", 291, 13, theme === "dark" ? "#FFC56E" : "#B4580A", 7);
+      // Wall screen in the war room
+      R(g, P.metal, 349, 6, 64, 30); R(g, P.screen, 351, 8, 60, 26);
+      // Bookshelf on the left wall
+      R(g, P.shelf, 4, 8, 34, 32);
+      const books = ["#E5604F", "#4F8DF7", "#2FBF84", "#E7A52E", "#8B6CF0", "#E05A95", "#3CC4E8"];
+      [10, 21, 32].forEach((sy) => { R(g, shade(P.shelf, .6), 6, sy, 30, 8); for (let bx = 7; bx < 35; bx += 3) { const h = 4 + Math.floor(r() * 4); R(g, books[Math.floor(r() * books.length)], bx, sy + 8 - h, 2, h); } });
+
+      // War room glass walls
+      R(g, P.glass, 310, 44, 2, 106); R(g, P.glassEdge, 310, 44, 1, 106);
+      R(g, P.glass, 310, 148, 50, 3); R(g, P.glass, 386, 148, 34, 3); R(g, P.glassEdge, 310, 148, 50, 1); R(g, P.glassEdge, 386, 148, 34, 1);
+      // Chairs on the far side of the war room table, and at its head
+      [[336, 58], [358, 58], [380, 58]].forEach(([x, y]) => { R(g, P.chair, x - 7, y, 14, 16); R(g, P.chair2, x - 6, y + 1, 12, 2); });
+      R(g, P.chair, 311, 76, 9, 18); R(g, P.chair2, 312, 77, 2, 16);
+
+      // Lounge
+      R(g, P.shadow, 330, 188, 80, 3);
+      R(g, P.sofa, 330, 172, 66, 16); R(g, P.sofa2, 332, 174, 20, 12); R(g, P.sofa2, 354, 174, 20, 12); R(g, P.sofa2, 376, 174, 18, 12);
+      R(g, P.sofa, 392, 172, 18, 56); R(g, P.sofa2, 394, 190, 14, 17); R(g, P.sofa2, 394, 209, 14, 17);
+      R(g, P.shadow, 340, 218, 40, 2); R(g, P.table, 340, 204, 40, 14); R(g, P.table2, 340, 204, 40, 11); R(g, "#F4F0E6", 348, 207, 4, 4); R(g, P.paper, 358, 206, 12, 7);
+      // Floor lamp
+      R(g, P.metal, 322, 180, 2, 42); R(g, P.metal, 318, 221, 10, 2); R(g, "#FFD08A", 317, 174, 12, 8);
+
+      // Vending machine and water cooler
+      R(g, P.shadow, 4, 92, 28, 3); R(g, "#B23A36", 6, 52, 24, 40); R(g, shade("#B23A36", .7), 8, 54, 20, 36); R(g, "#0A0D16", 10, 56, 16, 20);
+      const snacks = ["#3CC4E8", "#E7A52E", "#2FBF84", "#E05A95", "#E8ECF6", "#F97316"];
+      for (let i = 0; i < 6; i++) R(g, snacks[i], 11 + (i % 3) * 5, 58 + Math.floor(i / 3) * 8, 4, 3);
+      R(g, P.metal, 10, 80, 16, 6);
+      R(g, P.shadow, 6, 140, 22, 2); R(g, P.metal2, 10, 118, 14, 22); R(g, P.metal, 12, 122, 10, 16); R(g, "#7DD3FC", 11, 104, 12, 14); R(g, "#BAE6FD", 13, 106, 3, 8); R(g, "#4F8DF7", 13, 126, 2, 2); R(g, "#E5604F", 18, 126, 2, 2);
+      // Coffee counter
+      R(g, P.counter, 2, 192, 34, 24); R(g, shade(P.counter, 1.2), 2, 190, 34, 6); R(g, P.metal, 9, 178, 14, 13); R(g, P.metal2, 11, 180, 10, 3); R(g, "#E7A52E", 13, 185, 2, 2); [26, 31].forEach(x => R(g, "#F4F0E6", x, 186, 3, 4));
+      // Server rack, boxes and bins
+      R(g, P.shadow, 292, 206, 18, 2); R(g, "#0D1120", 293, 164, 16, 42); R(g, P.metal, 293, 164, 16, 2);
+      for (let y = 168; y < 204; y += 6) R(g, "#1B2238", 295, y, 12, 4);
+      R(g, P.box, 283, 224, 14, 11); R(g, shade(P.box, .78), 283, 228, 14, 1); R(g, shade(P.box, 1.15), 283, 224, 14, 2);
+
+      // Plants
+      const plant = (x, y) => { R(g, P.shadow, x - 6, y + 11, 12, 2); R(g, P.pot, x - 5, y + 3, 10, 9); R(g, shade(P.pot, 1.2), x - 6, y + 2, 12, 2); R(g, P.leaf, x - 7, y - 8, 14, 10); R(g, P.leaf, x - 4, y - 13, 8, 6); R(g, P.leaf2, x - 5, y - 7, 5, 5); R(g, P.leaf2, x + 1, y - 11, 4, 5); R(g, P.leaf2, x + 3, y - 4, 3, 3); };
+      plant(304, 54); plant(46, 244); plant(305, 244); plant(414, 160); plant(20, 240);
+      return c;
+    }
+    const sceneFor = () => { const t = isNight() ? "dark" : "light"; if (!bakedScenes[t]) bakedScenes[t] = bakeScene(t); return bakedScenes[t]; };
+
+    /* Soft light layer: warm pools at night, gentle sun by day */
+    const lightMaps = {};
+    function bakeLights(theme) {
+      const c = document.createElement("canvas"); c.width = W; c.height = H;
+      const g = c.getContext("2d");
+      const pool = (x, y, rad, col, a) => { const gr = g.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(1, `rgba(${col},0)`); g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2); };
+      if (theme === "dark") {
+        Object.values(AGENTS).forEach(a => { if (!a.isUser) pool(a.deskX, a.deskY, 104, "255,190,120", .15); });
+        pool(722, 170, 150, "255,190,120", .2); pool(646, 356, 130, "255,190,120", .3); pool(622, 350, 60, "255,210,150", .34);
+        pool(636, 36, 90, "255,190,100", .3); pool(762, 44, 80, "255,180,90", .16); pool(476, 30, 80, "235,240,255", .1);
+        pool(36, 136, 70, "90,190,240", .16); pool(36, 230, 60, "120,190,255", .1); pool(40, 370, 50, "255,180,100", .16); pool(602, 370, 42, "90,220,170", .12);
+        WINDOWS.forEach(([wx, ww]) => { g.fillStyle = "rgba(120,150,255,.05)"; g.beginPath(); g.moveTo(wx * 2, 88); g.lineTo((wx + ww) * 2, 88); g.lineTo((wx + ww) * 2 + 60, 250); g.lineTo(wx * 2 + 60, 250); g.closePath(); g.fill(); });
+      } else {
+        WINDOWS.forEach(([wx, ww]) => { g.fillStyle = "rgba(255,240,200,.14)"; g.beginPath(); g.moveTo(wx * 2, 88); g.lineTo((wx + ww) * 2, 88); g.lineTo((wx + ww) * 2 + 80, 290); g.lineTo(wx * 2 + 80, 290); g.closePath(); g.fill(); });
+      }
+      return c;
+    }
+    const lightsFor = () => { const t = isNight() ? "dark" : "light"; if (!lightMaps[t]) lightMaps[t] = bakeLights(t); return lightMaps[t]; };
+
+    /* Desks with each person's own clutter */
+    const deskSprites = {};
+    const DOX = 34, DOY = 40;
+    function bakeDesk(a, theme) {
+      const P = PAL[theme], c = document.createElement("canvas"); c.width = 68; c.height = 50;
+      const g = c.getContext("2d"), ox = DOX, oy = DOY;
+      R(g, P.shadow, ox - 31, oy + 2, 62, 3);
+      R(g, P.deskFront, ox - 30, oy - 6, 60, 7); R(g, shade(P.deskFront, .75), ox - 30, oy + 1, 3, 3); R(g, shade(P.deskFront, .75), ox + 27, oy + 1, 3, 3);
+      R(g, P.desk, ox - 30, oy - 24, 60, 18); R(g, P.desk2, ox - 30, oy - 24, 60, 2);
+      R(g, shade(P.desk, .9), ox - 30, oy - 17, 60, 1);
+      // Monitor
+      R(g, P.metal2, ox - 6, oy - 22, 12, 2); R(g, P.metal, ox - 2, oy - 25, 4, 4);
+      R(g, P.metal, ox - 15, oy - 40, 30, 17); R(g, shade(P.metal, 1.3), ox - 15, oy - 40, 30, 1);
+      R(g, P.screen, ox - 14, oy - 39, 28, 15);
+      // Keyboard and mouse
+      R(g, shade(P.metal, .8), ox - 10, oy - 15, 20, 5); for (let k = 0; k < 9; k++) { R(g, P.metal2, ox - 9 + k * 2, oy - 14, 1, 1); R(g, P.metal2, ox - 9 + k * 2, oy - 12, 1, 1); }
+      R(g, P.metal2, ox + 12, oy - 14, 3, 4);
+      // Desk lamp
+      R(g, P.metal, ox - 27, oy - 11, 7, 2); R(g, P.metal, ox - 25, oy - 21, 1, 11); R(g, P.metal, ox - 25, oy - 22, 6, 1); R(g, "#FFD08A", ox - 22, oy - 22, 5, 3);
+      // A mug and a sticky note on the monitor
+      R(g, "#F4F0E6", ox + 22, oy - 12, 4, 4); R(g, "#F4F0E6", ox + 26, oy - 11, 1, 2);
+      R(g, "#FFE066", ox + 11, oy - 27, 4, 4);
+      const id = a.id;
+      if (id === "apex") { R(g, "#E8ECF6", ox + 17, oy - 23, 12, 9); R(g, "#4F8DF7", ox + 19, oy - 21, 5, 1); R(g, "#4F8DF7", ox + 19, oy - 19, 8, 1); R(g, "#E7A52E", ox + 19, oy - 17, 6, 1); }
+      if (id === "alpha_be") { R(g, "#FFD84D", ox + 18, oy - 22, 6, 5); R(g, "#FFD84D", ox + 21, oy - 25, 4, 4); R(g, "#E7893A", ox + 25, oy - 23, 2, 1); R(g, "#141927", ox + 22, oy - 24, 1, 1); }
+      if (id === "beta_fe") { R(g, "#141927", ox + 17, oy - 23, 11, 8); ["#E5604F", "#2FBF84", "#3CC4E8", "#E7A52E"].forEach((col, i) => R(g, col, ox + 18 + i * 2.5, oy - 21, 2, 4)); }
+      if (id === "gamma_qa") { R(g, "#B48F63", ox + 18, oy - 24, 10, 11); R(g, "#F4F0E6", ox + 19, oy - 22, 8, 8); [0, 3, 6].forEach(d => { R(g, "#2FBF84", ox + 20, oy - 21 + d, 1, 1); R(g, "#8A93A6", ox + 22, oy - 21 + d, 4, 1); }); }
+      if (id === "zeta_docs") { R(g, P.paper, ox + 17, oy - 19, 11, 3); R(g, "#E7A52E", ox + 18, oy - 22, 10, 3); R(g, P.paper, ox + 16, oy - 25, 11, 3); }
+      if (id === "delta_devops") { R(g, "#141927", ox + 18, oy - 24, 10, 10); [0, 3, 6].forEach(d => R(g, "#2A3350", ox + 19, oy - 23 + d, 8, 2)); R(g, "#F9B84D", ox + 17, oy - 11, 5, 2); }
+      return c;
+    }
+    const deskFor = (a) => { const t = isNight() ? "dark" : "light", k = a.id + t; if (!deskSprites[k]) deskSprites[k] = bakeDesk(a, t); return deskSprites[k]; };
+
+    const tableSprites = {};
+    function tableFor() {
+      const t = isNight() ? "dark" : "light";
+      if (!tableSprites[t]) {
+        const P = PAL[t], c = document.createElement("canvas"); c.width = 80; c.height = 30;
+        const g = c.getContext("2d");
+        R(g, P.shadow, 2, 24, 76, 3); R(g, P.table, 2, 2, 76, 23); R(g, P.table2, 2, 2, 76, 18); R(g, shade(P.table2, 1.12), 4, 4, 72, 2);
+        R(g, P.paper, 12, 8, 8, 6); R(g, P.paper, 60, 10, 8, 5); R(g, "#F4F0E6", 25, 9, 3, 3); R(g, "#F4F0E6", 52, 12, 3, 3);
+        R(g, "#0A0D16", 34, 7, 12, 8); R(g, "#7DD3FC", 35, 8, 10, 6);
+        tableSprites[t] = c;
+      }
+      return tableSprites[t];
     }
 
-    // Draw Desks, CRT Monitors & Chairs
-    function drawWorkstations() {
+    function drawChair(g, x, y, a) {
+      const P = PAL[isNight() ? "dark" : "light"];
+      x = Math.round(x); y = Math.round(y);
+      R(g, P.chair, x - 7, y - 17, 14, 10); R(g, P.chair2, x - 6, y - 16, 12, 2); R(g, a ? shade(a.shirtColor, .7) : P.chair2, x - 6, y - 12, 12, 1);
+      R(g, P.chair, x - 8, y - 8, 16, 3); R(g, P.metal, x - 1, y - 5, 2, 3);
+      R(g, P.metal, x - 6, y - 3, 12, 1); R(g, P.chair, x - 6, y - 2, 2, 2); R(g, P.chair, x + 4, y - 2, 2, 2); R(g, P.chair, x - 1, y - 2, 2, 2);
+    }
+
+    /* ---------- The people ---------- */
+    function drawPerson(g, a, x, y, o = {}) {
+      x = Math.round(x); y = Math.round(y);
+      const skin = a.skin, skinD = shade(skin, .84), hair = a.hair, hairD = shade(hair, .72), shirt = a.shirtColor, shirtD = shade(shirt, .74), shirtL = shade(shirt, 1.16), pants = a.pants, pantsD = shade(pants, .78), shoe = "#14161E", ink = "#1A1C26";
+      const blink = (tick + a.seedBlink) % 270 < 7;
+      const Q = (c, dx, dy, w, h) => { g.fillStyle = c; g.fillRect(x + dx, y + dy, w, h); };
+      const talkOpen = o.talk && Math.floor(tick / 8) % 2 === 0;
+
+      const headFront = (t) => {
+        Q(skin, -3, t, 6, 8); Q(skin, -4, t + 1, 8, 6); Q(skinD, -4, t + 6, 8, 1); Q(skinD, -1, t + 8, 2, 1);
+        if (blink) { Q(ink, -3, t + 4, 2, 1); Q(ink, 1, t + 4, 2, 1); } else { Q(ink, -2, t + 3, 1, 2); Q(ink, 1, t + 3, 1, 2); }
+        Q(shade(skin, .62), -1, t + 6, 2, talkOpen ? 2 : 1);
+        if (a.style === "beard") { Q(hair, -4, t + 5, 8, 3); Q(skin, -2, t + 5, 4, 1); Q(shade(skin, .62), -1, t + 6, 2, 1); }
+        if (a.style === "neat") { Q(hair, -4, t - 1, 8, 3); Q(hair, -4, t + 1, 1, 2); Q(hair, 3, t, 1, 2); Q(hair, 0, t + 2, 3, 1); }
+        if (a.style === "beard") { Q(hair, -4, t - 1, 8, 3); Q(hair, -4, t + 1, 1, 3); Q(hair, 3, t + 1, 1, 3); }
+        if (a.style === "long") { Q(hair, -4, t - 1, 8, 3); Q(hair, -5, t, 2, 11); Q(hair, 3, t, 2, 11); Q(hairD, -5, t + 8, 2, 3); Q(hairD, 3, t + 8, 2, 3); }
+        if (a.style === "curly") { Q(hair, -5, t - 2, 10, 4); Q(hair, -6, t, 2, 4); Q(hair, 4, t, 2, 4); Q(hairD, -3, t - 2, 2, 1); Q(hairD, 2, t - 1, 2, 1); }
+        if (a.style === "bun") { Q(hair, -2, t - 4, 4, 3); Q(hair, -4, t - 1, 8, 3); Q(hair, -4, t + 1, 1, 3); Q(hair, 3, t + 1, 1, 3); }
+        if (a.style === "beanie") { Q(a.accent, -4, t - 2, 8, 4); Q(shade(a.accent, .75), -4, t + 1, 8, 1); Q(hair, -4, t + 2, 1, 2); Q(hair, 3, t + 2, 1, 2); }
+        if (a.style === "cap") { Q(a.accent, -4, t - 2, 8, 3); Q(shade(a.accent, .72), -5, t + 1, 10, 1); }
+        if (a.glasses) { Q("#20242E", -4, t + 3, 8, 1); Q("#20242E", -3, t + 4, 2, 1); Q("#20242E", 1, t + 4, 2, 1); if (!blink) { Q("#BFD8FF", -3, t + 3, 2, 1); Q("#BFD8FF", 1, t + 3, 2, 1); } }
+        if (a.headphones) { Q("#E8ECF6", -4, t - 2, 8, 1); Q("#E8ECF6", -5, t + 2, 1, 4); Q("#E8ECF6", 4, t + 2, 1, 4); }
+      };
+      const headBack = (t) => {
+        Q(skinD, -2, t + 7, 4, 2);
+        Q(hair, -4, t - 1, 8, 8); Q(hair, -3, t + 7, 6, 1); Q(hairD, -4, t + 5, 8, 1);
+        if (a.style === "long") { Q(hair, -5, t, 10, 12); Q(hairD, -5, t + 10, 10, 2); }
+        if (a.style === "curly") { Q(hair, -6, t - 2, 12, 9); Q(hairD, -3, t + 1, 2, 1); Q(hairD, 2, t + 3, 2, 1); }
+        if (a.style === "bun") Q(hair, -2, t - 4, 4, 4);
+        if (a.style === "beanie") { Q(a.accent, -4, t - 2, 8, 6); Q(shade(a.accent, .75), -4, t + 3, 8, 1); }
+        if (a.style === "cap") { Q(a.accent, -4, t - 2, 8, 5); Q(shade(a.accent, .72), -1, t + 2, 2, 1); }
+        if (a.headphones) { Q("#E8ECF6", -4, t - 2, 8, 1); Q("#E8ECF6", -5, t + 2, 1, 4); Q("#E8ECF6", 4, t + 2, 1, 4); }
+        if (a.glasses) { Q("#20242E", -5, t + 3, 1, 1); Q("#20242E", 4, t + 3, 1, 1); }
+      };
+      const headSide = (t, s) => {
+        const S = (c, dx, dy, w, h) => Q(c, s > 0 ? dx : -dx - w, dy, w, h);
+        S(skin, -3, t, 7, 8); S(skinD, -3, t + 6, 7, 1); S(skin, 4, t + 3, 1, 2); S(skinD, -1, t + 8, 2, 1);
+        S(ink, 2, t + (blink ? 4 : 3), 1, blink ? 1 : 2); S(shade(skin, .62), 2, t + 6, 2, talkOpen ? 2 : 1);
+        if (a.style === "long") { S(hair, -4, t - 1, 8, 3); S(hair, -5, t, 4, 11); S(hairD, -5, t + 8, 4, 3); }
+        else if (a.style === "curly") { S(hair, -5, t - 2, 9, 4); S(hair, -6, t, 4, 6); }
+        else if (a.style === "bun") { S(hair, -4, t - 1, 8, 3); S(hair, -4, t, 3, 5); S(hair, -6, t - 2, 3, 3); }
+        else if (a.style === "beanie") { S(a.accent, -4, t - 2, 8, 4); S(shade(a.accent, .75), -4, t + 1, 8, 1); S(hair, -4, t + 2, 2, 3); }
+        else if (a.style === "cap") { S(a.accent, -4, t - 2, 8, 3); S(shade(a.accent, .72), 3, t, 4, 1); S(hair, -4, t + 1, 2, 3); }
+        else { S(hair, -4, t - 1, 8, 3); S(hair, -4, t + 1, 3, 4); }
+        if (a.style === "beard") { S(hair, 0, t + 5, 4, 3); S(hair, -2, t + 4, 2, 3); }
+        if (a.glasses) { S("#20242E", 0, t + 3, 4, 1); S("#BFD8FF", 2, t + 3, 1, 1); }
+        if (a.headphones) { S("#E8ECF6", -4, t - 2, 8, 1); S("#E8ECF6", -1, t + 1, 2, 5); }
+      };
+      const torsoDetails = (t, back) => {
+        Q(shirtL, -5, t, 10, 1); Q(shirtD, 3, t + 1, 2, 7);
+        if (!back && a.tie) { Q("#F4F0E6", -1, t, 2, 3); Q(a.tie, 0, t + 1, 1, 6); }
+        if (!back && a.lanyard) { Q("#F4F0E6", -2, t, 1, 3); Q("#F4F0E6", 1, t, 1, 3); Q("#F4F0E6", -1, t + 3, 2, 2); }
+        if (a.vest) { Q("#F9E26B", -5, t + 3, 10, 1); Q("#F9E26B", -5, t + 6, 10, 1); }
+        if (a.hoodie && !back) { Q(shirtD, -2, t, 4, 2); }
+        if (a.hoodie && back) { Q(shirtD, -3, t, 6, 3); }
+      };
+
+      const mode = o.mode || "stand";
+      if (mode === "stand" || mode === "walk") {
+        const f = mode === "walk" ? (Math.floor(tick / 7) % 2) : -1;
+        const facing = o.facing || "down";
+        Q("rgba(0,0,0,.28)", -6, -1, 12, 2);
+        if (facing === "left" || facing === "right") {
+          const s = facing === "right" ? 1 : -1, S = (c, dx, dy, w, h) => Q(c, s > 0 ? dx : -dx - w, dy, w, h);
+          if (f === -1) { S(pants, -2, -8, 5, 6); S(shoe, -2, -2, 6, 2); }
+          else {
+            const near = f === 0 ? 2 : -2;
+            S(pantsD, -near - 1, -8, 3, 6); S(shoe, -near - 1, -2, 4, 2);
+            S(pants, near - 1, -8, 3, 6); S(shoe, near - 1, -2, 4, 2);
+          }
+          S(shirt, -3, -16, 7, 8); S(shirtL, -3, -16, 7, 1); S(shirtD, -3, -15, 1, 7);
+          if (a.vest) { S("#F9E26B", -3, -13, 7, 1); S("#F9E26B", -3, -10, 7, 1); }
+          if (o.pose === "reach") { S(shirtD, 2, -14, 6, 2); S(skin, 8, -14, 2, 2); }
+          else if (o.pose === "drink") { S(shirtD, 2, -16, 2, 5); S(shirtD, 2, -17, 4, 2); S(skin, 5, -19, 2, 2); S("#F4F0E6", 6, -21, 3, 3); }
+          else if (o.pose === "gesture") { const up = Math.floor(tick / 12) % 2; S(shirtD, 2, -14 - up, 5, 2); S(skin, 7, -15 - up, 2, 2); }
+          else {
+            const sw = f === -1 ? 0 : (f === 0 ? 1 : -1);
+            S(shirtD, sw, -15, 2, 6); S(skin, sw, -9, 2, 2);
+            if (o.mug) S("#F4F0E6", sw + 1, -9, 3, 3);
+          }
+          headSide(-25, s);
+        } else {
+          const lift0 = f === 0 ? 1 : 0, lift1 = f === 1 ? 1 : 0;
+          Q(pants, -4, -8, 3, 6 - lift0); Q(pants, 1, -8, 3, 6 - lift1); Q(pantsD, 0, -8, 1, 3);
+          Q(shoe, -4, -2 - lift0, 3, 2); Q(shoe, 1, -2 - lift1, 3, 2);
+          Q(shirt, -5, -16, 10, 8); torsoDetails(-16, facing === "up"); Q(shade(pants, .7), -5, -9, 10, 1);
+          const sw0 = f === 0 ? -1 : f === 1 ? 1 : 0;
+          if (o.pose === "draw") {
+            const wob = Math.floor(tick / 9) % 3;
+            Q(shirtD, -7, -15, 2, 6); Q(skin, -7, -9, 2, 2);
+            Q(shirtD, 5, -24, 2, 9); Q(skin, 5 + wob, -26, 2, 2); Q("#E5604F", 5 + wob, -28, 1, 2);
+          } else {
+            Q(shirtD, -7, -15 + sw0, 2, 6); Q(skin, -7, -9 + sw0, 2, 2);
+            Q(shirtD, 5, -15 - sw0, 2, 6); Q(skin, 5, -9 - sw0, 2, 2);
+            if (o.mug) Q("#F4F0E6", 5, -9 - sw0, 3, 3);
+          }
+          facing === "up" ? headBack(-25) : headFront(-25);
+        }
+        return;
+      }
+      if (mode === "seatBack") {
+        const sub = o.sub || "read", fast = o.busy;
+        const beat = Math.floor(tick / (fast ? 3 : 6)) % 2;
+        const nod = sub === "phone" ? 1 : sub === "type" && fast ? (Math.floor(tick / 14) % 2) : 0;
+        Q(shirt, -6, -24, 12, 12); Q(shirtL, -6, -24, 12, 1); if (a.hoodie) Q(shirtD, -3, -24, 6, 3); if (a.vest) { Q("#F9E26B", -6, -21, 12, 1); }
+        if (sub === "stretch") { Q(shirtD, -8, -38, 2, 15); Q(shirtD, 6, -38, 2, 15); Q(skin, -8, -40, 2, 2); Q(skin, 6, -40, 2, 2); }
+        else if (sub === "hand") { Q(shirtD, -8, -28, 2, 6); Q(skin, -8, -29, 2, 2); Q(shirtD, 6, -39, 2, 16); Q(skin, 6, -41, 2, 2); }
+        else if (sub === "sip") { const up = Math.floor(tick / 50) % 2; Q(shirtD, -8, -28, 2, 6); Q(skin, -8, -29, 2, 2); Q(shirtD, 6, up ? -33 : -28, 2, up ? 11 : 7); Q(skin, 5, up ? -34 : -29, 2, 2); Q("#F4F0E6", 4, up ? -37 : -32, 3, 3); }
+        else if (sub === "phone") { Q(shirtD, -7, -28, 3, 6); Q(shirtD, 4, -28, 3, 6); Q(skin, -4, -30, 8, 2); }
+        else if (sub === "read") { Q(shirtD, -8, -28, 2, 6); Q(skin, -8, -29, 2, 2); Q(shirtD, 7, -27, 3, 5); Q(skin, 11, -28, 3, 3); }
+        else { Q(shirtD, -8, -28, 2, 6); Q(skin, -8, -29 - (beat ? 1 : 0), 2, 2); Q(shirtD, 6, -28, 2, 6); Q(skin, 6, -29 - (beat ? 0 : 1), 2, 2); }
+        const t = -33 + nod;
+        if (sub === "lookL") headSide(t, -1); else if (sub === "lookR") headSide(t, 1); else headBack(t);
+        if (o.talk) { const s = sub === "lookL" ? -1 : 1; Q(shade(skin, .62), s > 0 ? 3 : -5, t + 6, 2, talkOpen ? 2 : 1); }
+        return;
+      }
+      if (mode === "meetFront") {
+        Q(shirt, -5, -13, 10, 13); Q(shirtL, -5, -13, 10, 1); torsoDetails(-13, false);
+        Q(shirtD, -7, -12, 2, 11); Q(shirtD, 5, -12, 2, 11);
+        headFront(-22);
+        return;
+      }
+      if (mode === "sofa") {
+        Q(shirt, -5, -17, 10, 9); Q(shirtL, -5, -17, 10, 1); torsoDetails(-17, false);
+        Q(pants, -5, -8, 10, 4); Q(pants, -4, -4, 3, 3); Q(pants, 1, -4, 3, 3); Q(shoe, -4, -1, 3, 2); Q(shoe, 1, -1, 3, 2);
+        Q(shirtD, -7, -16, 2, 7); Q(shirtD, 5, -16, 2, 7); Q(skin, -6, -10, 2, 2); Q(skin, 4, -10, 2, 2);
+        Q("#39435F", -5, -13, 10, 5); Q("#C9CEDC", -6, -8, 12, 1); Q("#FFFFFF", -1, -11, 2, 1);
+        headFront(-26);
+        return;
+      }
+      if (mode === "seatSide") {
+        Q(pants, -2, -8, 8, 3); Q(pants, 4, -6, 3, 5); Q(shoe, 4, -1, 4, 2);
+        Q(shirt, -3, -18, 7, 11); Q(shirtL, -3, -18, 7, 1);
+        const beat = Math.floor(tick / 7) % 2;
+        Q(shirtD, 1, -15, 6, 2); Q(skin, 7, -16 + (beat && o.sub === "type" ? 1 : 0), 2, 2);
+        headSide(-27, 1);
+      }
+    }
+
+    function drawDots(g, x, y) {
+      x = Math.round(x); y = Math.round(y);
+      R(g, "#F4F6FA", x, y, 13, 7); R(g, "#F4F6FA", x + 2, y + 7, 2, 1); R(g, "#F4F6FA", x + 2, y + 8, 1, 1);
+      const n = Math.floor(tick / 14) % 4;
+      for (let i = 0; i < 3; i++) R(g, i < n ? "#141927" : "#A9B0BF", x + 2 + i * 3.5, y + 3, 2, 2);
+    }
+
+    /* What's on each person's screen */
+    function drawScreen(g, a, sx, sy, seated, busy) {
+      const w = 28, h = 15;
+      if (!seated) { R(g, "#070A12", sx, sy, w, h); R(g, shade(a.shirtColor, .55), sx + 2 + Math.floor(tick / 30) % (w - 5), sy + h - 3, 3, 1); return; }
+      const adv = busy ? 4 : (a.sub === "type" ? 13 : 70), step = Math.floor(tick / adv), seed = a.seedBlink;
+      const len = (i) => 5 + ((i * 7 + seed) % 15);
+      if (a.id === "apex") {
+        R(g, "#0E1830", sx, sy, w, h);
+        R(g, "#4F8DF7", sx + 3, sy + 2, 8, 4); R(g, "#FFC56E", sx + 17, sy + 2, 8, 4); R(g, "#34D399", sx + 10, sy + 9, 8, 4);
+        R(g, "#8A93A6", sx + 7, sy + 6, 1, 4); R(g, "#8A93A6", sx + 7, sy + 9, 3, 1); R(g, "#8A93A6", sx + 21, sy + 6, 1, 4); R(g, "#8A93A6", sx + 18, sy + 9, 4, 1);
+        if (step % 2) R(g, "#FFFFFF", sx + 4 + (step % 3) * 7, sy + 3, 2, 2);
+      } else if (a.id === "alpha_be") {
+        R(g, "#12162A", sx, sy, w, h); R(g, "#8B5CF6", sx, sy, w, 2);
+        for (let i = 0; i < 5; i++) { const k = i + step; R(g, k % 3 ? "#C4B5FD" : "#FFC56E", sx + 2, sy + 3 + i * 2.4, 3, 1); R(g, "#7DD3FC", sx + 7, sy + 3 + i * 2.4, len(k) % 12 + 3, 1); }
+      } else if (a.id === "beta_fe") {
+        R(g, "#EEF2F8", sx, sy, w, h); R(g, "#06B6D4", sx, sy, w, 2); R(g, "#C7CFDC", sx, sy + 2, 6, h - 2);
+        const hot = step % 3;
+        [0, 1, 2].forEach(i => { R(g, i === hot ? "#E5604F" : "#FFFFFF", sx + 8 + i * 6.5, sy + 4, 5, 5); R(g, "#94A3B8", sx + 8 + i * 6.5, sy + 10, 5, 1); });
+      } else if (a.id === "gamma_qa") {
+        R(g, "#0D1C18", sx, sy, w, h);
+        for (let i = 0; i < 4; i++) { const k = i + step; R(g, k % 7 === 3 ? "#FFB44C" : "#34D399", sx + 2, sy + 2 + i * 2.5, 2, 1); R(g, "#6B7A85", sx + 6, sy + 2 + i * 2.5, len(k) % 13 + 5, 1); }
+        R(g, "#203A32", sx + 2, sy + 12, w - 4, 2); R(g, "#34D399", sx + 2, sy + 12, 4 + (step % (w - 8)), 2);
+      } else if (a.id === "delta_devops") {
+        R(g, "#05080D", sx, sy, w, h);
+        for (let i = 0; i < 4; i++) { const k = i + step; R(g, k % 5 === 0 ? "#FFB44C" : "#4ADE80", sx + 2, sy + 2 + i * 2.5, len(k) % 16 + 4, 1); }
+        R(g, "#1C2433", sx + 2, sy + 12, w - 4, 2); R(g, "#F97316", sx + 2, sy + 12, 4 + (step % (w - 8)), 2);
+      } else {
+        R(g, "#F4F1E8", sx, sy, w, h); R(g, "#EAB308", sx + 3, sy + 2, 10, 2);
+        for (let i = 0; i < 4; i++) { const k = i + Math.floor(step / 3); R(g, "#7D8596", sx + 3, sy + 5 + i * 2.2, 12 + (len(k) % 11), 1); }
+        if (Math.floor(tick / 30) % 2) R(g, "#141927", sx + 18, sy + 11, 1, 2);
+      }
+    }
+
+    /* ---------- Walking: paths go around furniture ---------- */
+    const NAV = 3, GW = Math.ceil(LW / NAV), GH = Math.ceil(LH / NAV);
+    const navGrid = new Uint8Array(GW * GH);
+    function blockRect(x0, y0, x1, y1) {
+      for (let cy = Math.floor(y0 / NAV); cy <= Math.floor(y1 / NAV); cy++) for (let cx = Math.floor(x0 / NAV); cx <= Math.floor(x1 / NAV); cx++) {
+        if (cx >= 0 && cy >= 0 && cx < GW && cy < GH) navGrid[cy * GW + cx] = 1;
+      }
+    }
+    function buildNav() {
+      blockRect(0, 0, LW, 45);
+      [[0, 48, 33, 95], [6, 100, 29, 142], [0, 176, 38, 218], [290, 162, 311, 208], [281, 222, 299, 236], [298, 44, 312, 66], [38, 232, 54, 260], [298, 232, 312, 260], [8, 226, 30, 256], [405, 148, 420, 172],
+       [308, 44, 313, 152], [308, 146, 358, 152], [388, 146, 420, 152], [324, 76, 402, 100], [328, 170, 412, 190], [392, 170, 412, 230], [338, 202, 382, 220], [314, 172, 330, 224]].forEach(r => blockRect(...r));
+      Object.values(AGENTS).forEach(a => { if (!a.isUser) { blockRect(a.dx - 31, a.dy - 24, a.dx + 31, a.dy + 2); blockRect(a.dx - 8, a.dy + 2, a.dx + 8, a.dy + 15); } });
+    }
+    function freeCell(x, y) {
+      let cx = Math.max(0, Math.min(GW - 1, Math.round(x / NAV))), cy = Math.max(0, Math.min(GH - 1, Math.round(y / NAV)));
+      if (!navGrid[cy * GW + cx]) return [cx, cy];
+      for (let r = 1; r < 24; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const nx = cx + dx, ny = cy + dy;
+        if (nx >= 0 && ny >= 0 && nx < GW && ny < GH && !navGrid[ny * GW + nx]) return [nx, ny];
+      }
+      return [cx, cy];
+    }
+    const navParent = new Int32Array(GW * GH);
+    function findPath(sx, sy, tx, ty) {
+      const [c0, r0] = freeCell(sx, sy), [c1, r1] = freeCell(tx, ty);
+      const start = r0 * GW + c0, goal = r1 * GW + c1;
+      navParent.fill(-1); navParent[start] = start;
+      const queue = [goal === start ? -1 : start]; let head = 0;
+      if (goal !== start) {
+        // Search from the start; expansion order keeps paths to long straight runs
+        const preferX = Math.abs(tx - sx) >= Math.abs(ty - sy);
+        const order = preferX ? [[1, 0], [-1, 0], [0, 1], [0, -1]] : [[0, 1], [0, -1], [1, 0], [-1, 0]];
+        while (head < queue.length) {
+          const cur = queue[head++]; if (cur === goal) break;
+          const cx = cur % GW, cy = (cur - cx) / GW;
+          for (const [dx, dy] of order) {
+            const nx = cx + dx, ny = cy + dy;
+            if (nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+            const id = ny * GW + nx;
+            if (navGrid[id] || navParent[id] !== -1) continue;
+            navParent[id] = cur; queue.push(id);
+          }
+        }
+      }
+      const cells = [];
+      if (navParent[goal] !== -1) { let n = goal; while (n !== start) { cells.push(n); n = navParent[n]; } }
+      cells.reverse();
+      const pts = [];
+      cells.forEach((id, i) => {
+        const prev = i ? cells[i - 1] : start, next = cells[i + 1];
+        if (next === undefined || (next - id) !== (id - prev)) pts.push([(id % GW) * NAV, Math.floor(id / GW) * NAV]);
+      });
+      pts.push([tx, ty]);
+      return pts;
+    }
+
+    /* ---------- A day in the office ---------- */
+    const MEET_SEATS = { apex: [336, 78, "meetFront"], alpha_be: [358, 78, "meetFront"], beta_fe: [380, 78, "meetFront"], gamma_qa: [336, 118, "seatBack"], delta_devops: [358, 118, "seatBack"], zeta_docs: [380, 118, "seatBack"] };
+    const workers = () => Object.values(AGENTS).filter(a => !a.isUser);
+    const away = () => workers().filter(a => a.task === "trip").length;
+    const realBusy = (a) => a.state === "writing" || a.state === "reading" || a.state === "awaiting_input";
+
+    function homeOf(a) { return a.isUser ? { x: 317, y: 92, sx: 317, sy: 104 } : { x: a.dx, y: a.dy + 16, sx: a.dx, sy: a.dy + 19 }; }
+    function sitDown(a) {
+      const h = homeOf(a);
+      a.px = h.x; a.py = h.y; a.mode = "seat"; a.task = "desk"; a.path = null; a.pose = null; a.talking = false; a.facing = "up";
+      a.sub = a.mug ? "sip" : "type"; a.subUntil = tick + between(160, 480);
+      a.nextTrip = tick + between(a.isUser ? 1400 : 500, a.isUser ? 3200 : 2400);
+    }
+    function goTo(a, x, y, then) { a.path = findPath(a.px, a.py, x, y); a.mode = "walk"; a.onArrive = then; }
+    function backToDesk(a) { const h = homeOf(a); a.task = a.task === "trip" ? "trip" : "returning"; goTo(a, h.sx, h.sy, () => sitDown(a)); }
+    function linger(a, pose, facing, frames, then, talking) { a.mode = "linger"; a.pose = pose; a.facing = facing; a.lingerUntil = tick + frames; a.lingerThen = then; a.talking = !!talking; }
+
+    function startTrip(a) {
+      const leave = () => { const h = homeOf(a); a.px = h.sx; a.py = h.sy; a.task = "trip"; };
+      const roll = Math.random() * 100;
+      if (!a.isUser && roll < 30) {
+        leave(); goTo(a, 44, 204, () => linger(a, "reach", "left", between(220, 380), () => { a.mug = true; backToDesk(a); }));
+      } else if (roll < 58) {
+        const others = workers().filter(c => c !== a && c.task === "desk" && c.mode === "seat" && !realBusy(c));
+        if (!others.length) { a.nextTrip = tick + 400; return; }
+        const c = others[Math.floor(Math.random() * others.length)], side = Math.random() < .5 ? -1 : 1;
+        leave(); goTo(a, c.dx + side * 15, c.dy + 12, () => {
+          const frames = between(260, 460), toward = side > 0 ? "left" : "right";
+          linger(a, "gesture", toward, frames, () => { if (c.chatWith === a) { c.chatWith = null; c.subUntil = 0; } backToDesk(a); }, true);
+          if (c.task === "desk" && c.mode === "seat") { c.chatWith = a; c.sub = side > 0 ? "lookR" : "lookL"; c.subUntil = tick + frames; c.nextTrip = Math.max(c.nextTrip, tick + frames + 200); }
+        });
+      } else if (!a.isUser && roll < 72 && !wbBusy) {
+        wbBusy = a; leave(); goTo(a, 214 + Math.floor(Math.random() * 44), 57, () => linger(a, "draw", "up", between(320, 560), () => { wbBusy = null; backToDesk(a); }));
+      } else if (roll < 82) {
+        leave(); goTo(a, 34, 136, () => linger(a, "drink", "left", between(150, 260), () => backToDesk(a)));
+      } else if (!a.isUser && roll < 88) {
+        leave(); goTo(a, 39, 76, () => linger(a, "reach", "left", between(120, 200), () => backToDesk(a)));
+      } else if (!a.isUser) {
+        const spot = [342, 362, 382][Math.floor(Math.random() * 3)];
+        leave(); goTo(a, spot, 196, () => { a.px = spot; a.py = 190; linger(a, "sofa", "down", between(520, 960), () => { a.py = 196; backToDesk(a); }); });
+      } else { a.nextTrip = tick + 800; }
+    }
+
+    function pickSub(a) {
+      if (a.state === "writing") return "type";
+      if (a.state === "reading") return "read";
+      if (a.state === "awaiting_input") return "hand";
+      if (a.mug && Math.random() < .5) return "sip";
+      const roll = Math.random() * 100;
+      if (roll < 56) return "type";
+      if (roll < 78) return "read";
+      if (roll < 85) return "stretch";
+      if (roll < 91) return "phone";
+      return Math.random() < .5 ? "lookL" : "lookR";
+    }
+
+    function updatePerson(a) {
+      const meet = (isMeetingMode || a.state === "meeting") && !a.isUser;
+      // Real work and meetings always come first
+      if (meet && a.task !== "meeting") {
+        if (wbBusy === a) wbBusy = null;
+        const seat = MEET_SEATS[a.id];
+        if (a.mode === "seat") { const h = homeOf(a); a.px = h.sx; a.py = h.sy; }
+        a.task = "meeting"; a.talking = false; a.pose = null;
+        goTo(a, seat[0], seat[1] + (seat[2] === "seatBack" ? 2 : -14), () => { a.px = seat[0]; a.py = seat[1] - (seat[2] === "seatBack" ? .5 : 0); a.mode = seat[2]; a.facing = "down"; a.sub = "read"; a.subUntil = tick + between(120, 300); });
+      } else if (!meet && a.task === "meeting") {
+        a.task = "returning"; backToDesk(a);
+      } else if (realBusy(a) && a.task === "trip") {
+        if (wbBusy === a) wbBusy = null;
+        a.task = "returning"; a.talking = false; a.pose = null; backToDesk(a);
+      }
+
+      if (a.mode === "walk") {
+        if (a.path && a.path.length) {
+          const [tx, ty] = a.path[0], dx = tx - a.px, dy = ty - a.py, dist = Math.hypot(dx, dy), v = .58 * frameScale;
+          if (dist <= v) { a.px = tx; a.py = ty; a.path.shift(); }
+          else { a.px += dx / dist * v; a.py += dy / dist * v; a.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"); }
+        } else { a.mode = "stand"; const then = a.onArrive; a.onArrive = null; if (then) then(); }
+      } else if (a.mode === "linger") {
+        if (tick >= a.lingerUntil) { const then = a.lingerThen; a.lingerThen = null; a.talking = false; if (then) then(); }
+      } else if (a.mode === "seat") {
+        if (tick >= a.subUntil) {
+          a.chatWith = null;
+          a.sub = pickSub(a);
+          if (a.sub === "sip" && Math.random() < .4) a.mug = false;
+          a.subUntil = tick + (a.sub === "type" ? between(240, 620) : a.sub === "stretch" ? between(120, 200) : between(150, 340));
+        }
+        if (realBusy(a)) { const want = pickSub(a); if (a.sub !== want) a.sub = want; }
+        if (motionOn && !realBusy(a) && !isMeetingMode && tick >= a.nextTrip) {
+          if (away() < 2 || a.isUser) startTrip(a); else a.nextTrip = tick + between(200, 500);
+        }
+      }
+      // Whiteboard fills up while someone is drawing on it
+      if (a.pose === "draw" && a.mode === "linger" && Math.floor(tick) % 42 === 0) wbInk = (wbInk + .5) % 30;
+    }
+
+    function drawPersonNow(a) {
+      const busy = a.state === "writing" || a.state === "reading";
+      if (a.mode === "seat") {
+        if (a.isUser) drawPerson(fg, a, a.px, a.py, { mode: "seatSide", sub: a.sub });
+        else drawPerson(fg, a, a.px, a.py, { mode: "seatBack", sub: a.sub, busy: a.state === "writing", talk: !!a.chatWith });
+      } else if (a.mode === "meetFront") {
+        drawPerson(fg, a, a.px, a.py, { mode: "meetFront" });
+      } else if (a.mode === "seatBack") {
+        drawPerson(fg, a, a.px, a.py, { mode: "seatBack", sub: "read" });
+      } else if (a.mode === "walk") {
+        drawPerson(fg, a, a.px, a.py, { mode: "walk", facing: a.facing, mug: a.mug });
+      } else if (a.mode === "linger" && a.pose === "sofa") {
+        drawPerson(fg, a, a.px, a.py, { mode: "sofa" });
+      } else {
+        drawPerson(fg, a, a.px, a.py, { mode: "stand", facing: a.facing || "down", pose: a.pose, mug: a.mug && a.pose !== "reach", talk: a.talking });
+      }
+      if (a.talking) drawDots(fg, a.px + 5, a.py - 37);
+      else if (a.mode === "seat" && a.chatWith) drawDots(fg, a.px + (a.sub === "lookL" ? -18 : 5), a.py - 45);
+      if (a.mode === "meetFront" && a.meetTalk) drawDots(fg, a.px + 5, a.py - 30);
+      if (a.mode === "seatBack" && a.meetTalk) drawDots(fg, a.px + 5, a.py - 44);
+    }
+
+    /* Portraits for the panels */
+    function makePortrait(a) {
+      const c = document.createElement("canvas"); c.width = 20; c.height = 22;
+      const g = c.getContext("2d");
+      drawPerson(g, a, 10, 30, { mode: "stand", facing: "down" });
+      return c.toDataURL();
+    }
+    function initAgentArt() {
       Object.values(AGENTS).forEach(a => {
-        const dx = a.deskX, dy = a.deskY;
-
-        // Shadow
-        R(g, "rgba(0,0,0,0.4)", dx - 36, dy + 22, 72, 8);
-
-        // Desk Wooden Body
-        R(g, "#334155", dx - 35, dy - 4, 70, 24);
-        R(g, "#1E293B", dx - 35, dy + 20, 6, 14);
-        R(g, "#1E293B", dx + 29, dy + 20, 6, 14);
-
-        // Desk Mat
-        R(g, "#0F172A", dx - 20, dy - 2, 40, 18);
-
-        // Monitor & Stand
-        R(g, "#64748B", dx - 3, dy - 8, 6, 6);
-        R(g, "#0B1120", dx - 18, dy - 28, 36, 20);
-        R(g, "#1E293B", dx - 16, dy - 26, 32, 16);
-
-        // Animated Screen Code Typing
-        const step = Math.floor(tick / 10);
-        const codeColor = a.task === "busy" ? "#38BDF8" : a.shirt;
-        for (let i = 0; i < 4; i++) {
-          const w = 6 + ((i * 7 + step) % 18);
-          R(g, codeColor, dx - 14, dy - 24 + i * 3.5, w, 2);
-        }
-
-        // Keyboard & Mouse
-        R(g, "#475569", dx - 12, dy + 4, 16, 6);
-        R(g, "#94A3B8", dx + 8, dy + 6, 4, 4);
-
-        // Coffee Mug
-        R(g, "#F8FAFC", dx + 22, dy + 2, 5, 6);
-        R(g, a.shirt, dx + 23, dy + 3, 3, 2);
+        a.dx = a.deskX / 2; a.dy = a.deskY / 2;
+        a.seedBlink = hashStr(a.id) % 270;
+        a.avatarUrl = makePortrait(a);
+        a.avatar = `<img class="pix" src="${a.avatarUrl}" width="36" height="40" alt="">`;
+        a.avatarLg = `<img class="pix" src="${a.avatarUrl}" width="40" height="44" alt="">`;
+        const node = document.querySelector(`#node-${a.id} .node-icon`);
+        if (node) node.innerHTML = a.avatar;
+        a.task = "desk"; a.mug = false; a.nextTrip = 0;
+      });
+      buildNav();
+      Object.values(AGENTS).forEach((a, i) => {
+        sitDown(a);
+        a.sub = i % 2 ? "type" : "read";
+        // Someone is usually already up and about when you arrive
+        a.nextTrip = a.isUser ? tick + 1500 : tick + 30 + i * between(160, 360);
       });
     }
 
-    // Draw Pixel Person
-    function drawAvatar(a) {
-      const x = Math.round(a.x);
-      const y = Math.round(a.y);
-      const blink = (tick % 180) < 6;
-
-      // Chair back
-      R(g, "#0F172A", x - 10, y - 4, 20, 16);
-      R(g, "#334155", x - 8, y - 2, 16, 2);
-
-      // Torso & Shirt
-      R(g, a.shirt, x - 8, y - 8, 16, 14);
-      R(g, shade(a.shirt, 0.8), x - 8, y + 4, 16, 2);
-
-      // Head
-      R(g, a.skin, x - 5, y - 18, 10, 10);
-
-      // Eyes
-      if (!blink) {
-        R(g, "#0F172A", x - 3, y - 14, 2, 2);
-        R(g, "#0F172A", x + 1, y - 14, 2, 2);
-      } else {
-        R(g, "#0F172A", x - 3, y - 13, 2, 1);
-        R(g, "#0F172A", x + 1, y - 13, 2, 1);
-      }
-
-      // Hair / Cap / Accessories
-      if (a.style === "cap") {
-        R(g, a.accent, x - 6, y - 22, 12, 5);
-        R(g, a.accent, x - 8, y - 18, 16, 2);
-      } else if (a.style === "long") {
-        R(g, a.hair, x - 6, y - 21, 12, 4);
-        R(g, a.hair, x - 7, y - 17, 3, 14);
-        R(g, a.hair, x + 4, y - 17, 3, 14);
-      } else {
-        R(g, a.hair, x - 6, y - 21, 12, 4);
-        R(g, a.hair, x - 6, y - 17, 2, 4);
-      }
-
-      // Glasses
-      if (a.glasses) {
-        R(g, "#000", x - 4, y - 15, 3, 3);
-        R(g, "#000", x + 1, y - 15, 3, 3);
-        R(g, "#38BDF8", x - 3, y - 14, 1, 1);
-        R(g, "#38BDF8", x + 2, y - 14, 1, 1);
-      }
-
-      // Speech bubble
-      if (a.bubble) {
-        g.font = "8px 'Press Start 2P', monospace";
-        const txt = a.bubble.length > 20 ? a.bubble.substring(0, 19) + "…" : a.bubble;
-        const tw = g.measureText(txt).width;
-        const bw = Math.max(70, tw + 14);
-        const bx = Math.round(x - bw / 2);
-        const by = y - 36;
-
-        R(g, "rgba(15, 23, 42, 0.95)", bx, by, bw, 15);
-        R(g, a.shirt, bx, by, bw, 1);
-        R(g, a.shirt, bx, by + 14, bw, 1);
-        R(g, a.shirt, bx, by, 1, 15);
-        R(g, a.shirt, bx + bw - 1, by, 1, 15);
-
-        // Pointer triangle
-        R(g, a.shirt, x - 2, by + 15, 4, 2);
-
-        g.fillStyle = "#F8FAFC";
-        g.fillText(txt, bx + 7, by + 11);
-      }
+    function fitCanvas() {
+      const frame = canvas.parentElement; if (!frame) return;
+      const fr = frame.getBoundingClientRect();
+      const pad = 24, s = Math.min((fr.width - pad) / W, (fr.height - pad) / H);
+      if (!(s > 0)) return;
+      const cw = Math.floor(W * s), ch = Math.floor(H * s);
+      canvas.style.width = cw + "px"; canvas.style.height = ch + "px";
+      const dprNow = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(cw * dprNow); canvas.height = Math.round(ch * dprNow);
+      viewScale = canvas.width / W;
     }
 
-    // Main Canvas Render Loop
-    function render() {
-      tick++;
-      drawRoom();
-      drawWorkstations();
-      Object.values(AGENTS).forEach(drawAvatar);
+    function roundRect(c, x, y, width, height, radius, fill, stroke) {
+      c.beginPath(); c.roundRect(x, y, width, height, radius);
+      if (fill) c.fill();
+      if (stroke) c.stroke();
+    }
+    function drawTag(a, x, y, selected) {
+      const night = isNight();
+      ctx.font = "600 11px 'Instrument Sans', system-ui, sans-serif";
+      const tw = ctx.measureText(a.name).width, w = tw + 22, h = 18;
+      ctx.fillStyle = night ? "rgba(10,14,26,.86)" : "rgba(255,251,243,.94)";
+      ctx.strokeStyle = selected ? (night ? "#FFB44C" : "#B4580A") : (night ? "rgba(150,165,200,.3)" : "rgba(64,50,24,.28)");
+      ctx.lineWidth = selected ? 1.5 : 1;
+      roundRect(ctx, x - w / 2, y, w, h, 5, true, true);
+      const working = a.state === "writing" || a.state === "reading";
+      ctx.fillStyle = a.state === "awaiting_input" ? "#FF7A70" : working ? "#3DDC97" : a.shirtColor;
+      ctx.beginPath(); ctx.arc(x - w / 2 + 8, y + h / 2, 2.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = night ? "#EDF0F7" : "#1D1F27"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.fillText(a.name, x - w / 2 + 14, y + h / 2 + .5);
+    }
+    function drawSpeechBubble(x, y, text, urgent) {
+      const night = isNight();
+      ctx.font = "500 11.5px 'Instrument Sans', system-ui, sans-serif";
+      const t = text.length > 44 ? text.slice(0, 42) + "…" : text;
+      const w = Math.min(ctx.measureText(t).width + 18, 300), h = 24;
+      const bx = Math.max(6, Math.min(W - w - 6, x - w / 2)), by = Math.max(4, y - h);
+      ctx.fillStyle = night ? "rgba(14,18,32,.96)" : "rgba(255,251,243,.98)";
+      ctx.strokeStyle = urgent ? "#FF7A70" : (night ? "#FFB44C" : "#B4580A"); ctx.lineWidth = 1.2;
+      roundRect(ctx, bx, by, w, h, 6, true, true);
+      ctx.beginPath(); ctx.moveTo(x - 4, by + h); ctx.lineTo(x, by + h + 5); ctx.lineTo(x + 4, by + h); ctx.closePath(); ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+      ctx.fillStyle = night ? "#EDF0F7" : "#1D1F27"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(t, bx + w / 2, by + h / 2 + .5);
+    }
+
+    const twinkles = Array.from({ length: 16 }, (_, i) => { const r = seeded(i + 5); const win = WINDOWS[i % 2][0]; return { x: win + 2 + Math.floor(r() * 68), y: 18 + Math.floor(r() * 13), p: r() * 400 }; });
+    const WB_STROKES = (() => { const r = seeded(9), out = [], cols = ["#4F8DF7", "#E5604F", "#141927", "#2FBF84"]; for (let i = 0; i < 30; i++) { const col = cols[Math.floor(r() * 4)], row = Math.floor(r() * 4); out.push([206 + Math.floor(r() * 54), 9 + row * 5, 3 + Math.floor(r() * 10), r() < .2 ? 3 : 1, col]); } return out; })();
+    let motionOn = true;
+    let meetSpeaker = null, meetUntil = 0;
+
+    function render(now) {
       requestAnimationFrame(render);
-    }
-    render();
+      frameScale = Math.min(4, ((now || 0) - lastFrame) / 16.67) || 1; lastFrame = now || 0;
+      const secs = Math.floor(tick / 60);
+      if (secs !== render._s) { render._s = secs; let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; }
+      const night = isNight(), P = PAL[night ? "dark" : "light"];
 
-    // API & UI Interaction
-    async function loadStatus() {
-      try {
-        const res = await fetch("/api/status");
-        const data = await res.json();
-        document.getElementById("repoPill").textContent = `📁 ${data.repo_name} (${data.languages.join(", ") || "generic"})`;
-        document.getElementById("modelTag").textContent = `${data.provider} (${data.model})`;
-      } catch (e) {}
+      fg.clearRect(0, 0, LW, LH);
+      // Whiteboard drawing, the clock and small signs of life
+      for (let i = 0; i < Math.floor(wbInk) + 8; i++) { const s = WB_STROKES[i % 30]; R(fg, s[4], s[0], s[1], s[2], s[3]); }
+      const d = new Date(), cx = 282.5, cy = 12.5;
+      const hand = (ang, len, col) => { for (let i = 1; i <= len; i++) R(fg, col, cx + Math.cos(ang) * i - .5, cy + Math.sin(ang) * i - .5, 1, 1); };
+      hand((d.getHours() % 12 + d.getMinutes() / 60) / 12 * Math.PI * 2 - Math.PI / 2, 2, "#141927");
+      hand(d.getMinutes() / 60 * Math.PI * 2 - Math.PI / 2, 3, "#4B5468");
+      if (motionOn) {
+        twinkles.forEach(t => { if ((tick + t.p) % 400 < 200) R(fg, P.win, t.x, t.y, 1, 1); });
+        for (let y = 169, i = 0; y < 204; y += 6, i++) { R(fg, (tick + i * 13) % 50 < 25 ? "#3DDC97" : "#14532D", 297, y, 1, 2); R(fg, (tick + i * 29) % 70 < 12 ? "#FFB44C" : "#3B2A10", 300, y, 1, 2); }
+        if (night && (tick % 900) > 880 && (tick % 6) < 3) R(fg, "rgba(10,14,26,.5)", 290, 12, 58, 12);
+        const st = tick % 90; if (st < 54) { R(fg, "rgba(230,235,245,.5)", 15 + Math.sin(tick / 9) * 2, 176 - st / 6, 1, 2); R(fg, "rgba(230,235,245,.35)", 18 + Math.cos(tick / 8) * 2, 174 - st / 7, 1, 2); }
+      }
+
+      // Everyone takes their next step; meetings have one speaker at a time
+      Object.values(AGENTS).forEach(updatePerson);
+      if (isMeetingMode && tick >= meetUntil) {
+        const seated = workers().filter(a => a.mode === "meetFront" || a.mode === "seatBack");
+        workers().forEach(a => { a.meetTalk = false; });
+        if (seated.length) { meetSpeaker = seated[Math.floor(Math.random() * seated.length)]; meetSpeaker.meetTalk = true; }
+        meetUntil = tick + between(150, 300);
+      } else if (!isMeetingMode) workers().forEach(a => { a.meetTalk = false; });
+
+      // Draw back to front
+      const items = [];
+      workers().forEach(a => { items.push({ y: a.dy, type: "desk", a }); items.push({ y: a.dy + 16.2, type: "chair", a }); });
+      items.push({ y: 98, type: "table" });
+      Object.values(MEET_SEATS).forEach(s => { if (s[2] === "seatBack") items.push({ y: s[1], type: "mchair", x: s[0] }); });
+      Object.values(AGENTS).forEach(a => items.push({ y: a.py, type: "person", a }));
+      items.sort((p, q) => p.y - q.y);
+      items.forEach(it => {
+        const a = it.a;
+        if (it.type === "desk") {
+          fg.drawImage(deskFor(a), a.dx - DOX, a.dy - DOY);
+          drawScreen(fg, a, a.dx - 14, a.dy - 39, a.mode === "seat", a.state === "writing");
+        } else if (it.type === "chair") {
+          drawChair(fg, a.dx, a.dy + 16, a);
+        } else if (it.type === "mchair") {
+          drawChair(fg, it.x, it.y);
+        } else if (it.type === "table") {
+          fg.drawImage(tableFor(), 322, 74);
+        } else drawPersonNow(a);
+      });
+
+      up.clearRect(0, 0, LW * UP, LH * UP);
+      up.drawImage(sceneFor(), 0, 0, LW * UP, LH * UP);
+      up.drawImage(fgCanvas, 0, 0, LW * UP, LH * UP);
+      ctx.setTransform(viewScale, 0, 0, viewScale, 0, 0);
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(upCanvas, 0, 0, W, H);
+
+      // Light layer
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(lightsFor(), 0, 0, W, H);
+      if (night) {
+        workers().forEach(a => {
+          if (a.mode !== "seat") return;
+          const work = a.state === "writing";
+          const flick = work ? (.46 + Math.sin(tick * .2 + a.seedBlink) * .06) : .17;
+          const x = a.deskX, y = a.deskY - 60, rad = work ? 84 : 58, col = work ? "90,190,255" : "150,170,235";
+          const gr = ctx.createRadialGradient(x, y, 0, x, y, rad); gr.addColorStop(0, `rgba(${col},${flick})`); gr.addColorStop(1, `rgba(${col},0)`);
+          ctx.fillStyle = gr; ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+        });
+      }
+      const sel = AGENTS[selectedAgentId];
+      if (sel && sel.px !== undefined) {
+        const sx = sel.px * 2, sy = sel.py * 2 - 26, rad = 50, col = night ? "255,180,76" : "255,190,110";
+        const gr = ctx.createRadialGradient(sx, sy, 0, sx, sy, rad); gr.addColorStop(0, `rgba(${col},.3)`); gr.addColorStop(1, `rgba(${col},0)`);
+        ctx.fillStyle = gr; ctx.fillRect(sx - rad, sy - rad, rad * 2, rad * 2);
+      }
+      ctx.restore();
+
+      // Wall screen: your real numbers
+      const raw = officeMetrics.raw;
+      if (raw) {
+        ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#8F99B0"; ctx.font = "500 7.5px 'JetBrains Mono', monospace"; ctx.fillText("EST. API COST", 708, 28);
+        ctx.fillStyle = "#FFB44C"; ctx.font = "700 17px 'Bricolage Grotesque', system-ui, sans-serif"; ctx.fillText("$" + Math.round(officeMetrics.totalCost).toLocaleString(), 708, 47);
+        ctx.fillStyle = "#8F99B0"; ctx.font = "500 7px 'JetBrains Mono', monospace"; ctx.fillText(`${Math.round(officeMetrics.cacheHitRate * 100)}% CACHE HIT`, 708, 60);
+        const days = (raw.daily || []).slice(-12), mx = Math.max(...days.map(x => x.costUSD || 0), 1e-9);
+        days.forEach((x, i) => { const bh = Math.max(1, (x.costUSD || 0) / mx * 36); ctx.fillStyle = x.costUSD ? "#FFB44C" : "#2A3350"; ctx.fillRect(782 + i * 2.8, 62 - bh, 2, bh); });
+      }
+
+      // Name tags and speech
+      Object.values(AGENTS).forEach(a => {
+        const selected = selectedAgentId === a.id;
+        let tagX = a.px * 2, tagY = (a.py + 2) * 2;
+        if (a.mode === "seat" && !a.isUser) tagY = (a.dy + 18) * 2;
+        if (a.mode === "meetFront") tagY = (a.py - 36) * 2;
+        if (a.isUser && a.mode === "seat") { tagX = 626; tagY = 198; }
+        drawTag(a, tagX, tagY, selected);
+        a.currentX = a.px * 2; a.currentY = a.py * 2 - 26;
+      });
+      Object.values(AGENTS).forEach(a => {
+        const urgent = a.state === "awaiting_input";
+        if (!(selectedAgentId === a.id || urgent) || !a.speech) return;
+        const topY = a.mode === "seat" && !a.isUser ? (a.dy - 42) * 2 : a.mode === "meetFront" ? (a.py - 37) * 2 : (a.py - 31) * 2;
+        drawSpeechBubble(a.px * 2, topY, a.speech, urgent);
+      });
+
+      tick += frameScale;
     }
 
-    async function loadTasks() {
-      try {
-        const res = await fetch("/api/tasks");
-        const tasks = await res.json();
-        document.getElementById("stagedBadge").textContent = tasks.length;
-        if (tasks.length > 0) {
-          currentTaskId = tasks[0].task_id;
+    // Interaction & Click Handling on Canvas
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = (e.clientX - rect.left) * (840 / rect.width);
+      const clickY = (e.clientY - rect.top) * (520 / rect.height);
+
+      // Find closest clicked agent (checks animated character position & desk hitbox)
+      let closestAgent = null;
+      let minDistance = Infinity;
+
+      Object.values(AGENTS).forEach(ag => {
+        const ax = (ag.currentX !== undefined) ? ag.currentX : ag.deskX;
+        const ay = (ag.currentY !== undefined) ? ag.currentY : ag.deskY;
+        const distChar = Math.hypot(clickX - ax, clickY - ay);
+        const distDesk = Math.hypot(clickX - ag.deskX, clickY - ag.deskY);
+        const dist = Math.min(distChar, distDesk);
+        if (dist < 42 && dist < minDistance) {
+          minDistance = dist;
+          closestAgent = ag.id;
         }
-      } catch (e) {}
+      });
+
+      if (closestAgent) {
+        selectAgent(closestAgent);
+      }
+    });
+
+    function selectAgent(id) {
+      selectedAgentId = id;
+      const ag = AGENTS[id];
+      if (!ag) return;
+
+      document.getElementById("chatAvatar").innerHTML = ag.avatarLg || ag.avatar;
+      document.getElementById("chatName").textContent = ag.name;
+      document.getElementById("chatRole").textContent = ag.role;
+
+      const topProjectsList = (officeMetrics.projects || []).slice(0, 3).map((p, idx) => {
+        const pName = getAnonymizedProjectName(p.name || p.id, idx);
+        return `<div class="fact"><span><code>${pName}</code></span><span>${formatMoney(p.costUSD || 0)}</span></div>`;
+      }).join("") || "None yet";
+
+      // Update Chat Thread
+      const thread = document.getElementById("chatThread");
+      thread.innerHTML = `
+        <div class="msg-bubble msg-agent">
+          I'm <strong>${ag.name}</strong>, your ${ag.role}. What should I work on?
+        </div>
+        <div class="capabilities-card">
+          <b>${ag.isUser ? "You" : "At a glance"}</b>
+          <div class="fact"><span>Focus</span><span>${ag.focus || "Oversees the office"}</span></div>
+          <div class="fact"><span>Status</span><span style="color:var(--accent);">${({ idle: "Idle", reading: "Reading", writing: "Working", meeting: "In a meeting", awaiting_input: "Needs you" })[ag.state] || ag.state}</span></div>
+          <div class="fact"><span>Tokens in office runs</span><span>${formatNumber(ag.tokens || 0)}</span></div>
+          <div class="fact"><span>Cost in office runs</span><span>${formatMoney(ag.costUSD || 0)}</span></div>
+          <div class="fact"><span>Model</span><span>${officeMetrics.liveModel || (hasLiveDaemon ? "Waiting" : "Not connected")}</span></div>
+        </div>
+        <div class="capabilities-card">
+          <b>Your top projects</b>
+          ${topProjectsList}
+        </div>
+        <div class="quick-chips">
+          <button class="chip" onclick="quickPrompt('Dispatch verified feature task to ${ag.name}')">
+            <svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Give ${ag.name} a feature task
+          </button>
+          <button class="chip" onclick="quickPrompt('Run unit test & quality verification')">
+            <svg class="i" aria-hidden="true"><use href="#i-flask"/></svg>Run a verification check
+          </button>
+        </div>
+      `;
     }
 
-    async function openReviewDesk() {
-      const modal = document.getElementById("reviewModal");
-      const content = document.getElementById("modalContent");
-      modal.style.display = "flex";
+    function quickPrompt(text) {
+      document.getElementById("taskInput").value = text;
+      sendTaskPrompt();
+    }
 
-      if (!currentTaskId) {
-        content.innerHTML = `<div style="text-align:center;padding:40px;color:var(--dim);">No staged tasks yet. Dispatch an engineering feature from the command bar!</div>`;
+    async function sendTaskPrompt() {
+      const input = document.getElementById("taskInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const thread = document.getElementById("chatThread");
+      if (selectedAgentId === "you") {
+        const note = document.createElement("div");
+        note.className = "msg-bubble msg-agent";
+        note.textContent = "That's you. Click one of the six agents first, then send this again.";
+        thread.appendChild(note);
+        thread.scrollTop = thread.scrollHeight;
         return;
       }
 
-      try {
-        const res = await fetch(`/api/task?id=${currentTaskId}`);
-        const task = await res.json();
+      input.value = "";
 
-        const diffsHtml = task.diffs.map(d => `
-          <div style="font-weight:700;font-size:12px;margin-top:10px;">📄 ${d.file_path} <span style="color:var(--ok);font-size:11px;">+${d.additions}</span> <span style="color:var(--bad);font-size:11px;">-${d.deletions}</span></div>
-          <div class="diff-block">${formatDiffLines(d.patch_text || 'New file created')}</div>
-        `).join("");
+      // Append User Bubble
+      const userBubble = document.createElement("div");
+      userBubble.className = "msg-bubble msg-user";
+      userBubble.textContent = text;
+      thread.appendChild(userBubble);
+      thread.scrollTop = thread.scrollHeight;
 
-        const testHtml = task.test_result ? `
-          <div style="font-weight:700;font-size:12px;margin-top:10px;">🧪 Test Runner Output (${task.test_result.passed ? '<span style="color:var(--ok);">PASSED ✅</span>' : '<span style="color:var(--bad);">FAILED ❌</span>'} in ${task.test_result.duration_s}s)</div>
-          <div class="diff-block">${escapeHtml(task.test_result.output || 'All tests passed cleanly.')}</div>
-        ` : '';
+      const ag = AGENTS[selectedAgentId];
+      if (ag) {
+        ag.state = "writing";
+        ag.speech = `Working on: ${text.substring(0, 24)}...`;
+        updateWorkingCount();
+      }
 
-        content.innerHTML = `
-          <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;">
-            <div style="font-size:14px;font-weight:700;">${escapeHtml(task.goal)}</div>
-            <div style="font-size:11.5px;color:var(--dim);margin-top:4px;font-family:var(--f-mono);">
-              Branch: <b>${task.git_branch || 'staged'}</b> · Status: <b style="color:var(--accent);">${task.status}</b>
+      // Send to server (only if live daemon bridge is connected)
+      if (hasLiveDaemon) {
+        // A real model can take a minute, so say something is happening
+        const waiting = document.createElement("div");
+        waiting.className = "msg-bubble msg-agent";
+        waiting.textContent = `${ag ? ag.name : "Your agent"} is working on it…`;
+        thread.appendChild(waiting);
+        thread.scrollTop = thread.scrollHeight;
+        try {
+          const res = await fetch("/api/spawn", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ agent: selectedAgentId, task: text })
+          });
+          waiting.remove();
+          if (res.ok) {
+            const data = await res.json();
+            setTimeout(() => {
+              const agentBubble = document.createElement("div");
+              agentBubble.className = "msg-bubble msg-agent";
+              agentBubble.innerHTML = data.success === false ? `<strong>That didn't work.</strong> ${escHtml(data.error || "The task failed.")}` : `<strong>Done.</strong>${generatedFilesHtml(data.artifacts)}${runNoteHtml([data])}`;
+              thread.appendChild(agentBubble);
+              thread.scrollTop = thread.scrollHeight;
+              if (ag) { ag.state = "idle"; ag.speech = data.success === false ? "That task failed." : "Task finished."; updateWorkingCount(); }
+            }, 800);
+            return;
+          }
+        } catch (err) {
+          waiting.remove();
+        }
+      }
+
+      // No server connected: say so plainly instead of pretending the work happened
+      await findOfficeServer();
+      setTimeout(() => {
+        const agentBubble = document.createElement("div");
+        agentBubble.className = "msg-bubble msg-agent";
+        agentBubble.innerHTML = notConnectedNote();
+        thread.appendChild(agentBubble);
+        thread.scrollTop = thread.scrollHeight;
+        if (ag) {
+          ag.state = "idle";
+          ag.speech = "Waiting for the office server.";
+          updateWorkingCount();
+        }
+      }, 700);
+    }
+
+    function updateWorkingCount() {
+      const working = Object.values(AGENTS).filter(a => a.state === "writing" || a.state === "reading").length;
+      const countEl = document.getElementById("workingCount");
+      if (countEl) countEl.textContent = `${working} of 6`;
+    }
+
+    function triggerMeeting() {
+      isMeetingMode = !isMeetingMode;
+      const roomSel = document.getElementById("roomSelector");
+      if (roomSel) roomSel.textContent = isMeetingMode ? "War Room" : "Work floor";
+      const thread = document.getElementById("chatThread");
+      if (isMeetingMode) {
+        Object.values(AGENTS).forEach(a => { if (!a.isUser) a.speech = "Standup Review"; });
+        const b = document.createElement("div");
+        b.className = "msg-bubble msg-agent";
+        const totalCost = formatMoney(officeMetrics.totalCost);
+        const health = officeMetrics.healthScore;
+        b.innerHTML = `
+          <strong>Everyone's in the War Room.</strong><br>
+          • Estimated API cost: <strong>${totalCost}</strong><br>
+          • AI health: <strong>${health}/100</strong><br>
+        `;
+        thread.appendChild(b);
+        thread.scrollTop = thread.scrollHeight;
+      } else {
+        Object.values(AGENTS).forEach(a => { a.speech = null; });
+      }
+    }
+
+    function triggerCoffeeBreak() {
+      const thread = document.getElementById("chatThread");
+      const b = document.createElement("div");
+      b.className = "msg-bubble msg-agent";
+      b.innerHTML = `
+        <strong>Coffee break: ways to spend less</strong><br>
+        • <strong>Prompt Caching</strong>: Keep system instructions static to get 90% discount.<br>
+        • <strong>Tool Pruning</strong>: Remove bloated instructions from CLAUDE.md to stop cache rewrites.<br>
+        • <strong>Model Routing</strong>: Use Flash/Haiku for test runs; Sonnet for architecture.<br>
+      `;
+      thread.appendChild(b);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    function toggleSafetyMode() {
+      isAutoSafety = !isAutoSafety;
+      const nav = document.getElementById("nav-safety");
+      if (isAutoSafety) {
+        nav.innerHTML = '<span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></span> <span class="nav-text">Auto-Approve</span>';
+        nav.style.color = 'var(--ok)';
+      } else {
+        nav.innerHTML = '<span class="nav-icon"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></span> <span class="nav-text">Safety Fence</span>';
+        nav.style.color = 'var(--dim)';
+      }
+    }
+
+    function switchNav(el, mode) {
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      if (el) el.classList.add("active");
+
+      // Auto-close drawer on mobile
+      const sb = document.getElementById("sidebar");
+      const ov = document.getElementById("sidebarOverlay");
+      if (sb && sb.classList.contains("open")) {
+        sb.classList.remove("open");
+        if (ov) ov.classList.remove("active");
+      }
+
+      const thread = document.getElementById("chatThread");
+      if (!thread) return;
+
+      if (mode === 'office') {
+        selectAgent(selectedAgentId);
+      } else if (mode === 'agents') {
+        const rosterHtml = Object.values(AGENTS).map(a => `
+          <div style="background:var(--lot);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="selectAgent('${a.id}')">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:18px;">${a.avatar}</span>
+              <div>
+                <b style="color:var(--ink);font-size:11px;">${a.name}</b>
+                <div style="font-size:10px;color:var(--dim);">${a.role}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px;font-weight:700;color:var(--accent);">${formatMoney(a.costUSD || 0)}</div>
+              <div style="font-size:10px;color:var(--faint);">${formatNumber(a.tokens || 0)} tok</div>
             </div>
           </div>
-          ${testHtml}
-          ${diffsHtml}
+        `).join('');
+
+        thread.innerHTML = `
+          <div class="msg-bubble msg-agent">
+            <strong>AI Agents Roster</strong> (${Object.keys(AGENTS).length} Characters Active)
+          </div>
+          <div style="margin-top:8px;">
+            ${rosterHtml}
+          </div>
         `;
-      } catch (e) {
-        content.innerHTML = `<div style="color:var(--bad);">Error loading task details.</div>`;
+      } else if (mode === 'projects') {
+        const projs = officeMetrics.projects || [];
+        const isAnon = localStorage.getItem("devcity_anonymize") === "true";
+        const projHtml = projs.map((p, idx) => {
+          const name = getAnonymizedProjectName(p.name || p.id, idx);
+          const cost = formatMoney(p.costUSD || 0);
+          const tok = formatNumber((p.tokens?.input || 0) + (p.tokens?.output || 0) + (p.tokens?.cacheRead || 0));
+          return `
+            <div style="background:var(--lot);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <b style="color:var(--ink);font-size:11px;">${name}</b>
+                <span style="color:var(--accent);font-weight:700;font-size:11px;">${cost}</span>
+              </div>
+              <div style="font-size:10px;color:var(--dim);margin-top:2px;display:flex;justify-content:space-between;">
+                <span>${p.sessions || 0} sessions · ${tok} tok</span>
+                <span style="color:${p.cacheLeak ? 'var(--bad)' : 'var(--ok)'};">${p.cacheLeak ? 'Cache Leak' : '● Optimal'}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        thread.innerHTML = `
+          <div class="msg-bubble msg-agent">
+            <strong>Tracked Projects</strong> (${projs.length} Repositories ${isAnon ? '· Anonymized' : ''})
+          </div>
+          <div style="margin-top:8px;">
+            ${projHtml || '<div style="color:var(--dim);font-size:11px;">No projects recorded yet.</div>'}
+          </div>
+        `;
+      } else if (mode === 'storage') {
+        const raw = officeMetrics.raw || {};
+        const tk = raw.totals?.tokens || {};
+        thread.innerHTML = `
+          <div class="msg-bubble msg-agent">
+            <strong>Storage Room & Context Cache Stats</strong>
+          </div>
+          <div class="capabilities-card">
+            <b>Cache Efficiency:</b><br>
+            • Cache Hit Rate: <span style="color:var(--ok);font-weight:700;">${Math.round(officeMetrics.cacheHitRate * 100)}%</span><br>
+            • Real Money Saved: <span style="color:var(--accent);font-weight:700;">${formatMoney(officeMetrics.cacheSaved)}</span><br>
+            • Cache Reads: ~${formatNumber(tk.cacheRead || 0)} tokens<br>
+            • Cache Writes: ~${formatNumber(tk.cacheWrite || 0)} tokens<br>
+            • Prompt Inputs: ~${formatNumber(tk.input || 0)} tokens<br>
+            • Completions: ~${formatNumber(tk.output || 0)} tokens
+          </div>
+          <div class="quick-chips">
+            <button class="chip" onclick="triggerCoffeeBreak()">
+              Restock Cache & Tips at Vending Break
+            </button>
+          </div>
+        `;
       }
+    }
+
+    function toggleMobileSidebar() {
+      const sb = document.getElementById("sidebar");
+      const ov = document.getElementById("sidebarOverlay");
+      if (sb) sb.classList.toggle("open");
+      if (ov) ov.classList.toggle("active");
+    }
+
+    function toggleMobileChat() {
+      const cp = document.getElementById("chat-panel");
+      if (cp) cp.classList.toggle("collapsed");
+    }
+
+    function openSettingsModal() {
+      const modal = document.getElementById("settingsModal");
+      if (modal) modal.style.display = "flex";
+      const savedMode = localStorage.getItem("devcity_data_mode") || "real";
+      const anonymize = localStorage.getItem("devcity_anonymize") === "true";
+      const autoSafety = localStorage.getItem("devcity_auto_safety") === "true";
+      const animations = localStorage.getItem("devcity_animations") !== "false";
+
+      const modeEl = document.getElementById("settingDataMode");
+      if (modeEl) modeEl.value = savedMode;
+      const anonEl = document.getElementById("settingAnonymize");
+      if (anonEl) anonEl.checked = anonymize;
+      const safetyEl = document.getElementById("settingAutoSafety");
+      if (safetyEl) safetyEl.checked = autoSafety;
+      const animEl = document.getElementById("settingAnimations");
+      if (animEl) animEl.checked = animations;
+    }
+
+    function closeSettingsModal() {
+      const modal = document.getElementById("settingsModal");
+      if (modal) modal.style.display = "none";
+    }
+
+    function saveSettings() {
+      const mode = document.getElementById("settingDataMode").value;
+      const anonymize = document.getElementById("settingAnonymize").checked;
+      const autoSafety = document.getElementById("settingAutoSafety").checked;
+      const animations = document.getElementById("settingAnimations").checked;
+
+      localStorage.setItem("devcity_data_mode", mode);
+      localStorage.setItem("devcity_anonymize", anonymize);
+      localStorage.setItem("devcity_auto_safety", autoSafety);
+      localStorage.setItem("devcity_animations", animations);
+
+      isAutoSafety = autoSafety;
+      appendTermLog(`Settings updated: [Source: ${mode}, Anonymize: ${anonymize}, AutoSafety: ${autoSafety}]`, "info");
+      loadOfficeUsageData();
+    }
+
+    function exitOffice() {
+      try {
+        if (window.parent && window.parent !== window && typeof window.parent.switchCampus === "function") {
+          window.parent.switchCampus("monitor");
+          return;
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleFloorSelector() {
+      const sel = document.getElementById("roomSelector");
+      triggerMeeting();
+    }
+
+    // Terminal Drawer Logic
+    let isTermOpen = false;
+    let currentSafetyRequestId = null;
+
+    function toggleTerminal() {
+      isTermOpen = !isTermOpen;
+      const drawer = document.getElementById("terminalDrawer");
+      drawer.style.display = isTermOpen ? "flex" : "none";
+      if (isTermOpen) {
+        document.getElementById("termInput").focus();
+      }
+    }
+
+    function clearTermLogs() {
+      document.getElementById("termLogs").innerHTML = "";
+    }
+
+    function appendTermLog(text, level = "info") {
+      const logs = document.getElementById("termLogs");
+      const line = document.createElement("div");
+      line.className = `term-line ${level}`;
+      const now = new Date().toLocaleTimeString();
+      line.textContent = `[${now}] ${text}`;
+      logs.appendChild(line);
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    async function execTerminal() {
+      const input = document.getElementById("termInput");
+      const cmd = input.value.trim();
+      if (!cmd) return;
+      input.value = "";
+
+      appendTermLog(`$ ${cmd}`, "info");
+
+      if (hasLiveDaemon) {
+        try {
+          const res = await fetch("/api/terminal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ command: cmd })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.output === "__CLEAR__") {
+              clearTermLogs();
+            } else if (data.output) {
+              appendTermLog(data.output, "success");
+            }
+            return;
+          }
+        } catch (err) {}
+      }
+
+      // Simulation fallback for terminal
+      const lower = cmd.toLowerCase().trim();
+      if (lower === "clear") {
+        clearTermLogs();
+      } else if (lower === "help") {
+        appendTermLog("Available commands: status, spend, tools, top-projects, agents, meeting, pipeline <name>, clear, whoami", "info");
+      } else if (lower === "status") {
+        appendTermLog(`Office HQ: 7 characters active · ${document.getElementById("workingCount").textContent} · Total Spend: ${formatMoney(officeMetrics.totalCost)} · Health: ${officeMetrics.healthScore}/100 · Mode: ${officeMetrics.isSampleData ? 'SAMPLE' : 'LIVE'} · Bridge: ${hasLiveDaemon ? 'LIVE' : 'STANDALONE'}`, "success");
+      } else if (lower === "spend") {
+        appendTermLog(`Total Spend: ${formatMoney(officeMetrics.totalCost)} | Processed: ${formatNumber(officeMetrics.totalTokens)} tokens | Cache Savings: ${formatMoney(officeMetrics.cacheSaved)} (${Math.round(officeMetrics.cacheHitRate * 100)}% hit rate)`, "success");
+      } else if (lower === "tools") {
+        const topTools = (officeMetrics.tools || []).map(t => `${t[0]} (${t[1]} calls)`).join(" · ");
+        appendTermLog(`Connected Developer Tools: ${topTools || 'None recorded yet'}`, "info");
+      } else if (lower === "top-projects") {
+        const projs = (officeMetrics.projects || []).slice(0, 5).map((p, i) => `${i+1}. ${getAnonymizedProjectName(p.name || p.id, i)} (${formatMoney(p.costUSD || 0)})`).join(" · ");
+        appendTermLog(`Top Projects: ${projs || 'None recorded'}`, "info");
+      } else if (lower === "agents") {
+        const roster = Object.values(AGENTS).map(a => `${a.name} (${a.role}) [${a.state}]`).join(" · ");
+        appendTermLog(roster, "info");
+      } else if (lower === "whoami") {
+        appendTermLog("Logged in as: Engineering Director (You) · Role: Lead Architect & Reviewer", "info");
+      } else if (lower === "meeting") {
+        triggerMeeting();
+        appendTermLog(`Standup meeting ${isMeetingMode ? 'started' : 'ended'}.`, "warn");
+      } else if (lower.startsWith("pipeline")) {
+        const feat = cmd.substring(8).trim() || "Full-Stack Feature";
+        appendTermLog(`Opening a relay for: ${feat}`, "info");
+        openRelayModal();
+        const featInput = document.getElementById("relayFeatureInput");
+        if (featInput) featInput.value = feat;
+        startFeatureRelay();
+      } else {
+        appendTermLog(`Not connected, so '${cmd}' did not run. Type 'help' for what works here, or use the office at localhost:8088 (start it with ./dev-city start).`, "warn");
+      }
+    }
+
+    // Safety Modal Logic
+    function showSafetyModal(req) {
+      if (isAutoSafety) {
+        currentSafetyRequestId = req.id || "perm-0001";
+        appendTermLog(`[Strict Fence] Auto-approving sensitive action (${req.command || 'DROP TABLE'}) under Auto-Approve rule.`, "warn");
+        resolveSafety(true);
+        return;
+      }
+      currentSafetyRequestId = req.id || "perm-0001";
+      document.getElementById("safetyCommand").textContent = req.command || "DROP TABLE legacy_users;";
+      document.getElementById("safetyReason").textContent = req.reason || "Action requires human approval.";
+      document.getElementById("safetyModal").style.display = "flex";
+    }
+
+    function closeSafetyModal() {
+      document.getElementById("safetyModal").style.display = "none";
+    }
+
+    async function resolveSafety(approved) {
+      closeSafetyModal();
+      const autoApprove = document.getElementById("autoApproveCheck").checked;
+      appendTermLog(`Safety verdict for ${currentSafetyRequestId}: ${approved ? "APPROVED" : "BLOCKED"}`, approved ? "warn" : "error");
+
+      if (hasLiveDaemon) {
+        try {
+          await fetch("/api/permission-verdict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: currentSafetyRequestId,
+              approved: approved,
+              auto_mode: autoApprove ? true : undefined
+            })
+          });
+        } catch (err) {}
+      }
+    }
+
+    // 6-Stage Feature Relay Logic
+    const RELAY_STAGES = ["apex", "alpha_be", "beta_fe", "gamma_qa", "delta_devops", "zeta_docs"];
+
+    function openRelayModal() {
+      document.getElementById("relayModal").style.display = "flex";
+      RELAY_STAGES.forEach(id => {
+        const node = document.getElementById(`node-${id}`);
+        if (node) { node.className = "relay-node"; }
+      });
+      document.getElementById("relayStatusText").textContent = hasLiveDaemon ? (/template/i.test(officeMetrics.liveModel || "") ? "Connected in template mode. You'll get free example files, not AI. For free real AI, install Ollama." : `Connected. This runs ${officeMetrics.liveModel || "a local model"} on your computer. It's free.`) : "Not connected, so this runs as a preview. Nothing will be built. For real runs, use the office at localhost:8088.";
+    }
+
+    function closeRelayModal() {
+      document.getElementById("relayModal").style.display = "none";
+    }
+
+    const escHtml = (t) => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    async function startFeatureRelay() {
+      const featInput = document.getElementById("relayFeatureInput");
+      const featName = featInput.value.trim() || "Full-Stack Service";
+      const playbook = document.getElementById("relayPlaybookSelect").value;
+      const statusText = document.getElementById("relayStatusText");
+      const btn = document.getElementById("btnStartRelay");
+      const live = hasLiveDaemon, prefix = live ? "" : "Preview: ";
+      const results = [];
+      let failure = null;
+      btn.disabled = true;
+
+      appendTermLog(live ? `Started relay: "${featName}" [${playbook}]` : `Previewing a relay for "${featName}". Nothing will be built.`, "info");
+
+      for (let i = 0; i < RELAY_STAGES.length; i++) {
+        const agentId = RELAY_STAGES[i];
+        const ag = AGENTS[agentId];
+        const node = document.getElementById(`node-${agentId}`);
+
+        if (node) node.className = "relay-node active";
+        if (ag) {
+          ag.state = "writing";
+          ag.speech = `${prefix}working on ${featName.substring(0, 22)}`;
+          updateWorkingCount();
+        }
+        statusText.textContent = `${prefix}stage ${i + 1} of 6, ${ag ? ag.name : agentId} is working…`;
+
+        if (live) {
+          try {
+            const res = await fetch("/api/spawn", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ agent: agentId, task: featName, playbook: playbook })
+            });
+            const data = await res.json();
+            if (!res.ok || data.success === false) throw new Error(data.error || `Request failed (${res.status})`);
+            results.push(data);
+          } catch (e) {
+            failure = { agent: ag ? ag.name : agentId, message: e.message };
+          }
+        } else {
+          await new Promise(r => setTimeout(r, 650));
+        }
+
+        if (node) node.className = failure ? "relay-node failed" : "relay-node done";
+        if (ag) {
+          ag.state = "idle";
+          ag.speech = failure ? "That stage failed." : (live ? "Handed off to the next agent." : "Preview step finished.");
+          updateWorkingCount();
+        }
+        appendTermLog(failure ? `Stage ${i + 1} of 6 [${agentId}] failed: ${failure.message}` : `Stage ${i + 1} of 6 [${agentId}]: ${live ? "finished" : "preview step finished"}`, failure ? "error" : (live ? "success" : "info"));
+        if (failure) break;
+      }
+
+      btn.disabled = false;
+      statusText.textContent = failure ? `Stopped at ${failure.agent}.` : (live ? `All 6 stages finished for "${featName}".` : "Preview finished. Nothing was built.");
+
+      setTimeout(() => {
+        closeRelayModal();
+        const thread = document.getElementById("chatThread");
+        const b = document.createElement("div");
+        b.className = "msg-bubble msg-agent";
+        if (failure) b.innerHTML = `<strong>The relay stopped at ${escHtml(failure.agent)}.</strong><br>${escHtml(failure.message)}`;
+        else if (live) b.innerHTML = `<strong>Relay finished:</strong> <code>${escHtml(featName)}</code>${generatedFilesHtml(Object.assign({}, ...results.map(r => r.artifacts)))}${runNoteHtml(results)}`;
+        else b.innerHTML = `<strong>That was only a preview.</strong> No AI ran and no files were created. Run <code>./dev-city start</code> to do it for real.`;
+        thread.appendChild(b);
+        thread.scrollTop = thread.scrollHeight;
+      }, 900);
+    }
+
+    // Dynamic Connection & Live SSE Handling
+    function setDaemonStatus(isLive) {
+      hasLiveDaemon = isLive;
+      const badge = document.getElementById("daemonBadge");
+      if (badge) {
+        if (isLive) {
+          badge.textContent = "Connected";
+          badge.style.background = "var(--ok-bg)";
+          badge.style.color = "var(--ok)";
+        } else {
+          badge.textContent = "Not connected";
+          badge.style.background = "var(--lot)";
+          badge.style.color = "var(--dim)";
+        }
+      }
+    }
+
+    // A static preview has no server of its own, but the office server may be running on its own port
+    const OFFICE_SERVER_URL = "http://localhost:8088/";
+    let officeServerElsewhere = false;
+
+    // What an agent made: each file opens in place
+    function generatedFilesHtml(files) {
+      const entries = Object.entries(files || {});
+      if (!entries.length) return `<div class="gen-note">No files were generated.</div>`;
+      return entries.map(([name, content]) => `<details class="gen-file"><summary><code>${escHtml(name)}</code></summary><pre>${escHtml(content)}</pre></details>`).join("");
+    }
+
+    // Who answered and where the files are, so a template run is never mistaken for AI
+    function runNoteHtml(results) {
+      const first = results[0] || {};
+      const notes = [];
+      if (/template/i.test(first.provider || "")) notes.push("Template mode: this is example output, not AI. For free real AI, install Ollama.");
+      else if (first.model) notes.push(`Written by ${escHtml(first.model)} on your computer. It's free.`);
+      if (first.saved_to) notes.push(`Saved in <code>${escHtml(first.saved_to)}</code>.`);
+      return notes.length ? `<div class="gen-note">${notes.join(" ")}</div>` : "";
+    }
+
+    async function findOfficeServer() {
+      try {
+        const res = await fetch(OFFICE_SERVER_URL + "api/status");
+        officeServerElsewhere = res.ok;
+      } catch (e) {
+        officeServerElsewhere = false;
+      }
+    }
+
+    function notConnectedNote() {
+      return officeServerElsewhere
+        ? `<strong>Nothing ran.</strong> This tab is only a preview. The office server is running, so <a href="${OFFICE_SERVER_URL}" target="_top" style="color:var(--accent);font-weight:600;">open the live office</a> and ask there.`
+        : `<strong>Nothing ran.</strong> The office server isn't running. In the project folder, run <code>./dev-city start</code>, then use the office at <code>localhost:8088</code>.`;
+    }
+
+    async function checkDaemonConnection() {
+      try {
+        const res = await fetch("/api/status", { method: "GET" });
+        if (res.ok) {
+          const status = await res.json();
+          if (status.model) officeMetrics.liveModel = status.model;
+          setDaemonStatus(true);
+          connectSSE();
+          loadReviewTasks();
+          return;
+        }
+      } catch (e) {
+        // Quiet fallback - static host or offline
+      }
+      setDaemonStatus(false);
+    }
+
+    // --- The Review Desk ---
+    function openReviewDesk() {
+      document.getElementById("reviewModal").style.display = "flex";
+      loadReviewTasks();
     }
 
     function closeReviewDesk() {
       document.getElementById("reviewModal").style.display = "none";
     }
 
-    async function applyTask() {
-      if (!currentTaskId) return;
-      if (!confirm("Apply these verified staged changes directly to your repository?")) return;
-      const res = await fetch(`/api/apply?id=${currentTaskId}`, { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        alert("Changes applied successfully to your codebase!");
-        closeReviewDesk();
-        loadTasks();
-      } else {
-        alert("Error applying changes: " + data.error);
+    let currentReviewTaskId = null;
+
+    async function loadReviewTasks() {
+      try {
+        const res = await fetch("/api/tasks");
+        if (!res.ok) return;
+        const tasks = await res.json();
+        const badge = document.getElementById("reviewCountBadge");
+        const listCount = document.getElementById("reviewTaskListCount");
+        const listEl = document.getElementById("reviewTaskList");
+
+        if (listCount) listCount.textContent = tasks.length;
+        if (badge) {
+          badge.textContent = tasks.length;
+          badge.style.display = tasks.length > 0 ? "inline-block" : "none";
+        }
+
+        if (!tasks.length) {
+          if (listEl) listEl.innerHTML = '<div style="padding:16px;text-align:center;color:var(--dim);font-size:11px;">No staged tasks in quarantine.</div>';
+          return;
+        }
+
+        if (listEl) {
+          listEl.innerHTML = tasks.map(t => {
+            const passBadge = t.tests_passed 
+              ? '<span style="color:var(--ok);font-size:10px;font-weight:700;">● PASS</span>' 
+              : '<span style="color:var(--warn);font-size:10px;font-weight:700;">● PENDING</span>';
+            return `
+              <div class="review-task-card" onclick="selectReviewTask('${t.task_id}')" style="cursor:pointer;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--solid);display:flex;flex-direction:column;gap:4px;transition:all .15s ease;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <code style="font-size:10.5px;color:var(--accent);font-weight:600;">${escHtml(t.task_id)}</code>
+                  ${passBadge}
+                </div>
+                <div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);">${escHtml(t.goal)}</div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);">
+                  <span>${t.diff_count} files</span>
+                  <span>${t.status}</span>
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
+
+        if (!currentReviewTaskId && tasks.length > 0) {
+          selectReviewTask(tasks[0].task_id);
+        }
+      } catch (e) {
+        console.error("Failed to load review tasks:", e);
       }
     }
 
-    async function rollbackTask() {
-      if (!currentTaskId) return;
-      if (!confirm("Rollback changes from backup?")) return;
-      const res = await fetch(`/api/rollback?id=${currentTaskId}`, { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        alert("Rollback successful.");
-        closeReviewDesk();
-        loadTasks();
-      } else {
-        alert("Error: " + data.error);
+    async function selectReviewTask(taskId) {
+      currentReviewTaskId = taskId;
+      const detailEl = document.getElementById("reviewTaskDetail");
+      if (!detailEl) return;
+      detailEl.innerHTML = '<div style="margin:auto;color:var(--dim);font-size:12px;">Loading staged task details…</div>';
+      try {
+        const res = await fetch(`/api/task?id=${encodeURIComponent(taskId)}`);
+        if (!res.ok) throw new Error("Task not found");
+        const t = await res.json();
+
+        const tr = t.test_result;
+        const testBanner = tr ? `
+          <div style="padding:10px;border-radius:6px;margin:10px 0;background:${tr.passed ? "var(--ok-bg)" : "var(--bad-bg)"};border:1px solid ${tr.passed ? "var(--ok)" : "var(--bad)"};">
+            <div style="font-weight:700;font-size:11.5px;color:${tr.passed ? "var(--ok)" : "var(--bad)"};">
+              ${tr.passed ? "✓ Verification Passed (Zero Regressions)" : "✗ Verification Failed (Auto-Healing Triggered)"}
+            </div>
+            <div style="font-family:var(--f-mono);font-size:10px;color:var(--dim);margin-top:4px;">
+              Command: <code>${escHtml(tr.command || "test runner")}</code> (${(tr.duration_s || 0).toFixed(2)}s)
+            </div>
+            ${tr.output ? `<pre style="font-size:10px;max-height:80px;overflow-y:auto;background:rgba(0,0,0,0.2);padding:6px;border-radius:4px;margin-top:6px;">${escHtml(tr.output.substring(0, 500))}</pre>` : ""}
+          </div>
+        ` : `<div style="font-size:11px;color:var(--dim);margin:6px 0;">No automated test run recorded.</div>`;
+
+        const diffsHtml = (t.diffs || []).map(d => {
+          const lines = (d.patch_text || "").split("\n").map(l => {
+            if (l.startsWith("+")) return `<div style="color:var(--ok);background:rgba(61,220,151,0.08);">${escHtml(l)}</div>`;
+            if (l.startsWith("-")) return `<div style="color:var(--bad);background:rgba(255,122,112,0.08);">${escHtml(l)}</div>`;
+            return `<div>${escHtml(l)}</div>`;
+          }).join("");
+          return `
+            <div style="margin-bottom:12px;border:1px solid var(--line);border-radius:6px;overflow:hidden;">
+              <div style="background:var(--lot2);padding:6px 10px;font-family:var(--f-mono);font-size:11px;font-weight:600;display:flex;justify-content:space-between;">
+                <span>${escHtml(d.file_path)} ${d.is_new ? '<span style="color:var(--ok);font-size:10px;">(New)</span>' : ''}</span>
+                <span style="font-size:10px;color:var(--dim);"><span style="color:var(--ok);">+${d.additions}</span> <span style="color:var(--bad);">-${d.deletions}</span></span>
+              </div>
+              <div style="font-family:var(--f-mono);font-size:11px;padding:8px;max-height:180px;overflow-y:auto;line-height:1.45;background:var(--solid);">
+                ${lines || '<div style="color:var(--dim);">No diff content.</div>'}
+              </div>
+            </div>
+          `;
+        }).join("") || '<div style="color:var(--dim);font-size:11px;">No file modifications.</div>';
+
+        detailEl.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink);">${escHtml(t.goal)}</div>
+              <div style="font-size:11px;color:var(--dim);margin-top:2px;">
+                Task ID: <code>${escHtml(t.task_id)}</code> · Branch: <code>${escHtml(t.git_branch)}</code> · Status: <b>${escHtml(t.status)}</b>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="action-pill-btn" onclick="rollbackTask('${t.task_id}')" style="font-size:11px;">Rollback</button>
+              <button class="action-pill-btn primary" onclick="applyTask('${t.task_id}')" style="font-size:11px;">Apply to Workspace</button>
+            </div>
+          </div>
+          ${testBanner}
+          <div style="font-size:11.5px;font-weight:700;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);">
+            Quarantined Diffs (${(t.diffs || []).length} files)
+          </div>
+          <div style="flex:1;overflow-y:auto;">
+            ${diffsHtml}
+          </div>
+        `;
+      } catch (e) {
+        detailEl.innerHTML = `<div style="color:var(--bad);margin:auto;font-size:12px;">Failed to load task: ${escHtml(e.message)}</div>`;
       }
     }
 
-    async function dispatchGoal() {
-      const input = document.getElementById("goalInput");
-      const goal = input.value.trim();
-      if (!goal) return;
-      input.value = "";
+    async function applyTask(taskId) {
+      if (!confirm(`Apply changes from ${taskId} directly to your working tree? (Backups will be created)`)) return;
+      try {
+        const res = await fetch(`/api/apply?id=${encodeURIComponent(taskId)}`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Successfully applied task ${taskId} to workspace!`);
+          loadReviewTasks();
+          selectReviewTask(taskId);
+        } else {
+          alert(`Failed to apply: ${data.error}`);
+        }
+      } catch (e) {
+        alert(`Apply error: ${e.message}`);
+      }
+    }
 
-      AGENTS.apex.bubble = "Planning spec...";
-      AGENTS.alpha.bubble = "Waiting for spec...";
-      AGENTS.gamma.bubble = "Test bench ready.";
-      AGENTS.delta.bubble = "Tracking branch...";
+    async function rollbackTask(taskId) {
+      if (!confirm(`Rollback workspace changes for ${taskId} using .devsquad.bak backups?`)) return;
+      try {
+        const res = await fetch(`/api/rollback?id=${encodeURIComponent(taskId)}`, { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Successfully rolled back changes for ${taskId}!`);
+          loadReviewTasks();
+          selectReviewTask(taskId);
+        } else {
+          alert(`Failed to rollback: ${data.error}`);
+        }
+      } catch (e) {
+        alert(`Rollback error: ${e.message}`);
+      }
+    }
 
-      addFeed("System", `Goal dispatched: "${goal}"`);
+    function connectSSE() {
+      if (!hasLiveDaemon) return;
+      try {
+        const es = new EventSource("/api/stream");
+        es.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.model) officeMetrics.liveModel = data.model;
+            if (data.agents) {
+              Object.entries(data.agents).forEach(([name, agData]) => {
+                if (AGENTS[name]) {
+                  AGENTS[name].tokens = agData.tokens_consumed || AGENTS[name].tokens;
+                  AGENTS[name].costUSD = agData.cost_usd || 0;
+                  if (agData.speech_bubble && agData.speech_bubble.text) {
+                    AGENTS[name].speech = agData.speech_bubble.text;
+                  }
+                  if (agData.state) {
+                    AGENTS[name].state = agData.state;
+                  }
+                }
+              });
+              updateWorkingCount();
+            }
 
-      await fetch("/api/dispatch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ goal })
+            if (data.pending_permissions && data.pending_permissions.length > 0) {
+              showSafetyModal(data.pending_permissions[0]);
+            }
+          } catch (e) {}
+        };
+        es.onerror = () => {
+          es.close();
+          setDaemonStatus(false);
+        };
+      } catch (err) {
+        setDaemonStatus(false);
+      }
+    }
+
+    // --- AGENTOPS SESSION REPLAY & COUNTERFACTUAL PRICING ---
+    let currentReplayData = null;
+    let replayCurrentStep = 1;
+    let replayInterval = null;
+
+    function openReplayModal() {
+      document.getElementById("replayModal").style.display = "flex";
+      refreshReplaySessions();
+    }
+
+    function closeReplayModal() {
+      if (replayInterval) {
+        clearInterval(replayInterval);
+        replayInterval = null;
+        const btn = document.getElementById("btnReplayPlay");
+        if (btn) btn.textContent = "Play";
+      }
+      document.getElementById("replayModal").style.display = "none";
+    }
+
+    async function refreshReplaySessions() {
+      const select = document.getElementById("replaySessionSelect");
+      select.innerHTML = '<option value="">Loading sessions...</option>';
+      const sessionOptions = [];
+
+      // 1. Fetch from live orchestrator / acceptance log
+      try {
+        const res = await fetch("/api/sessions");
+        if (res.ok) {
+          const data = await res.json();
+          (data.sessions || []).forEach(s => {
+            sessionOptions.push({
+              id: s.session_id,
+              label: `[Multi-Agent] ${s.session_id} (${s.step_count} steps, $${(s.total_cost || 0).toFixed(4)}, ${s.providers || 'local'})`
+            });
+          });
+        }
+      } catch (e) {}
+
+      // 2. Fetch projects from usage data as collected sessions
+      if (officeMetrics.projects && officeMetrics.projects.length > 0) {
+        officeMetrics.projects.forEach(p => {
+          sessionOptions.push({
+            id: p.id || p.name,
+            label: `[Collected] ${p.name || p.id} ($${(p.costUSD || 0).toFixed(2)}, ${formatNumber(p.tokens ? (p.tokens.input + p.tokens.output) : 0)} tok)`
+          });
+        });
+      }
+
+      select.innerHTML = "";
+      if (sessionOptions.length === 0) {
+        select.innerHTML = '<option value="">No sessions found yet</option>';
+        return;
+      }
+
+      sessionOptions.forEach(opt => {
+        const el = document.createElement("option");
+        el.value = opt.id;
+        el.textContent = opt.label;
+        select.appendChild(el);
+      });
+
+      // Automatically load first session
+      loadSelectedSessionReplay(sessionOptions[0].id);
+    }
+
+    async function loadSelectedSessionReplay(sessionId) {
+      if (!sessionId) return;
+      currentReplayData = null;
+
+      // 1. Try /api/replay
+      try {
+        const res = await fetch(`/api/replay?session_id=${encodeURIComponent(sessionId)}`);
+        if (res.ok) {
+          currentReplayData = await res.json();
+        }
+      } catch (e) {}
+
+      // 2. Fallback: synthesize from officeMetrics.projects if running static
+      if (!currentReplayData && officeMetrics.projects) {
+        const proj = officeMetrics.projects.find(p => (p.id === sessionId || p.name === sessionId));
+        if (proj) {
+          const inTok = proj.tokens ? (proj.tokens.input || 0) : 0;
+          const outTok = proj.tokens ? (proj.tokens.output || 0) : 0;
+          const crTok = proj.tokens ? (proj.tokens.cacheRead || 0) : 0;
+          const cwTok = proj.tokens ? (proj.tokens.cacheWrite || 0) : 0;
+          const cost = proj.costUSD || 0.0;
+          const synthStep = {
+            step_index: 1,
+            timestamp: new Date().toISOString(),
+            agent_name: "claude-code",
+            tool_name: "project_aggregate",
+            provider: "anthropic",
+            model: "claude-3-5-sonnet",
+            tokens_in: inTok,
+            tokens_out: outTok,
+            cache_read: crTok,
+            cache_write: cwTok,
+            cost_usd: cost,
+            duration_ms: (proj.activeHours || 1.0) * 3600000,
+            status: "completed"
+          };
+          currentReplayData = {
+            session_id: sessionId,
+            source: "claude-code (project)",
+            step_count: 1,
+            steps: [synthStep],
+            total_tokens: inTok + outTok + crTok + cwTok,
+            tokens: { input: inTok, output: outTok, cache_read: crTok, cache_write: cwTok },
+            total_cost_usd: cost,
+            total_duration_ms: synthStep.duration_ms,
+            providers: ["anthropic"],
+            models: ["claude-3-5-sonnet"]
+          };
+        }
+      }
+
+      if (!currentReplayData) {
+        appendTermLog(`Could not load replay data for session ${sessionId}`, "error");
+        return;
+      }
+
+      // Update Meta
+      document.getElementById("replaySource").textContent = currentReplayData.source || "unknown";
+      document.getElementById("replayTotalSteps").textContent = (currentReplayData.steps || []).length;
+      document.getElementById("replayTotalTokens").textContent = formatNumber(currentReplayData.total_tokens || 0);
+      document.getElementById("replayActualCost").textContent = formatMoney(currentReplayData.total_cost_usd || 0);
+
+      // Setup Scrubber
+      const steps = currentReplayData.steps || [];
+      const scrubber = document.getElementById("replayScrubber");
+      scrubber.min = 1;
+      scrubber.max = Math.max(1, steps.length);
+      scrubber.value = 1;
+      replayCurrentStep = 1;
+
+      // Populate Counterfactual What-If Table
+      renderReplayWhatIf(currentReplayData);
+
+      // Render Step 1
+      renderReplayStep(1);
+    }
+
+    function renderReplayStep(stepIdx) {
+      if (!currentReplayData || !currentReplayData.steps || currentReplayData.steps.length === 0) return;
+      const steps = currentReplayData.steps;
+      const idx = Math.max(1, Math.min(stepIdx, steps.length));
+      replayCurrentStep = idx;
+      const step = steps[idx - 1];
+
+      document.getElementById("replayStepLabel").textContent = `Step ${idx} of ${steps.length}`;
+      document.getElementById("replayScrubber").value = idx;
+      document.getElementById("replayStepAgentName").textContent = step.agent_name || "Agent";
+      document.getElementById("replayStepTool").textContent = step.tool_name || "action";
+      document.getElementById("replayStepCost").textContent = `$${(step.cost_usd || 0).toFixed(4)}`;
+      document.getElementById("replayStepDuration").textContent = `${((step.duration_ms || 0) / 1000).toFixed(2)}s`;
+      document.getElementById("replayStepIn").textContent = formatNumber(step.tokens_in || 0);
+      document.getElementById("replayStepOut").textContent = formatNumber(step.tokens_out || 0);
+      document.getElementById("replayStepCache").textContent = formatNumber((step.cache_read || 0) + (step.cache_write || 0));
+      document.getElementById("replayStepModel").textContent = step.model || "default";
+      document.getElementById("replayProviderTag").textContent = `Provider: ${step.provider || "local"}`;
+
+      const agAvatar = document.getElementById("replayStepAgentAvatar");
+      if (AGENTS[step.agent_name]) {
+        agAvatar.innerHTML = AGENTS[step.agent_name].avatar;
+        // Animate Agent on canvas
+        selectAgent(step.agent_name);
+        AGENTS[step.agent_name].state = "writing";
+        AGENTS[step.agent_name].speech = `[Replay Step ${idx}]: Executing ${step.tool_name}...`;
+        updateWorkingCount();
+      } else {
+        agAvatar.innerHTML = "";
+      }
+    }
+
+    function onReplayScrub(val) {
+      renderReplayStep(val);
+    }
+
+    function stepReplay(delta) {
+      if (!currentReplayData || !currentReplayData.steps) return;
+      const next = replayCurrentStep + delta;
+      if (next >= 1 && next <= currentReplayData.steps.length) {
+        renderReplayStep(next);
+      }
+    }
+
+    function toggleReplayPlay() {
+      const btn = document.getElementById("btnReplayPlay");
+      if (replayInterval) {
+        clearInterval(replayInterval);
+        replayInterval = null;
+        btn.textContent = "Play";
+      } else {
+        if (!currentReplayData || !currentReplayData.steps) return;
+        btn.textContent = "Pause";
+        replayInterval = setInterval(() => {
+          if (replayCurrentStep >= currentReplayData.steps.length) {
+            renderReplayStep(1);
+          } else {
+            stepReplay(1);
+          }
+        }, 1200);
+      }
+    }
+
+    function renderReplayWhatIf(replayData) {
+      const tbody = document.getElementById("replayWhatIfBody");
+      tbody.innerHTML = "";
+      const t = replayData.tokens || {};
+      const inTok = t.input || 0;
+      const outTok = t.output || 0;
+      const crTok = t.cache_read || 0;
+      const cwTok = t.cache_write || 0;
+      const actualCost = replayData.total_cost_usd || 0.0;
+
+      // Price models per 1M tokens: [label, inRate, outRate, crRate, cwRate]
+      const models = [
+        { label: "Ollama Local (qwen2.5-coder / llama3)", in: 0, out: 0, cr: 0, cw: 0 },
+        { label: "Gemini 2.5 Flash", in: 0.075, out: 0.30, cr: 0.01875, cw: 0.075 },
+        { label: "Claude 3.5 Haiku", in: 0.80, out: 4.00, cr: 0.08, cw: 1.00 },
+        { label: "Claude 3.5 Sonnet", in: 3.00, out: 15.00, cr: 0.30, cw: 3.75 },
+        { label: "Gemini 2.5 Pro", in: 1.25, out: 5.00, cr: 0.3125, cw: 1.25 },
+        { label: "Claude Opus 4.6", in: 5.00, out: 25.00, cr: 0.50, cw: 6.25 }
+      ];
+
+      models.forEach(m => {
+        const est = (inTok * m.in + outTok * m.out + crTok * m.cr + cwTok * m.cw) / 1000000.0;
+        let deltaStr = "";
+        let deltaColor = "var(--dim)";
+
+        if (actualCost > 0) {
+          const pct = ((est - actualCost) / actualCost) * 100;
+          if (Math.abs(pct) < 1) {
+            deltaStr = "CURRENT BASELINE";
+            deltaColor = "var(--accent)";
+          } else if (pct < 0) {
+            deltaStr = `${pct.toFixed(1)}% (save $${(actualCost - est).toFixed(4)})`;
+            deltaColor = "var(--ok)";
+          } else {
+            deltaStr = `+${pct.toFixed(1)}% (+$${(est - actualCost).toFixed(4)})`;
+            deltaColor = "var(--bad)";
+          }
+        } else {
+          deltaStr = est === 0 ? "$0.00 base" : `+$${est.toFixed(4)}`;
+          deltaColor = est === 0 ? "var(--ok)" : "var(--warn)";
+        }
+
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid var(--lot)";
+        tr.innerHTML = `
+          <td style="padding:6px;font-weight:600;color:var(--ink);">${m.label}</td>
+          <td style="padding:6px;font-family:var(--f-mono);color:var(--accent);">$${est.toFixed(4)}</td>
+          <td style="padding:6px;font-size:10px;font-weight:600;color:${deltaColor};">${deltaStr}</td>
+        `;
+        tbody.appendChild(tr);
       });
     }
 
-    function quickFill(val) {
-      document.getElementById("goalInput").value = val;
-    }
-
-    function addFeed(agent, text) {
-      const list = document.getElementById("feedList");
-      const item = document.createElement("div");
-      item.className = "feed-item";
-      const tagClass = `tag-${agent.toLowerCase()}`;
-      item.innerHTML = `<span class="feed-agent-tag ${tagClass}">[${agent}]</span><br>${escapeHtml(text)}`;
-      list.appendChild(item);
-      list.scrollTop = list.scrollHeight;
-    }
-
-    function formatDiffLines(patch) {
-      return patch.split("\n").map(l => {
-        if (l.startsWith("+") && !l.startsWith("+++")) return `<span class="diff-add">${escapeHtml(l)}</span>`;
-        if (l.startsWith("-") && !l.startsWith("---")) return `<span class="diff-del">${escapeHtml(l)}</span>`;
-        return escapeHtml(l);
-      }).join("\n");
-    }
-
-    function escapeHtml(text) {
-      return (text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    // Connect SSE Event Stream
-    function connectSSE() {
-      const sse = new EventSource("/api/events");
-      sse.onmessage = (e) => {
-        try {
-          const msg = JSON.parse(e.data);
-          const ag = msg.agent.toLowerCase();
-          if (AGENTS[ag]) {
-            AGENTS[ag].bubble = msg.data.message || msg.event;
-          }
-          addFeed(msg.agent, msg.data.message || msg.event);
-          if (msg.event === "STAGED" || msg.event === "VERIFIED_GREEN") {
-            loadTasks();
-          }
-        } catch (err) {}
-      };
-      sse.onerror = () => setTimeout(connectSSE, 3000);
-    }
-
-    loadStatus();
-    loadTasks();
-    connectSSE();
+    // Start
+    selectAgent("apex");
+    updateWorkingCount();
+    checkDaemonConnection();
+    initAgentArt();
+    fitCanvas();
+    window.addEventListener("resize", fitCanvas);
+    if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(canvas.parentElement);
+    window.addEventListener("message", (e) => {
+      if (e.origin === location.origin && e.data && e.data.type === "devcity-theme") document.documentElement.setAttribute("data-theme", e.data.theme === "light" ? "light" : "dark");
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (W / rect.width), my = (e.clientY - rect.top) * (H / rect.height);
+      canvas.style.cursor = Object.values(AGENTS).some(a => Math.hypot(mx - (a.currentX ?? a.deskX), my - (a.currentY ?? a.deskY)) < 34) ? "pointer" : "default";
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCanvas);
+    loadOfficeUsageData();
+    render();
   </script>
 </body>
 </html>
