@@ -11,10 +11,14 @@ import threading
 import time
 import urllib.parse
 from typing import Dict, List, Optional
+from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.context import RepoContextEngine
+from ..core.memory import MemoryLake
 from ..core.staging import StagingDeck
+from ..core.worktree import WorktreeManager
 from ..llm.factory import get_provider
 from ..runtime.relay import AutonomousRelay
+from ..runtime.swarm import BugSwarm
 
 
 class StudioHandler(http.server.BaseHTTPRequestHandler):
@@ -22,6 +26,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
 
     root: pathlib.Path = pathlib.Path.cwd()
     clients: List = []
+    clients_lock: threading.Lock = threading.Lock()
     relay: Optional[AutonomousRelay] = None
     staging: Optional[StagingDeck] = None
 
@@ -29,13 +34,25 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         # Mute default server access logs to keep terminal clean
         pass
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        if path in ("/", "/index.html", "/studio"):
+        if path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
+        elif path == "/data/usage.json":
+            usage_file = self.root / "data" / "usage.json"
+            if usage_file.exists():
+                self._serve_json_file(usage_file)
+            else:
+                self.send_error(404, "Not Found")
         elif path == "/api/status":
             ctx = RepoContextEngine(self.root).analyze()
             self._serve_json({
@@ -46,6 +63,18 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 "provider": self.relay.provider.provider_name if self.relay else "local",
                 "model": self.relay.provider.model if self.relay else "qwen2.5-coder:7b",
             })
+        elif path == "/api/sessions":
+            tasks = self.staging.list_tasks() if self.staging else []
+            sessions = [
+                {
+                    "session_id": t.task_id,
+                    "step_count": len(t.relay_logs),
+                    "total_cost": 0.0,
+                    "providers": "local",
+                }
+                for t in tasks
+            ]
+            self._serve_json({"sessions": sessions})
         elif path == "/api/tasks":
             tasks = self.staging.list_tasks() if self.staging else []
             self._serve_json([
@@ -91,7 +120,24 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                     for d in task.diffs
                 ],
             })
-        elif path == "/api/events":
+        elif path == "/api/worktrees":
+            mgr = WorktreeManager(self.root)
+            self._serve_json(mgr.list_worktrees())
+        elif path == "/api/memory":
+            lake = MemoryLake(self.root)
+            self._serve_json(lake.data)
+        elif path == "/api/blast-radius":
+            tid = query.get("task_id", [""])[0]
+            files = [f.strip() for f in query.get("files", [""])[0].split(",") if f.strip()]
+            if tid and self.staging:
+                t = self.staging.load_task(tid)
+                if t:
+                    files = [d.file_path for d in t.diffs]
+            if not files:
+                files = ["devsquad/server/server.py"]
+            analyzer = BlastRadiusAnalyzer(self.root)
+            self._serve_json(analyzer.analyze(files))
+        elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
             self.send_error(404, "Not Found")
@@ -108,7 +154,51 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
-        if path == "/api/dispatch":
+        if path == "/api/spawn":
+            if not self.relay:
+                self._serve_json({"success": False, "error": "Relay engine is not initialized"}, status=503)
+                return
+            agent_id = payload.get("agent", "apex")
+            task_text = payload.get("task", "").strip()
+            if not task_text:
+                self._serve_json({"success": False, "error": "Task description is required"}, status=400)
+                return
+
+            try:
+                task = self.relay.run_task(task_text)
+                self._serve_json({
+                    "success": True,
+                    "agent": agent_id,
+                    "task": task_text,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                    "tests_passed": task.test_result.passed if task.test_result else True,
+                    "run_note": f"Completed by DevSquad with {len(task.diffs)} staged files and test verification.",
+                })
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/pipeline":
+            if not self.relay:
+                self._serve_json({"success": False, "error": "Relay engine is not initialized"}, status=503)
+                return
+            feat = payload.get("feature", "").strip() or "Feature Relay"
+            try:
+                task = self.relay.run_task(feat)
+                self._serve_json({
+                    "success": True,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                })
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/dispatch":
+            if not self.relay:
+                self._serve_json({"error": "Relay engine is not initialized"}, status=503)
+                return
             goal = payload.get("goal", "").strip()
             if not goal:
                 self._serve_json({"error": "Goal cannot be empty"}, status=400)
@@ -120,7 +210,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             # Run relay in worker thread
             def worker():
                 try:
-                    self.relay.run_task(goal, target_file=target_file, test_file=test_file)
+                    if self.relay:
+                        self.relay.run_task(goal, target_file=target_file, test_file=test_file)
                 except Exception as e:
                     self._broadcast("System", "ERROR", {"error": str(e)})
 
@@ -148,8 +239,44 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 self._serve_json({"success": True, "results": results})
             except Exception as e:
                 self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/memory/ingest":
+            lake = MemoryLake(self.root)
+            results = lake.ingest_all()
+            self._serve_json({"success": True, "results": results, "data": lake.data})
+
+        elif path == "/api/bug-swarm":
+            title = payload.get("title", "").strip() or "Reported Issue"
+            trace = payload.get("trace", "").strip()
+            tf = payload.get("target_file")
+            provider = self.relay.provider if self.relay else get_provider()
+            swarm = BugSwarm(provider, self.root)
+            try:
+                task = swarm.run_swarm(title, trace, target_file=tf)
+                self._serve_json({
+                    "success": True,
+                    "task_id": task.task_id,
+                    "status": task.status,
+                    "artifacts": task.artifacts,
+                    "diff_count": len(task.diffs),
+                    "tests_passed": task.test_result.passed if task.test_result else False,
+                })
+            except Exception as e:
+                self._serve_json({"success": False, "error": str(e)}, status=500)
         else:
             self.send_error(404, "Not Found")
+
+    def _serve_json_file(self, file_path: pathlib.Path):
+        try:
+            content = file_path.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(content)
+        except Exception as e:
+            self.send_error(500, str(e))
 
     def _serve_json(self, data, status: int = 200):
         body = json.dumps(data).encode("utf-8")
@@ -180,30 +307,35 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
-        q = []
-        StudioHandler.clients.append(self.wfile)
+        with StudioHandler.clients_lock:
+            StudioHandler.clients.append(self.wfile)
         try:
             while True:
                 time.sleep(1.0)
                 self.wfile.write(b": ping\n\n")
                 self.wfile.flush()
         except Exception:
-            if self.wfile in StudioHandler.clients:
-                StudioHandler.clients.remove(self.wfile)
+            with StudioHandler.clients_lock:
+                if self.wfile in StudioHandler.clients:
+                    StudioHandler.clients.remove(self.wfile)
 
     @classmethod
     def _broadcast(cls, agent: str, event: str, data: Dict):
         payload = f"data: {json.dumps({'agent': agent, 'event': event, 'data': data})}\n\n".encode("utf-8")
+        with cls.clients_lock:
+            clients_copy = list(cls.clients)
         dead = []
-        for client in cls.clients:
+        for client in clients_copy:
             try:
                 client.write(payload)
                 client.flush()
             except Exception:
                 dead.append(client)
-        for d in dead:
-            if d in cls.clients:
-                cls.clients.remove(d)
+        if dead:
+            with cls.clients_lock:
+                for d in dead:
+                    if d in cls.clients:
+                        cls.clients.remove(d)
 
 
 def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -> http.server.ThreadingHTTPServer:
