@@ -213,7 +213,7 @@ python3 -m unittest discover tests -v
 ## 🏛️ Architecture & Principles
 
 - **[ADR 0001: Autonomous Relay Architecture & The Review Desk](docs/adr/0001-autonomous-relay-and-staging-desk.md)**
-- **Local-First by Design**: Prioritizes local Ollama endpoints. Cloud keys (Anthropic / OpenAI) are optional and never required.
+- **Local-First by Design**: Free AI only. Agents use Ollama or another model server on your computer, or template mode. Paid cloud APIs are not supported, and `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` are ignored.
 - **Zero Hallucinated Clobbering**: No agent writes directly to your git working tree without staged approval.
 
 ---

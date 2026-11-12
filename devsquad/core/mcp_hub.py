@@ -26,7 +26,7 @@ class MCPHub:
         self.tools: Dict[str, MCPToolDefinition] = {}
         self.tool_handlers: Dict[str, Callable] = {}
         self.desk_bindings: Dict[str, Dict[str, Any]] = {
-            "apex": {"provider": "claude", "role": "Architect", "assigned_tools": ["ast_blast_radius", "synthesize_adr"]},
+            "apex": {"provider": "ollama", "role": "Architect", "assigned_tools": ["ast_blast_radius", "synthesize_adr"]},
             "alpha_be": {"provider": "ollama", "role": "Backend Coder", "assigned_tools": ["database_schema_check", "git_worktree"]},
             "beta_fe": {"provider": "ollama", "role": "Frontend UI", "assigned_tools": ["visual_a11y_audit", "component_render"]},
             "gamma_qa": {"provider": "subprocess", "role": "Test Runner", "assigned_tools": ["run_test_suite", "flaky_stress_runner"]},
