@@ -12,11 +12,15 @@ import time
 import urllib.parse
 from typing import Dict, List, Optional
 from ..core.blast_radius import BlastRadiusAnalyzer
+from ..core.chaos import ChaosLab
 from ..core.context import RepoContextEngine
 from ..core.memory import MemoryLake
+from ..core.merge_arena import MergeConflictArena
+from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
 from ..core.worktree import WorktreeManager
 from ..llm.factory import get_provider
+from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
 
@@ -29,6 +33,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
     clients_lock: threading.Lock = threading.Lock()
     relay: Optional[AutonomousRelay] = None
     staging: Optional[StagingDeck] = None
+    chaos_lab: ChaosLab = ChaosLab()
+    model_router: HybridModelRouter = HybridModelRouter()
 
     def log_message(self, format, *args):
         # Mute default server access logs to keep terminal clean
@@ -137,6 +143,24 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 files = ["devsquad/server/server.py"]
             analyzer = BlastRadiusAnalyzer(self.root)
             self._serve_json(analyzer.analyze(files))
+        elif path == "/api/v1/chaos/presets":
+            self._serve_json({"presets": self.chaos_lab.list_presets()})
+        elif path == "/api/v1/security/audit":
+            report = SecurityVault(self.root).scan_repo()
+            self._serve_json({
+                "status": report.status,
+                "security_score": report.security_score,
+                "files_scanned": report.files_scanned,
+                "total_vulnerabilities": report.total_vulnerabilities,
+                "critical_count": report.critical_count,
+                "high_count": report.high_count,
+                "medium_count": report.medium_count,
+                "low_count": report.low_count,
+                "vulnerabilities": report.vulnerabilities,
+                "recommendations": report.recommendations,
+            })
+        elif path == "/api/v1/models/local":
+            self._serve_json(self.model_router.get_router_status())
         elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
@@ -263,6 +287,56 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 })
             except Exception as e:
                 self._serve_json({"success": False, "error": str(e)}, status=500)
+
+        elif path == "/api/v1/conflicts/resolve":
+            arena = MergeConflictArena(self.root)
+            fp = payload.get("file_path", "example.py")
+            base = payload.get("base_code", "def greet(name):\n    return f'Hello {name}'\n")
+            a_code = payload.get("agent_a_code", "import logging\n\ndef greet(name):\n    logging.info('greet called')\n    return f'Hello {name}'\n")
+            b_code = payload.get("agent_b_code", "def greet(name, title=''):\n    prefix = f'{title} ' if title else ''\n    return f'Hello {prefix}{name}'\n")
+            res = arena.negotiate_resolution(fp, base, a_code, b_code)
+            self._serve_json({
+                "session_id": res.session_id,
+                "file_path": res.file_path,
+                "status": res.status,
+                "conflicts_detected": res.conflicts_detected,
+                "conflicts_resolved": res.conflicts_resolved,
+                "dialogue": res.dialogue,
+                "resolved_code": res.resolved_code,
+                "ast_valid": res.ast_valid,
+                "compromise_summary": res.compromise_summary,
+            })
+
+        elif path == "/api/v1/chaos/inject":
+            fault = payload.get("fault_type", "FLAKY_ENDPOINT")
+            service = payload.get("service_name", "DevSquad Core Relay")
+            incident = self.chaos_lab.inject_fault(fault, service)
+            self._serve_json({
+                "incident_id": incident.incident_id,
+                "fault_type": incident.fault_type,
+                "service_name": incident.service_name,
+                "severity": incident.severity,
+                "status": incident.status,
+                "error_message": incident.error_message,
+                "impact_description": incident.impact_description,
+            })
+
+        elif path == "/api/v1/chaos/heal":
+            inc_id = payload.get("incident_id", "")
+            try:
+                plan = self.chaos_lab.trigger_self_healing(inc_id)
+                self._serve_json({
+                    "incident_id": plan.incident_id,
+                    "root_cause": plan.root_cause,
+                    "resilience_pattern": plan.resilience_pattern,
+                    "verified_by_qa": plan.verified_by_qa,
+                    "recovery_time_ms": plan.recovery_time_ms,
+                    "summary": plan.summary,
+                    "patch_code": plan.patch_code,
+                    "regression_test_code": plan.regression_test_code,
+                })
+            except Exception as e:
+                self._serve_json({"error": str(e)}, status=400)
         else:
             self.send_error(404, "Not Found")
 

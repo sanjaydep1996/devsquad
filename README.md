@@ -63,7 +63,34 @@ Paste a GitHub Issue, Sentry error log, or raw stack trace:
 - Unifies sessions, rules, and conventions across **Claude Code** (`CLAUDE.md`), **Cursor** (`.cursorrules`), and **Aider** into `.devsquad/memory.json`.
 - Injects past pitfalls and rules into agent prompts so past mistakes are never repeated.
 
-### 5. 📋 The Review Desk
+### 5. ⚔️ The Merge Conflict Arena ("The Negotiation Table")
+Click the **Glass Conference Room** in the office or **Merge Arena** in the topbar:
+- **Semantic 3-Way AST Merge**: Detects when parallel agent worktrees diverge on imports, function signatures, or method bodies.
+- **Autonomous Agent Negotiation**: Apex, Alpha, and Beta hold an automated negotiation meeting to harmonize interfaces without breaking callers.
+- **AST Syntax Verification**: Verifies the synthesized merge with Python's AST parser ensuring `0 SyntaxErrors` before committing.
+
+### 6. 📺 Retro CRT Terminal Sidecar (xterm.js & WebSockets)
+Click any **Agent Desk** (Apex, Alpha BE, Beta FE, Gamma QA, Delta, Zeta):
+- Authentic amber/green phosphor CRT terminal powered by **xterm.js**.
+- Real-time bidirectional streaming over WebSockets (`ws://localhost:8080/ws/terminal/{agent_id}`).
+- Interactive execution: run `pytest`, `git status`, `devsquad blast`, `devsquad heal`, or type arbitrary commands directly into the agent's sandboxed environment.
+
+### 7. 🚨 Chaos Lab & Self-Healing CI (Server Rack Outage Simulator)
+Click the **Industrial Server Rack** on the work floor:
+- Injects simulated production/staging outages: `FLAKY_ENDPOINT`, `LATENCY_SPIKE`, `CIRCUIT_BREAKER_TRIP`, `SCHEMA_DRIFT`, `DB_LOCK_CONTENTION`.
+- **Closed-Loop Healing Swarm**: Gamma QA and Alpha BE diagnose the failure, auto-synthesize resilience patterns (exponential backoff with jitter, circuit breakers, schema adapters), and generate regression tests.
+
+### 8. 🛡️ Cyber Bunker & Security Vault (Zeta's Pentest Hub)
+Click **Vault** in the topbar:
+- Audits repo files and staged PRs for **Secret Leaks** (Anthropic, OpenAI, GitHub, AWS keys), **unsafe DOM sinks** (`innerHTML`, `eval`), **Command Injections**, and **OWASP Top 10** risks.
+- Provides a real-time **Security Score (0-100)** and instant automated remediation diffs.
+
+### 9. 🔀 Hybrid Model Router (Offline Ollama/vLLM + Cloud)
+Click **Local AI** in the topbar:
+- Route routine coding, linting, and tests to **100% free, private offline models** (Qwen 2.5 Coder, DeepSeek-Coder, Llama 3) via local Ollama/vLLM daemons.
+- Live **Dollar Savings Tracker** estimating costs saved compared to cloud frontier APIs.
+
+### 10. 📋 The Review Desk
 - Quarantined staging deck managing all proposed changes.
 - View test pass/fail banners, execution time, and syntax-colored unified diffs.
 - 1-click **Apply to Workspace** (with `.devsquad.bak` backups) and **Rollback**.
@@ -107,14 +134,20 @@ cd devsquad
 # 2. Run in any repository you are working on
 python3 -m devsquad.cli init
 
-# 3. Launch the visual DevSquad Studio
+# 3. Launch the visual DevSquad Studio (Zero external dependencies)
 python3 -m devsquad.cli up
+
+# OR launch with FastAPI, Uvicorn & real-time WebSockets
+pip install -e ".[server]"
+devsquad up --fastapi
 ```
 
 Open `http://localhost:8080` to access the **DevSquad Studio**:
-- **Virtual Office**: Watch Apex, Alpha, Gamma, and Delta collaborate in real-time.
-- **Task Dispatcher**: Dispatch features, refactors, or bugfixes via a single prompt.
+- **Virtual Office Floor**: Watch Apex, Alpha, Beta, Gamma, Delta, and Zeta collaborate in real-time.
+- **Retro CRT Terminal Sidecar**: Click any desk to open an authentic xterm.js terminal with live command streams.
+- **The Negotiation Table**: Click the conference room for 3-way AST merge conflict resolution.
 - **The Review Desk**: Inspect side-by-side diffs, view test execution logs, and click **"Apply to Codebase"** or **"Rollback"**.
+- **Server Rack & Chaos Lab**: Simulate staging outages and test auto-healing swarms.
 - **Interactive Whiteboard**: Click the back wall whiteboard to inspect real-time AST blast radius.
 
 ---
