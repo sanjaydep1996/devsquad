@@ -17,13 +17,18 @@ try:
 except ImportError:
     FASTAPI_AVAILABLE = False
 
+from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
 from ..core.context import RepoContextEngine
+from ..core.flaky_detector import FlakyTestDetector
+from ..core.mcp_hub import MCPHub
 from ..core.memory import MemoryLake
 from ..core.merge_arena import MergeConflictArena
+from ..core.roadmap import SpecRoadmapProjector
 from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
+from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
@@ -40,7 +45,7 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     root = (root_dir or pathlib.Path.cwd()).resolve()
     app = FastAPI(
         title="DevSquad Studio API",
-        version="0.2.0",
+        version="0.3.0",
         description="Local-first autonomous AI engineering studio and multi-agent development team.",
     )
 
@@ -61,6 +66,11 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     memory_lake = MemoryLake(root)
     worktree_mgr = WorktreeManager(root)
     swarm = BugSwarm(root)
+    mcp_hub = MCPHub(root)
+    roadmap_projector = SpecRoadmapProjector()
+    flaky_detector = FlakyTestDetector()
+    visual_auditor = VisualQAAuditor(root)
+    artifacts_publisher = ArtifactsPublisher(root)
 
     # Connected WebSockets
     terminal_sockets: Dict[str, List[WebSocket]] = {}
@@ -172,6 +182,112 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     @app.get("/api/v1/models/local")
     async def get_local_models():
         return model_router.get_router_status()
+
+    # --- MCP Desk Hub Endpoints ---
+    @app.get("/api/v1/mcp/desks")
+    async def get_mcp_desks():
+        return {
+            "desks": mcp_hub.desk_bindings,
+            "all_tools": mcp_hub.list_tools_for_desk("all"),
+        }
+
+    @app.post("/api/v1/mcp/rpc")
+    async def mcp_rpc(payload: Dict[str, Any]):
+        return mcp_hub.handle_jsonrpc(payload)
+
+    # --- Artifacts & ADR Endpoints ---
+    @app.get("/api/v1/artifacts/adrs")
+    async def list_adrs():
+        adr_dir = root / "docs" / "adr"
+        adrs = []
+        if adr_dir.exists():
+            for p in sorted(adr_dir.glob("*.md")):
+                adrs.append({"filename": p.name, "content": p.read_text(encoding="utf-8")})
+        return {"adrs": adrs}
+
+    @app.post("/api/v1/artifacts/adr")
+    async def create_adr(payload: Dict[str, Any]):
+        adr = artifacts_publisher.generate_adr(
+            title=payload.get("title", "New Architecture Decision"),
+            context=payload.get("context", "Need clean-room modular architecture."),
+            decision=payload.get("decision", "Adopted micro-core modular engine."),
+            consequences=payload.get("consequences", "Zero external dependencies."),
+            status=payload.get("status", "Accepted"),
+        )
+        return {
+            "number": adr.number,
+            "title": adr.title,
+            "status": adr.status,
+            "date": adr.date,
+            "markdown": adr.markdown_content,
+        }
+
+    # --- Spec-to-Code Roadmap Endpoints ---
+    @app.post("/api/v1/roadmap/parse")
+    async def parse_roadmap(payload: Dict[str, Any]):
+        prd_text = payload.get("prd_text", "# Feature: Real-Time Sync\n\n## Objectives\n- Zero latency\n- 100% tests")
+        plan = roadmap_projector.parse_prd(prd_text)
+        return {
+            "project_title": plan.project_title,
+            "objectives": plan.objectives,
+            "tasks": [
+                {
+                    "task_id": t.task_id,
+                    "title": t.title,
+                    "assigned_agent": t.assigned_agent,
+                    "role_description": t.role_description,
+                    "dependencies": t.dependencies,
+                    "estimated_tokens": t.estimated_tokens,
+                    "status": t.status,
+                }
+                for t in plan.tasks
+            ],
+            "mermaid_dag": plan.mermaid_dag,
+            "execution_order": plan.execution_order,
+            "total_estimated_tokens": plan.total_estimated_tokens,
+        }
+
+    # --- Flaky Test Isolation Endpoints ---
+    @app.post("/api/v1/flaky/stress-test")
+    async def stress_test_flaky(payload: Dict[str, Any]):
+        test_name = payload.get("test_name", "test_async_token_rotation")
+        iterations = int(payload.get("iterations", 10))
+        flaky_result = flaky_detector.stress_test(test_name, iterations=iterations)
+        return {
+            "test_identifier": flaky_result.test_identifier,
+            "total_runs": flaky_result.total_runs,
+            "passed_runs": flaky_result.passed_runs,
+            "failed_runs": flaky_result.failed_runs,
+            "flakiness_percentage": flaky_result.flakiness_percentage,
+            "is_flaky": flaky_result.is_flaky,
+            "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
+            "hardening_patch": flaky_result.hardening_patch,
+            "verified_deterministic": flaky_result.verified_deterministic,
+        }
+
+    # --- Visual QA & Accessibility Endpoints ---
+    @app.get("/api/v1/visual/audit")
+    async def visual_audit():
+        index_path = root / "index.html"
+        content = index_path.read_text(encoding="utf-8") if index_path.exists() else "<html><body></body></html>"
+        report = visual_auditor.audit_html(content, source_name="index.html")
+        return {
+            "url_or_file": report.url_or_file,
+            "score": report.score,
+            "viewport_status": report.viewport_status,
+            "total_issues": report.total_issues,
+            "issues": [
+                {
+                    "rule_id": i.rule_id,
+                    "severity": i.severity,
+                    "element_snippet": i.element_snippet,
+                    "description": i.description,
+                    "remediation_hint": i.remediation_hint,
+                }
+                for i in report.issues
+            ],
+            "recommendations": report.recommendations,
+        }
 
     # --- WebSocket for Retro CRT Terminal (xterm.js) ---
     @app.websocket("/ws/terminal/{agent_id}")

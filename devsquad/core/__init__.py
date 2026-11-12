@@ -10,6 +10,11 @@ from .staging import StagingDeck, StagedTask
 from .merge_arena import MergeConflictArena, ConflictHunk, NegotiationResult
 from .chaos import ChaosLab, ChaosIncident, HealingPlan
 from .security_vault import SecurityVault, SecurityVulnerability, VaultAuditReport
+from .artifacts import ArtifactsPublisher, ADRDocument
+from .mcp_hub import MCPHub, MCPToolDefinition
+from .roadmap import SpecRoadmapProjector, RoadmapPlan, RoadmapTask
+from .flaky_detector import FlakyTestDetector, FlakyTestResult
+from .visual_qa import VisualQAAuditor, VisualAuditReport, VisualIssue
 
 __all__ = [
     "RepoContextEngine",
@@ -29,4 +34,16 @@ __all__ = [
     "SecurityVault",
     "SecurityVulnerability",
     "VaultAuditReport",
+    "ArtifactsPublisher",
+    "ADRDocument",
+    "MCPHub",
+    "MCPToolDefinition",
+    "SpecRoadmapProjector",
+    "RoadmapPlan",
+    "RoadmapTask",
+    "FlakyTestDetector",
+    "FlakyTestResult",
+    "VisualQAAuditor",
+    "VisualAuditReport",
+    "VisualIssue",
 ]

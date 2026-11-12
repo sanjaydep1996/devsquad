@@ -11,13 +11,18 @@ import threading
 import time
 import urllib.parse
 from typing import Dict, List, Optional
+from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
 from ..core.context import RepoContextEngine
+from ..core.flaky_detector import FlakyTestDetector
+from ..core.mcp_hub import MCPHub
 from ..core.memory import MemoryLake
 from ..core.merge_arena import MergeConflictArena
+from ..core.roadmap import SpecRoadmapProjector
 from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
+from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
 from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
@@ -35,6 +40,11 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
     staging: Optional[StagingDeck] = None
     chaos_lab: ChaosLab = ChaosLab()
     model_router: HybridModelRouter = HybridModelRouter()
+    mcp_hub: MCPHub = MCPHub()
+    roadmap_projector: SpecRoadmapProjector = SpecRoadmapProjector()
+    flaky_detector: FlakyTestDetector = FlakyTestDetector()
+    visual_auditor: VisualQAAuditor = VisualQAAuditor()
+    artifacts_publisher: ArtifactsPublisher = ArtifactsPublisher()
 
     def log_message(self, format, *args):
         # Mute default server access logs to keep terminal clean
@@ -161,6 +171,39 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             })
         elif path == "/api/v1/models/local":
             self._serve_json(self.model_router.get_router_status())
+        elif path == "/api/v1/mcp/desks":
+            self._serve_json({
+                "desks": self.mcp_hub.desk_bindings,
+                "all_tools": self.mcp_hub.list_tools_for_desk("all"),
+            })
+        elif path == "/api/v1/artifacts/adrs":
+            adr_dir = self.root / "docs" / "adr"
+            adrs = []
+            if adr_dir.exists():
+                for p in sorted(adr_dir.glob("*.md")):
+                    adrs.append({"filename": p.name, "content": p.read_text(encoding="utf-8")})
+            self._serve_json({"adrs": adrs})
+        elif path == "/api/v1/visual/audit":
+            index_path = self.root / "index.html"
+            content = index_path.read_text(encoding="utf-8") if index_path.exists() else "<html><body></body></html>"
+            report = self.visual_auditor.audit_html(content, source_name="index.html")
+            self._serve_json({
+                "url_or_file": report.url_or_file,
+                "score": report.score,
+                "viewport_status": report.viewport_status,
+                "total_issues": report.total_issues,
+                "issues": [
+                    {
+                        "rule_id": i.rule_id,
+                        "severity": i.severity,
+                        "element_snippet": i.element_snippet,
+                        "description": i.description,
+                        "remediation_hint": i.remediation_hint,
+                    }
+                    for i in report.issues
+                ],
+                "recommendations": report.recommendations,
+            })
         elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
@@ -337,6 +380,64 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 })
             except Exception as e:
                 self._serve_json({"error": str(e)}, status=400)
+
+        elif path == "/api/v1/artifacts/adr":
+            title = payload.get("title", "New Architecture Decision")
+            ctx = payload.get("context", "Need clean-room modular architecture.")
+            dec = payload.get("decision", "Adopted micro-core modular engine.")
+            cons = payload.get("consequences", "Zero external dependencies.")
+            status = payload.get("status", "Accepted")
+            adr = self.artifacts_publisher.generate_adr(title, ctx, dec, cons, status=status)
+            self._serve_json({
+                "number": adr.number,
+                "title": adr.title,
+                "status": adr.status,
+                "date": adr.date,
+                "markdown": adr.markdown_content,
+            })
+
+        elif path == "/api/v1/mcp/rpc":
+            res = self.mcp_hub.handle_jsonrpc(payload)
+            self._serve_json(res)
+
+        elif path == "/api/v1/roadmap/parse":
+            prd_text = payload.get("prd_text", "# Feature: Real-Time Sync\n\n## Objectives\n- Zero latency\n- 100% tests")
+            plan = self.roadmap_projector.parse_prd(prd_text)
+            self._serve_json({
+                "project_title": plan.project_title,
+                "objectives": plan.objectives,
+                "tasks": [
+                    {
+                        "task_id": t.task_id,
+                        "title": t.title,
+                        "assigned_agent": t.assigned_agent,
+                        "role_description": t.role_description,
+                        "dependencies": t.dependencies,
+                        "estimated_tokens": t.estimated_tokens,
+                        "status": t.status,
+                    }
+                    for t in plan.tasks
+                ],
+                "mermaid_dag": plan.mermaid_dag,
+                "execution_order": plan.execution_order,
+                "total_estimated_tokens": plan.total_estimated_tokens,
+            })
+
+        elif path == "/api/v1/flaky/stress-test":
+            test_name = payload.get("test_name", "test_async_token_rotation")
+            iterations = int(payload.get("iterations", 10))
+            flaky_result = self.flaky_detector.stress_test(test_name, iterations=iterations)
+            self._serve_json({
+                "test_identifier": flaky_result.test_identifier,
+                "total_runs": flaky_result.total_runs,
+                "passed_runs": flaky_result.passed_runs,
+                "failed_runs": flaky_result.failed_runs,
+                "flakiness_percentage": flaky_result.flakiness_percentage,
+                "is_flaky": flaky_result.is_flaky,
+                "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
+                "hardening_patch": flaky_result.hardening_patch,
+                "verified_deterministic": flaky_result.verified_deterministic,
+            })
         else:
             self.send_error(404, "Not Found")
 

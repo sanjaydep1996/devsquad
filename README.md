@@ -90,7 +90,32 @@ Click **Local AI** in the topbar:
 - Route routine coding, linting, and tests to **100% free, private offline models** (Qwen 2.5 Coder, DeepSeek-Coder, Llama 3) via local Ollama/vLLM daemons.
 - Live **Dollar Savings Tracker** estimating costs saved compared to cloud frontier APIs.
 
-### 10. 📋 The Review Desk
+### 10. 🖨️ Engineering Artifacts Engine & Living ADR Publisher
+Click **ADRs** in the topbar:
+- **Autonomous Architecture Decision Records**: Zeta and Apex generate standardized ADRs (`docs/adr/`) documenting architectural decisions, context, and consequences.
+- **OpenAPI 3.0 AST Extractor**: Auto-extracts OpenAPI/Swagger schemas directly from endpoint decorators and docstrings.
+- **Automated Changelog Engine**: Formats conventional commits into styled markdown release notes.
+
+### 11. 🔌 Multi-Agent MCP Desk Hub (Model Context Protocol)
+Click **MCP Hub** in the topbar:
+- Model Context Protocol (MCP) JSON-RPC 2.0 tool router for individual agent desks.
+- Assign specialized tools (`run_test_suite`, `ast_blast_radius`, `flaky_stress_runner`, `security_audit`) to specific personas or connect external CLI tools.
+
+### 12. 🎯 Spec-to-Code Roadmap Projector (PRD to DAG)
+Click **Roadmap** in the topbar:
+- Ingests raw Product Requirement Documents (PRDs) or feature stories.
+- Decomposes specifications into an interactive **Directed Acyclic Graph (DAG)** with token budgets and topological task dispatch across Alpha, Beta, Delta, and Gamma.
+
+### 13. 👻 Flaky Test & Race Condition Isolation Chamber
+Click **Flaky Tests** in the topbar:
+- Runs suspect test suites under synthetic concurrency stress and randomized execution jitter to trap intermittent race conditions.
+- Isolates async leaks or shared mutable state and synthesizes deterministic hardening patches verified by Gamma QA.
+
+### 14. 📸 Visual QA & Accessibility Auditor (WCAG 2.1 AA)
+Click **Visual QA** in the topbar:
+- Scans frontend viewports for WCAG 2.1 AA tap target sizing (<44x44px), horizontal mobile layout overflow risks (375px), missing accessibility labels, and Cumulative Layout Shift (CLS).
+
+### 15. 📋 The Review Desk
 - Quarantined staging deck managing all proposed changes.
 - View test pass/fail banners, execution time, and syntax-colored unified diffs.
 - 1-click **Apply to Workspace** (with `.devsquad.bak` backups) and **Rollback**.
