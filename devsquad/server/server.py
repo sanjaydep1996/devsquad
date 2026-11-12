@@ -26,6 +26,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
 
     root: pathlib.Path = pathlib.Path.cwd()
     clients: List = []
+    clients_lock: threading.Lock = threading.Lock()
     relay: Optional[AutonomousRelay] = None
     staging: Optional[StagingDeck] = None
 
@@ -154,6 +155,9 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             payload = {}
 
         if path == "/api/spawn":
+            if not self.relay:
+                self._serve_json({"success": False, "error": "Relay engine is not initialized"}, status=503)
+                return
             agent_id = payload.get("agent", "apex")
             task_text = payload.get("task", "").strip()
             if not task_text:
@@ -176,6 +180,9 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 self._serve_json({"success": False, "error": str(e)}, status=500)
 
         elif path == "/api/pipeline":
+            if not self.relay:
+                self._serve_json({"success": False, "error": "Relay engine is not initialized"}, status=503)
+                return
             feat = payload.get("feature", "").strip() or "Feature Relay"
             try:
                 task = self.relay.run_task(feat)
@@ -189,6 +196,9 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 self._serve_json({"success": False, "error": str(e)}, status=500)
 
         elif path == "/api/dispatch":
+            if not self.relay:
+                self._serve_json({"error": "Relay engine is not initialized"}, status=503)
+                return
             goal = payload.get("goal", "").strip()
             if not goal:
                 self._serve_json({"error": "Goal cannot be empty"}, status=400)
@@ -200,7 +210,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             # Run relay in worker thread
             def worker():
                 try:
-                    self.relay.run_task(goal, target_file=target_file, test_file=test_file)
+                    if self.relay:
+                        self.relay.run_task(goal, target_file=target_file, test_file=test_file)
                 except Exception as e:
                     self._broadcast("System", "ERROR", {"error": str(e)})
 
@@ -296,30 +307,35 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
-        q = []
-        StudioHandler.clients.append(self.wfile)
+        with StudioHandler.clients_lock:
+            StudioHandler.clients.append(self.wfile)
         try:
             while True:
                 time.sleep(1.0)
                 self.wfile.write(b": ping\n\n")
                 self.wfile.flush()
         except Exception:
-            if self.wfile in StudioHandler.clients:
-                StudioHandler.clients.remove(self.wfile)
+            with StudioHandler.clients_lock:
+                if self.wfile in StudioHandler.clients:
+                    StudioHandler.clients.remove(self.wfile)
 
     @classmethod
     def _broadcast(cls, agent: str, event: str, data: Dict):
         payload = f"data: {json.dumps({'agent': agent, 'event': event, 'data': data})}\n\n".encode("utf-8")
+        with cls.clients_lock:
+            clients_copy = list(cls.clients)
         dead = []
-        for client in cls.clients:
+        for client in clients_copy:
             try:
                 client.write(payload)
                 client.flush()
             except Exception:
                 dead.append(client)
-        for d in dead:
-            if d in cls.clients:
-                cls.clients.remove(d)
+        if dead:
+            with cls.clients_lock:
+                for d in dead:
+                    if d in cls.clients:
+                        cls.clients.remove(d)
 
 
 def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -> http.server.ThreadingHTTPServer:

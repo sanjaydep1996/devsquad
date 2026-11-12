@@ -5,6 +5,7 @@
 
 import json
 import pathlib
+import re
 import time
 from dataclasses import asdict, dataclass, field
 from typing import Dict, List, Optional
@@ -30,13 +31,23 @@ class StagingDeck:
 
     def __init__(self, root: Optional[pathlib.Path] = None):
         self.root = (root or pathlib.Path.cwd()).resolve()
-        self.staging_dir = self.root / ".devsquad" / "staging"
+        self.staging_dir = (self.root / ".devsquad" / "staging").resolve()
         self.staging_dir.mkdir(parents=True, exist_ok=True)
+
+    def _sanitize_id(self, task_id: str) -> str:
+        cleaned = re.sub(r"[^a-zA-Z0-9_\-]", "", task_id)
+        if not cleaned:
+            raise ValueError(f"Invalid task ID: {task_id}")
+        target = (self.staging_dir / cleaned).resolve()
+        if not target.is_relative_to(self.staging_dir):
+            raise ValueError(f"Directory traversal detected in task ID: {task_id}")
+        return cleaned
 
     def create_task(self, task_id: str, goal: str) -> StagedTask:
         """Initializes a new staged task entry."""
+        tid = self._sanitize_id(task_id)
         task = StagedTask(
-            task_id=task_id,
+            task_id=tid,
             goal=goal,
             status="staged",
             created_at=time.time(),
@@ -46,7 +57,8 @@ class StagingDeck:
 
     def save_task(self, task: StagedTask):
         """Persists task state to .devsquad/staging/<task_id>/manifest.json."""
-        task_dir = self.staging_dir / task.task_id
+        tid = self._sanitize_id(task.task_id)
+        task_dir = self.staging_dir / tid
         task_dir.mkdir(parents=True, exist_ok=True)
 
         manifest = task_dir / "manifest.json"
@@ -62,7 +74,11 @@ class StagingDeck:
 
     def load_task(self, task_id: str) -> Optional[StagedTask]:
         """Loads a task by ID."""
-        manifest = self.staging_dir / task_id / "manifest.json"
+        try:
+            tid = self._sanitize_id(task_id)
+        except ValueError:
+            return None
+        manifest = self.staging_dir / tid / "manifest.json"
         if not manifest.exists():
             return None
 

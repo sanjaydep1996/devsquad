@@ -5,6 +5,7 @@
 
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 from typing import Dict, List, Optional
@@ -15,8 +16,17 @@ class WorktreeManager:
 
     def __init__(self, root: pathlib.Path):
         self.root = root.resolve()
-        self.worktree_dir = self.root / ".devsquad" / "worktrees"
+        self.worktree_dir = (self.root / ".devsquad" / "worktrees").resolve()
         self.worktree_dir.mkdir(parents=True, exist_ok=True)
+
+    def _sanitize_id(self, task_id: str) -> str:
+        cleaned = re.sub(r"[^a-zA-Z0-9_\-]", "", task_id)
+        if not cleaned:
+            raise ValueError(f"Invalid task ID: {task_id}")
+        target = (self.worktree_dir / cleaned).resolve()
+        if not target.is_relative_to(self.worktree_dir):
+            raise ValueError(f"Directory traversal detected in worktree task ID: {task_id}")
+        return cleaned
 
     def _run_git(self, args: List[str], cwd: Optional[pathlib.Path] = None) -> subprocess.CompletedProcess:
         return subprocess.run(
@@ -33,8 +43,9 @@ class WorktreeManager:
 
     def create_worktree(self, task_id: str, base_ref: str = "HEAD") -> pathlib.Path:
         """Spins up an ephemeral isolated git worktree for a task."""
-        target_path = self.worktree_dir / task_id
-        branch_name = f"devsquad/{task_id}"
+        tid = self._sanitize_id(task_id)
+        target_path = self.worktree_dir / tid
+        branch_name = f"devsquad/{tid}"
 
         if target_path.exists():
             return target_path
@@ -57,8 +68,9 @@ class WorktreeManager:
 
     def cleanup_worktree(self, task_id: str, delete_branch: bool = True) -> bool:
         """Removes an ephemeral worktree and cleans up git metadata."""
-        target_path = self.worktree_dir / task_id
-        branch_name = f"devsquad/{task_id}"
+        tid = self._sanitize_id(task_id)
+        target_path = self.worktree_dir / tid
+        branch_name = f"devsquad/{tid}"
 
         if not target_path.exists():
             return False
