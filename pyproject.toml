@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devsquad"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local-first autonomous AI engineering studio and multi-agent development team for real-world codebases."
 readme = "README.md"
 license = { text = "MIT" }
@@ -13,7 +13,20 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
+server = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "websockets>=12.0"
+]
 dev = [
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+    "pytest>=7.0.0"
+]
+all = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "websockets>=12.0",
     "ruff>=0.3.0",
     "mypy>=1.9.0",
     "pytest>=7.0.0"

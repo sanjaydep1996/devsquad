@@ -41,6 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_up = sub.add_parser("up", help="Launch DevSquad Studio web interface and live virtual office")
     p_up.add_argument("--port", type=int, default=8080, help="Port to listen on (default: 8080)")
     p_up.add_argument("--no-browser", action="store_true", help="Don't auto-open browser")
+    p_up.add_argument("--fastapi", action="store_true", help="Launch via FastAPI & Uvicorn with WebSockets")
 
     # review
     p_review = sub.add_parser("review", help="Inspect staged tasks, test results, and unified diffs")
@@ -121,8 +122,26 @@ def run_task(args: argparse.Namespace) -> int:
 def run_up(args: argparse.Namespace) -> int:
     root = pathlib.Path.cwd()
     port = args.port
-    server = start_studio_server(root=root, port=port)
     url = f"http://localhost:{port}"
+
+    if getattr(args, "fastapi", False):
+        try:
+            import uvicorn
+            from .server.fastapi_app import create_app
+            app = create_app(root)
+            print(f"\n\033[1;36m🛡️ DevSquad Studio (FastAPI & WebSockets) online at:\033[0m \033[4;32m{url}\033[0m")
+            print(f"• Repository: \033[1m{root.name}\033[0m")
+            print(f"• Real-time WebSockets, CRT Terminal, and API active.\n")
+            if not args.no_browser:
+                try: webbrowser.open(url)
+                except Exception: pass
+            uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
+            return 0
+        except ImportError:
+            print("\033[1;33m⚠️ FastAPI/Uvicorn not installed. Falling back to built-in HTTP server.\033[0m")
+            print("  Run \033[1mpip install 'devsquad[server]'\033[0m to enable WebSockets & FastAPI.")
+
+    server = start_studio_server(root=root, port=port)
 
     print(f"\n\033[1;36m🛡️ DevSquad Studio online at:\033[0m \033[4;32m{url}\033[0m")
     print(f"• Repository: \033[1m{root.name}\033[0m")
