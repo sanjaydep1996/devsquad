@@ -11,6 +11,7 @@ import threading
 import time
 import urllib.parse
 from typing import Dict, List, Optional
+from .guard import is_local_host, origin_is_this_server
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -51,12 +52,24 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         pass
 
     def do_HEAD(self):
+        if self._refuse_outsiders(changes_state=False):
+            return
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
+    def _refuse_outsiders(self, changes_state: bool) -> bool:
+        """Sends a 403 and returns True unless the request comes from the studio's own page or a local tool."""
+        ok = is_local_host(self.headers.get("Host"))
+        if ok and changes_state:
+            ok = origin_is_this_server(self.headers.get("Origin"), self.server.server_address[1])
+        if not ok:
+            self.send_error(403, "DevSquad Studio only answers to its own local page")
+        return not ok
+
     def do_GET(self):
+        if self._refuse_outsiders(changes_state=False):
+            return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
@@ -210,6 +223,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404, "Not Found")
 
     def do_POST(self):
+        if self._refuse_outsiders(changes_state=True):
+            return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
@@ -447,7 +462,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:
@@ -458,7 +472,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
 
@@ -479,7 +492,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/event-stream")
         self.send_header("Cache-Control", "no-cache")
         self.send_header("Connection", "keep-alive")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
         with StudioHandler.clients_lock:

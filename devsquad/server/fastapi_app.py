@@ -11,12 +11,12 @@ from typing import Any, Dict, List, Optional
 
 try:
     from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-    from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import HTMLResponse, JSONResponse
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
+from .guard import is_local_host, origin_matches_host
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -30,6 +30,7 @@ from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
 from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
+from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
@@ -49,13 +50,15 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
         description="Local-first autonomous AI engineering studio and multi-agent development team.",
     )
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # No CORS headers at all: the studio page is served from this same origin, and no other site should read or drive it.
+    @app.middleware("http")
+    async def refuse_outsiders(request, call_next):
+        ok = is_local_host(request.headers.get("host"))
+        if ok and request.method not in ("GET", "HEAD"):
+            ok = origin_matches_host(request.headers.get("origin"), request.headers.get("host"))
+        if not ok:
+            return JSONResponse({"detail": "DevSquad Studio only answers to its own local page"}, status_code=403)
+        return await call_next(request)
 
     # Initialize studio engines
     chaos_lab = ChaosLab()
@@ -65,7 +68,7 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     staging = StagingDeck(root)
     memory_lake = MemoryLake(root)
     worktree_mgr = WorktreeManager(root)
-    swarm = BugSwarm(root)
+    swarm = BugSwarm(get_provider(), root)
     mcp_hub = MCPHub(root)
     roadmap_projector = SpecRoadmapProjector()
     flaky_detector = FlakyTestDetector()
@@ -292,6 +295,11 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     # --- WebSocket for Retro CRT Terminal (xterm.js) ---
     @app.websocket("/ws/terminal/{agent_id}")
     async def terminal_websocket(websocket: WebSocket, agent_id: str):
+        # Browsers don't apply the same-origin policy to WebSockets, so check it here.
+        if not (is_local_host(websocket.headers.get("host"))
+                and origin_matches_host(websocket.headers.get("origin"), websocket.headers.get("host"))):
+            await websocket.close(code=1008)
+            return
         await websocket.accept()
         agent_name = agent_id.upper()
         if agent_id not in terminal_sockets:
