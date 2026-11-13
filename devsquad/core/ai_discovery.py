@@ -111,11 +111,6 @@ class AIDiscoveryEngine:
             "local_model_count": len(models),
             "configs": configs,
             "has_local_daemon": has_local_daemon,
-            "suggested_provider": "ollama" if has_local_daemon else (
-                "anthropic" if configs["env_keys"]["anthropic"] else (
-                    "google" if configs["env_keys"]["google"] else (
-                        "openai" if configs["env_keys"]["openai"] else "template"
-                    )
-                )
-            ),
+            # DevSquad only uses free AI, so a paid key never changes the suggestion
+            "suggested_provider": "ollama" if has_local_daemon else "template",
         }
