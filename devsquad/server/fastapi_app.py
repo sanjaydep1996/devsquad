@@ -41,6 +41,7 @@ from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
+from .v5_api import V5Api
 
 
 def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
@@ -53,7 +54,7 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     root = (root_dir or pathlib.Path.cwd()).resolve()
     app = FastAPI(
         title="DevSquad Studio API",
-        version="0.3.0",
+        version="0.5.0",
         description="Local-first autonomous AI engineering studio and multi-agent development team.",
     )
 
@@ -259,21 +260,11 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
 
     # --- Flaky Test Isolation Endpoints ---
     @app.post("/api/v1/flaky/stress-test")
-    async def stress_test_flaky(payload: Dict[str, Any]):
-        test_name = payload.get("test_name", "test_async_token_rotation")
-        iterations = int(payload.get("iterations", 10))
-        flaky_result = flaky_detector.stress_test(test_name, iterations=iterations)
-        return {
-            "test_identifier": flaky_result.test_identifier,
-            "total_runs": flaky_result.total_runs,
-            "passed_runs": flaky_result.passed_runs,
-            "failed_runs": flaky_result.failed_runs,
-            "flakiness_percentage": flaky_result.flakiness_percentage,
-            "is_flaky": flaky_result.is_flaky,
-            "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
-            "hardening_patch": flaky_result.hardening_patch,
-            "verified_deterministic": flaky_result.verified_deterministic,
-        }
+    def stress_test_flaky(payload: Dict[str, Any]):
+        # Kept for older pages: runs the real command now, the same as POST /api/v5/flaky
+        payload.setdefault("command", payload.get("test_name", ""))
+        status, body = v5.handle("POST", "/api/v5/flaky", payload)
+        return JSONResponse(body, status_code=status)
 
     # --- Visual QA & Accessibility Endpoints ---
     @app.get("/api/v1/visual/audit")
@@ -301,6 +292,36 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
 
     # --- Status answers ("What is Delta working on?") ---
     status_board = StatusBoard()
+
+    # --- v0.5: setup, task board, plans, DevOps desk, new apps, real flaky runs ---
+    relay_box: Dict[str, AutonomousRelay] = {}
+
+    def run_task(goal: str, reference: str):
+        if "relay" not in relay_box:
+            relay_box["relay"] = AutonomousRelay(provider=get_provider(), root=root,
+                                                 event_callback=lambda agent, event, data: status_board.record(agent, event, data))
+        try:
+            return relay_box["relay"].run_task(goal, reference=reference)
+        finally:
+            status_board.finish()
+
+    v5 = V5Api(root, get_provider, run_task)
+
+    # Plain `def` so long runs (agents, test reruns, model downloads) go to a worker thread
+    @app.get("/api/v5/{route:path}")
+    def v5_get(route: str):
+        status, body = v5.handle("GET", "/api/v5/" + route)
+        return JSONResponse(body, status_code=status)
+
+    @app.post("/api/v5/{route:path}")
+    def v5_post(route: str, payload: Optional[Dict[str, Any]] = None):
+        status, body = v5.handle("POST", "/api/v5/" + route, payload or {})
+        return JSONResponse(body, status_code=status)
+
+    @app.delete("/api/v5/{route:path}")
+    def v5_delete(route: str):
+        status, body = v5.handle("DELETE", "/api/v5/" + route)
+        return JSONResponse(body, status_code=status)
 
     @app.post("/api/ask")
     async def ask(payload: Dict[str, Any]):
