@@ -77,6 +77,10 @@
     .bubble3d.urgent { border-color: var(--bad); }
     #office3dHint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 5px 11px; border-radius: 999px; background: rgba(10,14,24,.62); color: #fff; font: 500 11px var(--f-ui); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
     #office3d.used #office3dHint { opacity: 0; }
+    #office3dTime { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: rgba(10,14,24,.62); color: #fff; font: 600 12px var(--f-ui); cursor: pointer; backdrop-filter: blur(6px); }
+    #office3dTime:hover { background: rgba(10,14,24,.8); }
+    #office3dTime:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    #office3dTime svg { width: 15px; height: 15px; }
     .company-title { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 18px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
     .token-badge { font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; color: var(--accent); padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--lot); }
     .data-mode-badge { font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: 0; color: var(--ok); padding: 3px 8px; border-radius: 6px; background: var(--ok-bg); }
@@ -4014,7 +4018,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     const frame = document.querySelector(".office-canvas-frame");
     const host = document.createElement("div");
     host.id = "office3d";
-    host.innerHTML = '<div id="office3dLabels"></div><div id="office3dHint">Drag to look around · scroll to zoom · click a person</div>';
+    host.innerHTML = '<div id="office3dLabels"></div><button type="button" id="office3dTime" aria-label="Day or night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span>Night</span></button><div id="office3dHint">Drag to look around · scroll to zoom · click a person</div>';
     frame.appendChild(host);
     const labelsEl = host.querySelector("#office3dLabels");
 
@@ -4036,17 +4040,20 @@ def fetch_user_profile(user_id: str, db_pool=None):
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 200);
-    camera.position.set(-1.5, 13.5, 20.5);
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 700);
+    camera.position.set(-2.2, 6.8, 21.5);
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0.4, 0.4);
+    controls.target.set(0, 2.1, 0);
     controls.enablePan = false;
     controls.enableDamping = true;
     controls.minDistance = 8; controls.maxDistance = 34;
-    controls.minPolarAngle = 0.5; controls.maxPolarAngle = 1.36;
+    controls.minPolarAngle = 0.45; controls.maxPolarAngle = 1.48;
     controls.minAzimuthAngle = -0.85; controls.maxAzimuthAngle = 0.75;
 
-    const isDark = () => document.documentElement.getAttribute("data-theme") !== "light";
+    // Day or night follows the app theme until the person picks one with the button
+    const TIME_KEY = "devsquad-office-time";
+    let timeChoice = null; try { timeChoice = localStorage.getItem(TIME_KEY); } catch (e) {}
+    const isDark = () => timeChoice ? timeChoice === "night" : document.documentElement.getAttribute("data-theme") !== "light";
     const rnd = (seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647)(4711);
 
     // ---------- textures ----------
@@ -4077,29 +4084,6 @@ def fetch_user_profile(user_id: str, db_pool=None):
       for (let i = 0; i < 9000; i++) { g.fillStyle = `rgba(${rnd() < .5 ? "255,255,255" : "20,25,35"},${rnd() * 0.07})`; g.fillRect(rnd() * w, rnd() * h, 2, 2); }
       g.strokeStyle = "rgba(40,45,55,.25)"; g.lineWidth = 3; g.strokeRect(0, 0, w, h);
     }, [7, 5]);
-    function skylineTex(night) {
-      return canvasTex(2048, 512, (g, w, h) => {
-        const sky = g.createLinearGradient(0, 0, 0, h);
-        if (night) { sky.addColorStop(0, "#0B1230"); sky.addColorStop(.7, "#2A2F5E"); sky.addColorStop(1, "#5A4A6E"); }
-        else { sky.addColorStop(0, "#5FA5E6"); sky.addColorStop(.75, "#BFDDF4"); sky.addColorStop(1, "#E9F2F8"); }
-        g.fillStyle = sky; g.fillRect(0, 0, w, h);
-        for (let layer = 0; layer < 3; layer++) {
-          let x = -20;
-          while (x < w) {
-            const bw = 46 + rnd() * 90, bh = 110 + rnd() * (150 + layer * 70), fade = 1 - layer * 0.22;
-            const base = night ? [22 + layer * 8, 28 + layer * 8, 52 + layer * 10] : [150 - layer * 28, 172 - layer * 28, 196 - layer * 26];
-            g.fillStyle = `rgb(${base.join(",")})`; g.fillRect(x, h - bh, bw, bh);
-            for (let wy = h - bh + 8; wy < h - 6; wy += 11) for (let wx = x + 5; wx < x + bw - 6; wx += 9) {
-              const lit = rnd() < (night ? 0.42 : 0.18);
-              g.fillStyle = night ? (lit ? `rgba(255,${200 + rnd() * 40},130,${0.9 * fade + .1})` : "rgba(10,14,30,.6)") : (lit ? "rgba(255,255,255,.55)" : "rgba(60,90,125,.38)");
-              g.fillRect(wx, wy, 5, 6);
-            }
-            x += bw + rnd() * 14;
-          }
-        }
-      });
-    }
-
     // ---------- materials ----------
     const M = {
       floor: new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.5, metalness: 0.02 }),
@@ -4141,8 +4125,81 @@ def fetch_user_profile(user_id: str, db_pool=None):
     box(RW + 0.6, 0.6, RD + 0.6, new THREE.MeshStandardMaterial({ color: "#3B3F47", roughness: 0.8 }), 0, -0.5, 0, { cast: false });
 
     // Back wall: floor-to-ceiling windows with a city behind them
-    const skyMat = new THREE.MeshBasicMaterial({ map: skylineTex(isDark()), toneMapped: false });
-    const sky = new THREE.Mesh(new THREE.PlaneGeometry(RW + 16, 9), skyMat); sky.position.set(0, 2.6, Z0 - 3.2); world.add(sky);
+    // ---------- the city outside: a real 3D skyline all the way round ----------
+    const GROUND_Y = -46;   // the office is on a high floor
+    const skyTex = night => canvasTex(1024, 512, (g, w, h) => {
+      const sky = g.createLinearGradient(0, 0, 0, h);
+      if (night) { sky.addColorStop(0, "#03050F"); sky.addColorStop(.36, "#0B1233"); sky.addColorStop(.49, "#3A3566"); sky.addColorStop(.5, "#6A4A63"); sky.addColorStop(.52, "#0C1022"); sky.addColorStop(1, "#070A16"); }
+      else { sky.addColorStop(0, "#1F6FCB"); sky.addColorStop(.34, "#63A8E8"); sky.addColorStop(.485, "#D5E9F6"); sky.addColorStop(.5, "#EEF3F2"); sky.addColorStop(.53, "#C9D2D6"); sky.addColorStop(1, "#AEB8BE"); }
+      g.fillStyle = sky; g.fillRect(0, 0, w, h);
+      if (night) for (let i = 0; i < 420; i++) { g.fillStyle = `rgba(255,255,255,${0.25 + rnd() * 0.7})`; const r = rnd() < 0.08 ? 1.6 : 0.8; g.fillRect(rnd() * w, rnd() * h * 0.44, r, r); }
+      else for (let i = 0; i < 14; i++) { const cx = rnd() * w, cy = 40 + rnd() * 150; for (let k = 0; k < 9; k++) { g.fillStyle = "rgba(255,255,255,.085)"; g.beginPath(); g.ellipse(cx + (rnd() - .5) * 110, cy + (rnd() - .5) * 16, 46 + rnd() * 50, 9 + rnd() * 9, 0, 0, 7); g.fill(); } }
+    });
+    const SKY = { day: skyTex(false), night: skyTex(true) };
+    const skyMat = new THREE.MeshBasicMaterial({ map: SKY.night, side: THREE.BackSide, fog: false, toneMapped: false, depthWrite: false });
+    const skyDome = new THREE.Mesh(new THREE.SphereGeometry(520, 40, 20), skyMat); skyDome.renderOrder = -1; scene.add(skyDome);
+    scene.fog = new THREE.Fog("#141A3A", 90, 430);
+
+    const groundMat = new THREE.MeshStandardMaterial({ color: "#0B0F1E", roughness: 1 });
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(520, 48), groundMat); ground.rotation.x = -Math.PI / 2; ground.position.y = GROUND_Y; scene.add(ground);
+
+    // Towers share one window texture; a second texture lights some windows at night
+    const facade = lit => canvasTex(128, 256, (g, w, h) => {
+      g.fillStyle = lit ? "#000" : "#C9D3DC"; g.fillRect(0, 0, w, h);
+      for (let y = 4; y < h; y += 8) for (let x = 3; x < w; x += 8) {
+        if (lit) { if (rnd() < 0.13) { g.fillStyle = rnd() < 0.8 ? `rgb(255,${190 + rnd() * 50 | 0},${110 + rnd() * 60 | 0})` : "#CFE4FF"; g.fillRect(x, y, 5, 5); } }
+        else { g.fillStyle = rnd() < 0.2 ? "#8FB0CC" : "#5F84A6"; g.fillRect(x, y, 5, 5); }
+      }
+    }, [2, 5]);
+    const towerSide = new THREE.MeshStandardMaterial({ map: facade(false), emissive: "#FFFFFF", emissiveMap: facade(true), emissiveIntensity: 0, roughness: 0.35, metalness: 0.35 });
+    const towerRoof = new THREE.MeshStandardMaterial({ color: "#6F7780", roughness: 0.9 });
+    const TOWERS = 340, towers = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), [towerSide, towerSide, towerRoof, towerRoof, towerSide, towerSide], TOWERS);
+    const dummy = new THREE.Object3D(), tint = new THREE.Color();
+    for (let i = 0, placed = 0; placed < TOWERS && i < 6000; i++) {
+      const ang = rnd() * Math.PI * 2, dist = 34 + Math.pow(rnd(), 0.8) * 330, x = Math.sin(ang) * dist, z = Math.cos(ang) * dist;
+      const w = 9 + rnd() * 15, d = 9 + rnd() * 15;
+      let hgt = 16 + Math.pow(rnd(), 2.1) * (dist < 150 ? 105 : 75);
+      // Nothing tall between the camera and the office, and nothing on top of the Burj
+      const inView = z > -14 && Math.abs(x) < 70;
+      if (inView) hgt = Math.min(hgt, -GROUND_Y - 9 - rnd() * 14);
+      else hgt = Math.min(hgt, -GROUND_Y + 4 + rnd() * 9);                                        // a few rise just above this floor
+      if (z < -20 && Math.abs(x + 10) < 46) hgt = Math.min(hgt, -GROUND_Y - 5 - rnd() * 22);     // keep the view to the Burj open
+      if (Math.hypot(x + 10, z + 170) < 30) continue;
+      dummy.position.set(x, GROUND_Y + hgt / 2, z); dummy.scale.set(w, hgt, d); dummy.rotation.y = (rnd() - 0.5) * 0.5; dummy.updateMatrix();
+      towers.setMatrixAt(placed, dummy.matrix);
+      towers.setColorAt(placed, tint.setHSL(0.56 + rnd() * 0.06, 0.1 + rnd() * 0.25, 0.62 + rnd() * 0.3));
+      placed++;
+    }
+    towers.frustumCulled = false; scene.add(towers);
+
+    // The tower this office sits in
+    const ownTowerMat = new THREE.MeshStandardMaterial({ color: "#3A4658", roughness: 0.18, metalness: 0.7 });
+    const ownTower = new THREE.Mesh(new THREE.BoxGeometry(RW + 0.6, -GROUND_Y - 0.8, RD + 0.6), ownTowerMat);
+    ownTower.position.y = (GROUND_Y - 0.8) / 2; scene.add(ownTower);
+
+    // Burj Khalifa: a three-winged tower whose wings step back in a spiral, with a spire
+    const burjMat = new THREE.MeshStandardMaterial({ color: "#A9BCCD", roughness: 0.22, metalness: 0.75, emissive: "#9FC2FF", emissiveIntensity: 0 });
+    const burj = new THREE.Group(); burj.position.set(-10, GROUND_Y, -170); burj.scale.setScalar(0.44); scene.add(burj);
+    {
+      const TIERS = 27, TIER_H = 6.2;
+      for (let t = 0; t < TIERS; t++) {
+        const k = t / TIERS, y = t * TIER_H + TIER_H / 2;
+        const core = new THREE.Mesh(new THREE.CylinderGeometry(6.2 * (1 - k * 0.62), 6.4 * (1 - k * 0.6), TIER_H, 18), burjMat); core.position.y = y; burj.add(core);
+        for (let wing = 0; wing < 3; wing++) {
+          // Each wing ends at a different height, one after another, which gives the spiral
+          const top = TIERS - 2 - ((wing * 3 + (t % 3)) % 9), reach = 1 - (t + wing * 2.4) / (TIERS + 4);
+          if (t > top || reach <= 0.08) continue;
+          const a = wing / 3 * Math.PI * 2 + 0.5, len = 15 * reach;
+          const lobe = new THREE.Mesh(new THREE.CylinderGeometry(3.6 * (0.55 + reach * 0.5), 3.7 * (0.55 + reach * 0.5), TIER_H, 14), burjMat);
+          lobe.scale.set(1, 1, 0.5 + len / 6); lobe.rotation.y = a; lobe.position.set(Math.sin(a) * len * 0.62, y, Math.cos(a) * len * 0.62); burj.add(lobe);
+        }
+      }
+      const topY = TIERS * TIER_H;
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 2.4, 20, 12), burjMat); neck.position.y = topY + 10; burj.add(neck);
+      const spire = new THREE.Mesh(new THREE.ConeGeometry(0.9, 34, 10), burjMat); spire.position.y = topY + 37; burj.add(spire);
+    }
+    const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.7, 10, 10), new THREE.MeshBasicMaterial({ color: "#FF3B30", fog: false })); beacon.position.set(-10, GROUND_Y + (27 * 6.2 + 55) * 0.44, -170); scene.add(beacon);
+
     box(RW, 0.5, 0.25, M.wall, 0, 0.25, Z0, {}); box(RW, 0.35, 0.25, M.wall, 0, WH - 0.175, Z0, {});
     for (let x = X0; x <= X1 + 0.01; x += 3) box(0.14, WH, 0.3, M.white, x, WH / 2, Z0);
     box(RW, 0.06, 0.12, M.white, 0, 1.9, Z0);
@@ -4349,8 +4406,13 @@ def fetch_user_profile(user_id: str, db_pool=None):
 
     function applyTheme() {
       const night = isDark();
-      skyMat.map = skylineTex(night); skyMat.needsUpdate = true;
-      scene.background = new THREE.Color(night ? "#06080F" : "#EDE6D8");
+      skyMat.map = night ? SKY.night : SKY.day;
+      scene.fog.color.set(night ? "#1A1F45" : "#D5E6F2");
+      groundMat.color.set(night ? "#0B0F1E" : "#9AA5AD");
+      towerSide.emissiveIntensity = night ? 0.75 : 0; towerSide.color.set(night ? "#2A3350" : "#FFFFFF");
+      towerRoof.color.set(night ? "#1B2030" : "#7C858E");
+      burjMat.emissiveIntensity = night ? 0.22 : 0; burjMat.color.set(night ? "#6F87A8" : "#B4C6D6");
+      scene.background = null;
       renderer.toneMappingExposure = night ? 0.9 : 1.05;
       scene.environmentIntensity = night ? 0.35 : 0.9;
       hemi.intensity = night ? 0.22 : 0.6; hemi.color.set(night ? "#8FA2D8" : "#FFFFFF");
@@ -4358,7 +4420,14 @@ def fetch_user_profile(user_id: str, db_pool=None):
       fill.intensity = night ? 0.9 : 0.45; fill.color.set(night ? "#FFD9A8" : "#DDE8FF");
       M.led.emissiveIntensity = night ? 3.2 : 1.4;
       signLight.intensity = night ? 9 : 2; floorLamp.intensity = night ? 9 : 2;
+      const btn = document.getElementById("office3dTime");
+      if (btn) { btn.setAttribute("aria-pressed", String(night)); btn.querySelector("span").textContent = night ? "Night" : "Day"; btn.title = night ? "Switch to day" : "Switch to night"; btn.querySelector("svg").innerHTML = night ? '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.500 10.500z"/>' : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/>'; }
     }
+    document.getElementById("office3dTime").addEventListener("click", () => {
+      timeChoice = isDark() ? "day" : "night";
+      try { localStorage.setItem(TIME_KEY, timeChoice); } catch (e) {}
+      applyTheme();
+    });
     applyTheme();
     new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
@@ -4586,7 +4655,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     function loop(now) {
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
-      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); }
+      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; }
       if (isMeetingMode && clock > meetNext) { const seated = workers.filter(w => w.where === "meeting" && w.pose === "sit"); workers.forEach(w => { w.meetTalk3d = false; }); if (seated.length) seated[Math.floor(Math.random() * seated.length)].meetTalk3d = true; meetNext = clock + between(2.5, 5); }
       updatePeople(dt);
       controls.update();
