@@ -169,6 +169,48 @@
     .btn-send { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 
     /* Dialogs */
+    /* v0.5 Workshop: board, plan, new app, DevOps, setup */
+    .ws-box { max-width: 1080px !important; width: 96% !important; height: 86vh; max-height: 86vh !important; display: flex; flex-direction: column; gap: 10px; }
+    .ws-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; flex-shrink: 0; }
+    .ws-tab { font: 600 12.5px var(--f-ui); padding: 9px 12px; min-height: 40px; border: 0; background: none; color: var(--dim); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+    .ws-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+    .ws-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: none; }
+    .ws-tab .dot.on { display: inline-block; }
+    .ws-pane { flex: 1; min-height: 0; overflow-y: auto; display: none; flex-direction: column; gap: 12px; padding-top: 2px; }
+    .ws-pane.on { display: flex; }
+    .ws-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .ws-row > .chat-input, .ws-row > textarea { flex: 1 1 220px; }
+    .ws-pane textarea { font: 13px/1.5 var(--f-ui); padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); color: var(--ink); resize: vertical; min-height: 70px; }
+    .ws-pane select { font: 500 12.5px var(--f-ui); padding: 7px 8px; min-height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); color: var(--ink); }
+    .ws-help { font-size: 12px; color: var(--dim); line-height: 1.5; margin: 0; }
+    .ws-msg { font-size: 12px; min-height: 18px; color: var(--dim); }
+    .ws-msg.bad { color: var(--bad); } .ws-msg.ok { color: var(--ok); }
+    .ws-board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 10px; overflow-x: auto; flex: 1; min-height: 260px; padding-bottom: 4px; }
+    .ws-col { background: var(--lot); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; }
+    .ws-col h4 { margin: 0; font: 700 12px var(--f-ui); text-transform: uppercase; letter-spacing: .05em; color: var(--dim); display: flex; justify-content: space-between; }
+    .ws-card { background: var(--solid); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+    .ws-card b { font-weight: 600; overflow-wrap: anywhere; }
+    .ws-card .meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11px; color: var(--dim); }
+    .ws-chip { font: 600 10.5px var(--f-ui); padding: 2px 7px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
+    .ws-card .acts { display: flex; gap: 4px; flex-wrap: wrap; }
+    .ws-card .acts button, .ws-mini { font: 600 11px var(--f-ui); min-height: 30px; padding: 4px 8px; border-radius: 7px; border: 1px solid var(--line2); background: var(--lot); color: var(--ink); cursor: pointer; }
+    .ws-card .acts button:hover, .ws-mini:hover { border-color: var(--accent); color: var(--accent); }
+    .ws-card .acts button.go { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+    .ws-list { display: flex; flex-direction: column; gap: 6px; }
+    .ws-task { display: grid; grid-template-columns: 1fr 150px auto; gap: 6px; align-items: center; }
+    .ws-section { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--lot); display: flex; flex-direction: column; gap: 8px; }
+    .ws-section h5 { margin: 0; font: 700 12.5px var(--f-ui); }
+    .ws-section ul { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.55; }
+    .ws-pane pre { font: 11px/1.5 var(--f-mono); background: var(--solid); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; max-height: 260px; margin: 6px 0 0; }
+    .ws-file { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--solid); font-size: 12.5px; }
+    .ws-file summary { cursor: pointer; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ws-check { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--solid); font-size: 12.5px; }
+    .ws-check .ic { font-weight: 800; } .ws-check .ic.ok { color: var(--ok); } .ws-check .ic.no { color: var(--bad); } .ws-check .ic.opt { color: var(--faint); }
+    .ws-check small { display: block; color: var(--dim); margin-top: 2px; line-height: 1.45; }
+    .ws-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .ws-table th, .ws-table td { text-align: left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+    .ws-table th { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    @media (max-width: 640px) { .ws-board { grid-template-columns: repeat(4, 78vw); } .ws-task { grid-template-columns: 1fr; } .ws-box { height: 92vh; max-height: 92vh !important; padding: 14px !important; } }
     .modal-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; background: color-mix(in srgb, var(--bg) 62%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
     .retro-modal-box { width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 16px; border: 1px solid var(--line2); background: var(--solid); box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
     .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -299,6 +341,7 @@
       <div class="tb-group">
         <button class="mobile-chat-toggle" onclick="toggleMobileChat()"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>Chat</button>
         <div class="room-dropdown" id="roomSelector" onclick="toggleFloorSelector()" role="button" tabindex="0" title="Call everyone to the War Room or send them back">Work floor</div>
+        <button class="action-pill-btn primary" onclick="openWorkshop('board')" title="Task board, plan then build, new app, DevOps desk and setup"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Workshop <span id="setupBtnDot" title="Setup needs attention" style="display:none;width:7px;height:7px;border-radius:50%;background:var(--warn);"></span></button>
         <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>The Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
         <button class="action-pill-btn" onclick="openFilesModal()"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg>Files</button>
         <button class="action-pill-btn" onclick="openBlastRadiusModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Blast Radius</button>
@@ -559,7 +602,72 @@
       </label>
       <div id="filesStatus" role="status" style="font-size:11.5px;min-height:18px;margin:6px 0;color:var(--dim);"></div>
       <div id="filesList" style="overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-      <p style="font-size:11px;color:var(--faint);margin:10px 0 0;line-height:1.5;">Agents read the contents of text files, such as .md, .txt, .csv, .json and code. For PDFs and images they only see the file name for now.</p>
+      <p style="font-size:11px;color:var(--faint);margin:10px 0 0;line-height:1.5;">Agents read text files and the text inside PDFs. Images are described by a local vision model such as llava when one is installed (see Setup); otherwise agents see the name only. Scanned PDFs are pictures of text, so they can't be read yet.</p>
+    </div>
+  </div>
+
+  <!-- v0.5 Workshop: task board, plan then build, new app, DevOps desk, setup -->
+  <div class="modal-overlay" id="workshopModal" role="dialog" aria-modal="true" aria-labelledby="workshopTitle">
+    <div class="retro-modal-box ws-box">
+      <div class="modal-head">
+        <h3 id="workshopTitle"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Workshop</h3>
+        <button class="term-toggle-btn" onclick="closeWorkshop()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="ws-tabs" role="tablist">
+        <button class="ws-tab" role="tab" data-tab="board" onclick="wsTab('board')">Task board</button>
+        <button class="ws-tab" role="tab" data-tab="plan" onclick="wsTab('plan')">Plan, then build</button>
+        <button class="ws-tab" role="tab" data-tab="app" onclick="wsTab('app')">New app</button>
+        <button class="ws-tab" role="tab" data-tab="devops" onclick="wsTab('devops')">DevOps desk</button>
+        <button class="ws-tab" role="tab" data-tab="setup" onclick="wsTab('setup')">Setup <span class="dot" id="wsSetupDot"></span></button>
+      </div>
+
+      <div class="ws-pane" id="ws-board" role="tabpanel">
+        <form class="ws-row" onsubmit="event.preventDefault(); wsAddCard();">
+          <input class="chat-input" id="wsCardTitle" maxlength="140" placeholder="Add a card, for example: Let users reset their password" aria-label="New card title">
+          <select id="wsCardOwner" aria-label="Owner"></select>
+          <button class="action-pill-btn primary" type="submit">Add card</button>
+          <button class="action-pill-btn" type="button" onclick="wsSync()" title="Adds open GitHub issues as cards. Never closes or edits issues.">Sync GitHub issues</button>
+        </form>
+        <div class="ws-msg" id="wsBoardMsg" role="status"></div>
+        <div class="ws-board" id="wsBoard"></div>
+        <p class="ws-help">Cards are Markdown files in <code>.devsquad/tasks/</code>, so the board is versioned with your code. <b>Assign to squad</b> runs the agents on a card and moves it to the Review Desk when they're done.</p>
+      </div>
+
+      <div class="ws-pane" id="ws-plan" role="tabpanel">
+        <p class="ws-help">Describe what you want. Apex proposes a plan you can edit. Nothing is built until you approve it, and approving only adds cards to the board.</p>
+        <div class="ws-row">
+          <textarea id="wsGoal" maxlength="400" placeholder="For example: Add team invites by email, with roles for admin and member" aria-label="What should the team build?"></textarea>
+        </div>
+        <div class="ws-row">
+          <button class="action-pill-btn primary" id="wsPlanBtn" onclick="wsPropose()">Propose a plan</button>
+          <span class="ws-help" id="wsPlanFiles"></span>
+        </div>
+        <div class="ws-msg" id="wsPlanMsg" role="status"></div>
+        <div id="wsPlan"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-app" role="tabpanel">
+        <p class="ws-help">One sentence becomes a working app: FastAPI and SQLite, sign-up and login, a page to add and delete records, tests, a README and a first ADR. The AI only decides what the app stores; the code comes from tested templates, so it runs every time.</p>
+        <div class="ws-row">
+          <textarea id="wsAppPrompt" maxlength="500" placeholder="For example: Build me an inventory app with login" aria-label="Describe the app"></textarea>
+        </div>
+        <div class="ws-row"><button class="action-pill-btn primary" id="wsAppBtn" onclick="wsGenerateApp()">Generate the app</button></div>
+        <div class="ws-msg" id="wsAppMsg" role="status"></div>
+        <div id="wsApp"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-devops" role="tabpanel">
+        <p class="ws-help">Delta reads this project (dependencies, start command, test runner, every <code>os.getenv</code> and <code>process.env</code>) and drafts a Dockerfile, docker-compose, GitHub Actions CI, Cloud Run and Kubernetes files, and <code>.env.example</code>. Drafts wait in <code>.devsquad/devops/</code> until you add them.</p>
+        <div class="ws-row"><button class="action-pill-btn primary" id="wsDevopsBtn" onclick="wsDevops()">Scan this project</button></div>
+        <div class="ws-msg" id="wsDevopsMsg" role="status"></div>
+        <div id="wsDevops"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-setup" role="tabpanel">
+        <div class="ws-msg" id="wsSetupMsg" role="status"></div>
+        <div id="wsSetup" class="ws-list"></div>
+        <p class="ws-help">Everything runs on this computer with free models. DevSquad never uses paid AI.</p>
+      </div>
     </div>
   </div>
 
@@ -797,18 +905,19 @@ def fetch_user_profile(user_id: str, db_pool=None):
   <div class="modal-overlay" id="flakyChamberModal">
     <div class="retro-modal-box" style="max-width:760px;width:95%;max-height:85vh;display:flex;flex-direction:column;">
       <div class="modal-head">
-        <h3><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Hazard Chamber · Flaky Test & Race Condition Pinpointer</h3>
+        <h3><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Flaky tests</h3>
         <button class="term-toggle-btn" onclick="closeFlakyChamberModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </div>
       <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
-        Stress-tests non-deterministic tests under synthetic concurrency jitter to trap unawaited promises, time drift, or shared mutable state.
+        Runs your real test command again and again in this project, each time with a different hash seed, and reports which runs failed and what the output said. Causes are only suggested when the output has a clear clue.
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="flakyTestInput" class="chat-input" placeholder="Test Identifier (e.g. tests/test_auth.py::test_async_rotation)" value="test_async_token_rotation" style="flex:1;min-width:240px;">
-        <button class="action-pill-btn primary" onclick="runFlakyStressTest()" style="font-size:11px;padding:6px 14px;">⚡ Stress-Test (10x Runs)</button>
+        <input type="text" id="flakyTestInput" class="chat-input" placeholder="Test command, e.g. python3 -m pytest tests/test_auth.py::test_login" value="python3 -m unittest discover tests" aria-label="Test command" style="flex:1;min-width:240px;">
+        <select id="flakyRuns" aria-label="How many runs" style="min-height:32px;border-radius:8px;border:1px solid var(--line);background:var(--lot);color:var(--ink);"><option>5</option><option selected>10</option><option>20</option><option>50</option></select>
+        <button class="action-pill-btn primary" onclick="runFlakyStressTest()" style="font-size:11px;padding:6px 14px;">Run it repeatedly</button>
       </div>
       <div style="flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:12px;display:flex;flex-direction:column;gap:10px;" id="flakyResultBox">
-        <div style="color:var(--dim);font-size:11px;text-align:center;padding:20px;">Enter a test identifier and run the stress chamber.</div>
+        <div style="color:var(--dim);font-size:11px;text-align:center;padding:20px;">Enter the command you use to run the test.</div>
       </div>
     </div>
   </div>
@@ -2153,7 +2262,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       list.innerHTML = files.map(f => {
         const n = escHtml(f.name), url = "/api/files/" + encodeURIComponent(f.name);
         return `<div class="file-row"><input type="checkbox" aria-label="Attach ${n} to the next task" data-name="${n}" ${attachedFiles.has(f.name) ? "checked" : ""}>
-          <div class="fname">${n}<small>${fileSize(f.size)} · ${f.readable ? "agents can read this" : "agents see the name only"}</small></div>
+          <div class="fname">${n}<small>${fileSize(f.size)} · ${f.readable ? "agents can read this" : f.image ? "read by a vision model, if installed" : "agents see the name only"}</small></div>
           <a href="${url}" download="${n}">Download</a><button type="button" class="del" data-del="${n}">Delete</button></div>`;
       }).join("");
       list.querySelectorAll("input[type=checkbox]").forEach(cb => cb.onchange = () => { cb.checked ? attachedFiles.add(cb.dataset.name) : attachedFiles.delete(cb.dataset.name); showAttachedCount(); });
@@ -3845,35 +3954,29 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     async function runFlakyStressTest() {
-      const testName = document.getElementById("flakyTestInput").value.trim() || "test_async_token_rotation";
+      const command = document.getElementById("flakyTestInput").value.trim();
+      const runs = +document.getElementById("flakyRuns").value;
       const box = document.getElementById("flakyResultBox");
-      box.innerHTML = `<div style="color:var(--accent);font-size:11px;text-align:center;padding:14px;">Gamma QA running 10x concurrent stress iterations with jitter…</div>`;
-
+      if (!command) { box.innerHTML = `<div style="color:var(--bad);font-size:12px;">Enter the test command first.</div>`; return; }
+      box.innerHTML = `<div style="color:var(--dim);font-size:12px;text-align:center;padding:14px;">Running ${escHtml(command)} ${runs} times. This takes as long as ${runs} runs of the test…</div>`;
       try {
-        const res = await fetch("/api/v1/flaky/stress-test", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ test_name: testName, iterations: 10 })
-        });
-        const data = res.ok ? await res.json() : null;
-
-        if (data) {
-          box.innerHTML = `
-            <div style="background:var(--bad-bg);border:1px solid var(--bad);border-radius:8px;padding:12px;margin-bottom:8px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <b style="color:var(--bad);font-size:12px;">⚠️ Non-Deterministic Failure Trapped!</b>
-                <span style="font-size:11px;font-weight:700;color:var(--bad);">${data.flakiness_percentage}% Flaky (${data.failed_runs}/${data.total_runs} failed)</span>
-              </div>
-              <div style="font-size:11.5px;color:var(--ink);">${escHtml(data.root_cause_diagnosis)}</div>
-            </div>
-            <div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:4px;">Auto-Synthesized Deterministic Hardening Patch:</div>
-            <pre style="font-family:var(--f-mono);font-size:10.5px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;">${escHtml(data.hardening_patch)}</pre>
-            <div style="font-size:10.5px;color:var(--ok);margin-top:6px;font-weight:600;">✅ Gamma QA verified 10/10 consecutive passes after applying synchronization barrier.</div>
-          `;
-          appendTermLog(`[Hazard Chamber] Trapped race condition in ${testName} and generated deterministic patch!`, "ok");
-        }
+        const res = await fetch("/api/v5/flaky", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command, runs }) });
+        const d = await res.json();
+        if (!res.ok) { box.innerHTML = `<div style="color:var(--bad);font-size:12px;">${escHtml(d.error || "The runs couldn't start.")}</div>`; return; }
+        const color = d.status === "stable" ? "var(--ok)" : d.status === "flaky" ? "var(--warn)" : "var(--bad)";
+        const strip = d.runs.map(r => `<span title="Run ${r.run}: ${r.passed ? "passed" : "failed"} in ${r.seconds}s, seed ${r.seed}" style="display:inline-block;width:14px;height:22px;border-radius:3px;background:${r.passed ? "var(--ok)" : "var(--bad)"};"></span>`).join("");
+        box.innerHTML = `
+          <div style="border:1px solid ${color};border-radius:8px;padding:12px;">
+            <b style="color:${color};font-size:13px;">${escHtml(d.summary)}</b>
+            <div style="display:flex;gap:3px;flex-wrap:wrap;margin:10px 0 6px;" aria-label="${d.passed_runs} passed, ${d.failed_runs} failed">${strip}</div>
+            <div style="font-size:11.5px;color:var(--dim);">${d.passed_runs} passed, ${d.failed_runs} failed. Runs took ${d.fastest_run_seconds}s to ${d.slowest_run_seconds}s, ${d.seconds}s in all.</div>
+          </div>
+          ${d.clues.length ? `<div style="font-size:12px;"><b>What the output suggests</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55;">${d.clues.map(c => `<li>Likely: ${escHtml(c.likely_cause)} ${escHtml(c.usual_fix)}</li>`).join("")}</ul></div>` : ""}
+          ${d.replay ? `<div style="font-size:12px;"><b>Replay the first failure</b><pre style="font-family:var(--f-mono);font-size:11px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;margin:6px 0 0;">${escHtml(d.replay)}</pre></div>` : ""}
+          ${d.first_failure ? `<div style="font-size:12px;"><b>Output of run ${d.first_failure.run}</b><pre style="font-family:var(--f-mono);font-size:10.5px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;margin:6px 0 0;max-height:220px;">${escHtml(d.first_failure.output)}</pre></div>` : ""}`;
+        appendTermLog(`[Flaky tests] ${d.summary}`, d.status === "stable" ? "ok" : "warn");
       } catch (e) {
-        box.innerHTML = `<div style="color:var(--bad);font-size:11px;">Error running stress test: ${escHtml(e.message)}</div>`;
+        box.innerHTML = `<div style="color:var(--bad);font-size:12px;">The studio server isn't answering: ${escHtml(e.message)}</div>`;
       }
     }
 
@@ -4528,6 +4631,213 @@ def fetch_user_profile(user_id: str, db_pool=None):
     render();
   </script>
   <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+  <script>
+    // ---- v0.5 Workshop ----
+    const WS_OWNERS = ["", "apex", "alpha_be", "beta_fe", "gamma_qa", "delta_devops", "zeta_docs"];
+    const wsName = id => id ? ((typeof AGENTS !== "undefined" && AGENTS[id]) ? AGENTS[id].name : id) : "Unassigned";
+    const wsEsc = t => (typeof escHtml === "function" ? escHtml(String(t ?? "")) : String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
+    let wsCurrentPlan = null, wsDevopsData = null, wsAppData = null;
+
+    async function v5(path, method = "GET", body) {
+      try {
+        const res = await fetch("/api/v5/" + path, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      } catch (e) {
+        return { ok: false, status: 0, data: { error: "The studio server isn't answering. Is it still running?" } };
+      }
+    }
+    function wsSay(id, text, kind = "") { const el = document.getElementById(id); el.textContent = text || ""; el.className = "ws-msg " + kind; }
+    function wsBusy(btn, busy, label) { if (!btn) return; if (busy) { btn.dataset.label = btn.textContent; btn.textContent = label; btn.disabled = true; } else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; } }
+    function wsOwnerOptions(selected) { return WS_OWNERS.map(o => `<option value="${o}" ${o === selected ? "selected" : ""}>${wsEsc(wsName(o))}</option>`).join(""); }
+
+    function openWorkshop(tab = "board") { document.getElementById("workshopModal").style.display = "flex"; wsTab(tab); }
+    function closeWorkshop() { document.getElementById("workshopModal").style.display = "none"; }
+    function wsTab(tab) {
+      document.querySelectorAll(".ws-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+      document.querySelectorAll(".ws-pane").forEach(p => p.classList.toggle("on", p.id === "ws-" + tab));
+      if (tab === "board") { document.getElementById("wsCardOwner").innerHTML = wsOwnerOptions(""); wsLoadBoard(); }
+      if (tab === "plan") { const n = typeof attachedFiles !== "undefined" ? attachedFiles.size : 0; document.getElementById("wsPlanFiles").textContent = n ? `Apex will read ${n} attached file${n > 1 ? "s" : ""}.` : "Tip: attach briefs, PDFs or mockups in Files first, and Apex will read them."; }
+      if (tab === "setup") wsLoadSetup();
+    }
+
+    // Board
+    const WS_NEXT = { backlog: "in_progress", in_progress: "review", review: "merged" };
+    const WS_PREV = { in_progress: "backlog", review: "in_progress", merged: "review" };
+    async function wsLoadBoard() {
+      const r = await v5("board");
+      if (!r.ok) { wsSay("wsBoardMsg", r.data.error || "Couldn't load the board.", "bad"); return; }
+      document.getElementById("wsBoard").innerHTML = r.data.columns.map(col => `
+        <section class="ws-col" aria-label="${wsEsc(col.title)}">
+          <h4>${wsEsc(col.title)}<span>${col.cards.length}</span></h4>
+          ${col.cards.length ? col.cards.map(c => `
+            <article class="ws-card">
+              <b>${wsEsc(c.title)}</b>
+              <div class="meta"><span class="ws-chip">${wsEsc(wsName(c.owner))}</span>
+                ${c.issue_url && /^https:\/\/github\.com\//.test(c.issue_url) ? `<a href="${wsEsc(c.issue_url)}" target="_blank" rel="noopener">Issue #${wsEsc(c.issue)}</a>` : ""}
+                ${c.task_id ? `<span>Run ${wsEsc(c.task_id)}</span>` : ""}</div>
+              <div class="acts">
+                ${col.id === "backlog" ? `<button class="go" onclick="wsAssign('${c.id}', this)">Assign to squad</button>` : ""}
+                ${col.id === "review" && c.task_id ? `<button onclick="closeWorkshop(); openReviewDesk();">Review</button>` : ""}
+                ${WS_PREV[col.id] ? `<button onclick="wsMove('${c.id}','${WS_PREV[col.id]}')" aria-label="Move back">&larr;</button>` : ""}
+                ${WS_NEXT[col.id] ? `<button onclick="wsMove('${c.id}','${WS_NEXT[col.id]}')" aria-label="Move forward">&rarr;</button>` : ""}
+                <button onclick="wsDelete('${c.id}')" aria-label="Delete card">Delete</button>
+              </div>
+            </article>`).join("") : `<div class="ws-help" style="padding:6px 2px;">Nothing here.</div>`}
+        </section>`).join("");
+    }
+    async function wsAddCard() {
+      const title = document.getElementById("wsCardTitle").value.trim();
+      if (!title) { wsSay("wsBoardMsg", "Give the card a title.", "bad"); return; }
+      const r = await v5("board", "POST", { title, owner: document.getElementById("wsCardOwner").value });
+      if (!r.ok) { wsSay("wsBoardMsg", r.data.error, "bad"); return; }
+      document.getElementById("wsCardTitle").value = ""; wsSay("wsBoardMsg", "Added to the backlog.", "ok"); wsLoadBoard();
+    }
+    async function wsMove(id, status) { const r = await v5(`board/${id}/move`, "POST", { status }); if (!r.ok) wsSay("wsBoardMsg", r.data.error, "bad"); wsLoadBoard(); }
+    async function wsDelete(id) { if (!confirm("Delete this card? Its file in .devsquad/tasks is removed.")) return; await v5(`board/${id}`, "DELETE"); wsLoadBoard(); }
+    async function wsAssign(id, btn) {
+      wsBusy(btn, true, "Squad working…"); wsSay("wsBoardMsg", "The squad is working on this card. It moves to the Review Desk when they're done.");
+      const files = typeof attachedFiles !== "undefined" ? [...attachedFiles] : [];
+      const r = await v5(`board/${id}/assign`, "POST", { files });
+      wsBusy(btn, false);
+      wsSay("wsBoardMsg", r.ok ? "Done. The changes are waiting on the Review Desk." : r.data.error, r.ok ? "ok" : "bad");
+      if (r.ok && typeof loadReviewTasks === "function") loadReviewTasks();
+      wsLoadBoard();
+    }
+    async function wsSync() {
+      wsSay("wsBoardMsg", "Reading open issues from GitHub…");
+      const r = await v5("board/sync", "POST", {});
+      wsSay("wsBoardMsg", r.ok ? `Added ${r.data.imported} issue${r.data.imported === 1 ? "" : "s"}. ${r.data.already_on_board} already on the board.` : r.data.error, r.ok ? "ok" : "bad");
+      wsLoadBoard();
+    }
+
+    // Plan, then build
+    async function wsPropose() {
+      const goal = document.getElementById("wsGoal").value.trim();
+      if (!goal) { wsSay("wsPlanMsg", "Describe what you want built first.", "bad"); return; }
+      const btn = document.getElementById("wsPlanBtn"); wsBusy(btn, true, "Apex is planning…"); wsSay("wsPlanMsg", "");
+      const r = await v5("plan", "POST", { goal, files: typeof attachedFiles !== "undefined" ? [...attachedFiles] : [] });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsPlanMsg", r.data.error, "bad"); return; }
+      wsCurrentPlan = r.data; wsRenderPlan();
+    }
+    function wsRenderPlan() {
+      const p = wsCurrentPlan, box = document.getElementById("wsPlan");
+      const list = (title, items) => items && items.length ? `<div class="ws-section"><h5>${title}</h5><ul>${items.map(x => `<li>${wsEsc(x)}</li>`).join("")}</ul></div>` : "";
+      box.innerHTML = `
+        ${p.note ? `<div class="ws-msg" style="color:var(--warn);">${wsEsc(p.note)}</div>` : ""}
+        <div class="ws-section"><h5>${wsEsc(p.summary)}</h5>
+          <div class="ws-list" id="wsPlanTasks">${p.tasks.map((t, i) => `
+            <div class="ws-task"><input class="chat-input" data-i="${i}" data-k="title" value="${wsEsc(t.title)}" aria-label="Task ${i + 1}">
+              <select data-i="${i}" data-k="owner" aria-label="Owner of task ${i + 1}">${wsOwnerOptions(t.owner)}</select>
+              <button class="ws-mini" onclick="wsCurrentPlan.tasks.splice(${i},1); wsRenderPlan();" aria-label="Remove task ${i + 1}">Remove</button></div>`).join("")}
+          </div>
+          <div class="ws-row"><button class="ws-mini" onclick="wsCurrentPlan.tasks.push({title:'', owner:'alpha_be', detail:''}); wsRenderPlan();">Add a task</button></div>
+        </div>
+        ${list("Risks", p.risks)}${list("Questions to answer before building", p.questions)}
+        <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApprove(this)">Approve and add ${p.tasks.length} card${p.tasks.length === 1 ? "" : "s"} to the board</button>
+          <span class="ws-help">Source: ${wsEsc(p.source)}</span></div>`;
+      box.querySelectorAll("[data-i]").forEach(el => el.oninput = el.onchange = () => { wsCurrentPlan.tasks[+el.dataset.i][el.dataset.k] = el.value; });
+    }
+    async function wsApprove(btn) {
+      wsBusy(btn, true, "Adding…");
+      const r = await v5(`plan/${wsCurrentPlan.id}/approve`, "POST", { tasks: wsCurrentPlan.tasks });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsPlanMsg", r.data.error, "bad"); return; }
+      document.getElementById("wsPlan").innerHTML = ""; document.getElementById("wsGoal").value = ""; wsCurrentPlan = null;
+      wsTab("board"); wsSay("wsBoardMsg", `Approved. ${r.data.cards.length} cards added to the backlog.`, "ok");
+    }
+
+    // New app
+    async function wsGenerateApp() {
+      const prompt = document.getElementById("wsAppPrompt").value.trim();
+      if (!prompt) { wsSay("wsAppMsg", "Describe the app first.", "bad"); return; }
+      const btn = document.getElementById("wsAppBtn"); wsBusy(btn, true, "Generating…"); wsSay("wsAppMsg", "");
+      const r = await v5("greenfield", "POST", { prompt });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsAppMsg", r.data.error, "bad"); return; }
+      wsAppData = r.data; const sp = r.data.spec;
+      document.getElementById("wsApp").innerHTML = `
+        <div class="ws-section"><h5>${wsEsc(sp.app_name)}</h5>
+          <div class="ws-help">Each user keeps their own <b>${wsEsc(sp.plural)}</b>. Fields: ${sp.fields.map(f => `<code>${wsEsc(f.name)}</code> (${wsEsc(f.type)})`).join(", ")}. Designed by ${sp.source === "keywords" ? "keyword match (template mode)" : wsEsc(sp.source)}.</div>
+          <div class="ws-help">${r.data.files.length} files staged in <code>${wsEsc(r.data.staged_at)}</code>: ${r.data.files.map(f => `<code>${wsEsc(f)}</code>`).join(" ")}</div>
+        </div>
+        <div class="ws-section"><h5>Create the app folder</h5>
+          <div class="ws-help">Choose a new or empty folder. A relative name goes next to this project. Nothing is overwritten.</div>
+          <div class="ws-row"><input class="chat-input" id="wsAppTarget" value="${wsEsc(r.data.slug)}" aria-label="Folder for the new app">
+            <button class="action-pill-btn primary" onclick="wsApplyApp(this)">Create it</button></div>
+          <div class="ws-help">Then run it: <code>${wsEsc(r.data.run)}</code><br>Test it: <code>${wsEsc(r.data.test)}</code></div>
+        </div>`;
+    }
+    async function wsApplyApp(btn) {
+      wsBusy(btn, true, "Creating…");
+      const r = await v5("greenfield/apply", "POST", { slug: wsAppData.slug, target: document.getElementById("wsAppTarget").value.trim() });
+      wsBusy(btn, false);
+      wsSay("wsAppMsg", r.ok ? `Created ${r.data.files.length} files in ${r.data.path}` : r.data.error, r.ok ? "ok" : "bad");
+    }
+
+    // DevOps desk
+    async function wsDevops() {
+      const btn = document.getElementById("wsDevopsBtn"); wsBusy(btn, true, "Delta is reading the project…");
+      const r = await v5("devops/generate", "POST", {});
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsDevopsMsg", r.data.error, "bad"); return; }
+      wsDevopsData = r.data; const a = r.data.analysis;
+      wsSay("wsDevopsMsg", r.data.note || "", r.data.note ? "bad" : "");
+      const facts = [["Language", a.language + (a.language === "python" ? " " + a.python_version : "")], ["Framework", a.framework || "none found"],
+        ["Start command", a.start_command || "none found"], ["Tests", a.test_command || "none found"], ["Port", a.port]];
+      document.getElementById("wsDevops").innerHTML = `
+        <div class="ws-section"><h5>What Delta found</h5>
+          <table class="ws-table"><tbody>${facts.map(([k, v]) => `<tr><th scope="row">${k}</th><td><code>${wsEsc(v)}</code></td></tr>`).join("")}</tbody></table></div>
+        <div class="ws-section"><h5>Environment variables (${a.env_vars.length})</h5>
+          ${a.env_vars.length ? `<table class="ws-table"><thead><tr><th>Name</th><th>Default</th><th>Used in</th></tr></thead><tbody>${a.env_vars.map(v => `
+            <tr><td><code>${wsEsc(v.name)}</code>${v.secret ? ' <span class="ws-chip">secret</span>' : ""}</td><td>${v.secret ? "<i>left blank</i>" : wsEsc(v.default ?? "")}</td><td>${v.files.map(wsEsc).join(", ")}</td></tr>`).join("")}</tbody></table>` : `<div class="ws-help">None found.</div>`}</div>
+        <div class="ws-section"><h5>Files to add</h5>
+          <div class="ws-list">${r.data.files.map((f, i) => `
+            <details class="ws-file"><summary><input type="checkbox" data-path="${wsEsc(f.path)}" ${f.exists ? "" : "checked"} aria-label="Add ${wsEsc(f.path)}" onclick="event.stopPropagation()">
+              <code>${wsEsc(f.path)}</code>${f.exists ? '<span class="ws-chip">already exists</span>' : ""}<span class="ws-help">Preview</span></summary>
+              <pre>${wsEsc(f.content)}</pre></details>`).join("")}</div>
+          <label class="ws-help" style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="wsOverwrite"> Replace files that already exist</label>
+          <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApplyDevops(this)">Add the ticked files to the project</button></div>
+        </div>`;
+    }
+    async function wsApplyDevops(btn) {
+      const paths = [...document.querySelectorAll("#wsDevops input[data-path]:checked")].map(x => x.dataset.path);
+      if (!paths.length) { wsSay("wsDevopsMsg", "Tick at least one file.", "bad"); return; }
+      wsBusy(btn, true, "Adding…");
+      const r = await v5("devops/apply", "POST", { paths, overwrite: document.getElementById("wsOverwrite").checked });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsDevopsMsg", r.data.error, "bad"); return; }
+      wsSay("wsDevopsMsg", `Added: ${r.data.written.join(", ") || "nothing"}.${r.data.skipped.length ? " Kept as they were: " + r.data.skipped.join(", ") + "." : ""}`, "ok");
+    }
+
+    // Setup
+    async function wsLoadSetup() {
+      wsSay("wsSetupMsg", "Checking this computer…");
+      const r = await v5("setup");
+      if (!r.ok) { wsSay("wsSetupMsg", r.data.error || "Couldn't check setup.", "bad"); return; }
+      const s = r.data;
+      document.getElementById("wsSetupDot").classList.toggle("on", !s.ready);
+      wsSay("wsSetupMsg", `${s.ready ? "Ready" : "Not ready yet"}: ${s.mode}. ${s.next_step}`, s.ready ? "ok" : "");
+      document.getElementById("wsSetup").innerHTML = s.checks.map(c => `
+        <div class="ws-check"><span class="ic ${c.ok ? "ok" : c.optional ? "opt" : "no"}" aria-label="${c.ok ? "Done" : "Not done"}">${c.ok ? "&#10003;" : c.optional ? "&ndash;" : "&#10007;"}</span>
+          <div><b>${wsEsc(c.title)}</b>${c.ok ? "" : `<small>${wsEsc(c.fix)}</small>`}</div>
+          ${!c.ok && c.pull && s.models !== null && s.checks.find(x => x.id === "ollama_running").ok ? `<button class="ws-mini" onclick="wsPull('${wsEsc(c.pull)}', this)">Download ${wsEsc(c.pull)}</button>` : "<span></span>"}
+        </div>`).join("");
+    }
+    async function wsPull(model, btn) {
+      wsBusy(btn, true, "Downloading… this can take a while");
+      const r = await v5("setup/pull", "POST", { model });
+      wsBusy(btn, false);
+      wsSay("wsSetupMsg", r.ok ? `${model} is downloaded.` : r.data.error, r.ok ? "ok" : "bad");
+      if (r.ok) wsLoadSetup();
+    }
+    // Show a dot on Setup when something needed is missing
+    setTimeout(async () => {
+      const r = await v5("setup");
+      if (r.ok && !r.data.ready) { document.getElementById("wsSetupDot").classList.add("on"); const b = document.getElementById("setupBtnDot"); if (b) b.style.display = "inline-block"; }
+    }, 1500);
+  </script>
   <script type="module">
     // 3D office. Replaces the pixel canvas when Three.js loads; if it can't load (offline), the 2D office stays.
     import * as THREE from "three";

@@ -3,6 +3,21 @@
 All notable changes to DevSquad are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-11-13
+
+### Added
+- **Workshop** panel in the studio with five tabs: Task board, Plan then build, New app, DevOps desk and Setup.
+- **Task board** (`devsquad/core/taskboard.py`): cards as Markdown files in `.devsquad/tasks/`, four columns, Assign to squad, and read-only GitHub Issues import through `gh`.
+- **Plan, then build** (`devsquad/core/planner.py`): editable plans with owners, risks and questions; approval adds cards to the board.
+- **Greenfield bootstrapper** (`devsquad/core/bootstrapper.py`): one sentence becomes a FastAPI + SQLite app with login, a web page, tests, README and ADR, staged and copied only into an empty folder.
+- **DevOps desk** (`devsquad/core/devops_desk.py`): Dockerfile, compose, CI, Cloud Run, Kubernetes and `.env.example` drafted from what the project actually uses.
+- **First-run setup** (`devsquad/core/setup_check.py`): checks for Ollama, models, git and pytest, with model downloads.
+- **PDF and image reading** (`devsquad/core/doc_reader.py`): PDF text extraction with the standard library; image descriptions from a local vision model.
+- `/api/v5/` routes shared by the standard and FastAPI servers (`devsquad/server/v5_api.py`), behind the same local-only guard.
+
+### Changed
+- **Flaky tests are real**: the runner now runs your test command repeatedly with a different hash seed per run and reports actual results. The old simulation is kept only as a deprecated function that says it ran nothing.
+
 ## [0.1.0] - 2026-11-09
 
 ### Added

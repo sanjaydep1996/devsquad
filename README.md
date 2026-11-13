@@ -108,8 +108,9 @@ Click **Roadmap** in the topbar:
 
 ### 13. 👻 Flaky Test & Race Condition Isolation Chamber
 Click **Flaky Tests** in the topbar:
-- Runs suspect test suites under synthetic concurrency stress and randomized execution jitter to trap intermittent race conditions.
-- Isolates async leaks or shared mutable state and synthesizes deterministic hardening patches verified by Gamma QA.
+- Runs your real test command 5 to 50 times in the project, each run with a different `PYTHONHASHSEED`, and shows which runs passed and failed.
+- Tells a flaky test (sometimes fails) apart from a broken one (always fails), shows the failing output, and gives the command to replay the first failure.
+- Suggests a likely cause only when the output has a clear clue, such as a timeout or a refused connection.
 
 ### 14. 📸 Visual QA & Accessibility Auditor (WCAG 2.1 AA)
 Click **Visual QA** in the topbar:
@@ -216,6 +217,38 @@ devsquad rollback <task_id>
 - **Real binary search**: Runs your own test command on past commits, in a scratch git worktree, to find the first commit where it fails. Each commit has a time limit.
 - **Never touches your work**: Your branch, working tree and uncommitted changes stay as they are, and the scratch worktree is removed afterwards.
 - **Honest results**: If the newest commit passes it says there's no regression; if the oldest commit checked also fails it says the bug is older. It suggests a revert only for a confirmed culprit, and asks you to check the diff first.
+
+---
+
+## 🧰 DevSquad Studio v0.5.0: the Workshop
+
+Click **Workshop** in the topbar. Everything below works in template mode and gets smarter with a local Ollama model. Nothing uses paid AI.
+
+### 1. 📋 Task board, with GitHub Issues sync
+- Four columns: **Backlog**, **In progress**, **Review Desk** and **Merged**. Each card is a Markdown file in `.devsquad/tasks/`, so the board lives in git next to the code.
+- **Assign to squad** runs the agents on a card. It moves to In progress, then to the Review Desk with its run attached. If the run fails, the card goes back to the Backlog with the reason.
+- **Sync GitHub issues** adds open issues as cards using the `gh` CLI. It only reads issues; it never closes or edits them.
+
+### 2. 🗺️ Plan, then build
+- Describe a feature. Apex proposes tasks with owners, risks and questions you should answer first. With attached files, Apex reads them.
+- Edit, remove or add tasks, then approve. Approving only adds cards to the board; nothing is built until you assign a card.
+
+### 3. 🏗️ New app from one sentence
+- "Build me an inventory app with login" becomes a FastAPI + SQLite app with sign-up, login (salted PBKDF2), per-user records, a responsive page, six passing tests, a README and a first ADR.
+- The model only decides what the app stores (name, record, fields). The code comes from tested templates, so the app runs and its tests pass every time.
+- Apps are staged in `.devsquad/greenfield/` and copied only into a new or empty folder you choose.
+
+### 4. 🚢 DevOps desk
+- Delta reads the project (dependencies, framework, start command, test runner, port) and every `os.getenv`, `os.environ`, and `process.env` it uses.
+- Drafts a multi-stage non-root `Dockerfile`, `.dockerignore`, `docker-compose.yml`, GitHub Actions CI, Cloud Run and Kubernetes manifests, and `.env.example`, where secrets are left blank and each variable lists the files that use it.
+- Preview each file, tick the ones you want, and add them. Existing files are kept unless you choose to replace them.
+
+### 5. ✅ Setup
+- Checks for Ollama, the recommended coding model (`qwen2.5-coder:7b`), an optional vision model, git and pytest, and says the next step for each gap. Models can be downloaded from the panel.
+
+### 6. 📄 Agents read PDFs and images
+- The text inside PDFs is extracted (standard library only) and given to the agents. Scanned PDFs are pictures of text and can't be read yet.
+- Images and mockups are described by a local vision model such as `llava` when one is installed.
 
 ---
 
