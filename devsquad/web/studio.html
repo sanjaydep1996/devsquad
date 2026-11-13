@@ -3967,8 +3967,9 @@ def fetch_user_profile(user_id: str, db_pool=None):
         }
       } catch (e) {}
 
-      // Static fallback for GitHub Pages
+      // Static fallback for GitHub Pages: an example, not this visitor's machine
       renderAIDiscoveryData({
+        example: true,
         installed_clis: [
           { name: "Claude Code CLI", installed: true, version: "claude-code v0.2.14", provider: "anthropic" },
           { name: "Gemini Developer CLI", installed: true, version: "gemini v1.0.4", provider: "google" },
@@ -3994,7 +3995,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       const modelsBox = document.getElementById("aiModelsList");
       const suggestedEl = document.getElementById("aiSuggestedProvider");
 
-      suggestedEl.textContent = data.suggested_provider || "Ollama (Local / Free)";
+      suggestedEl.textContent = (data.example ? "Example only · " : "") + (data.suggested_provider || "Ollama (Local / Free)");
 
       clisBox.innerHTML = data.installed_clis.map(c => `
         <div style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:6px 10px;border-radius:6px;">
@@ -4149,15 +4150,16 @@ def fetch_user_profile(user_id: str, db_pool=None):
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ test_command: cmd, lookback: 10 })
         });
-        const data = res.ok ? await res.json() : null;
-        if (data && data.status === "isolated") {
+        const data = await res.json().catch(() => null);
+        if (data && data.status) {
           renderBisectResult(data);
           return;
         }
       } catch (e) {}
 
-      // Fallback mock bisect result
+      // No DevSquad server (the GitHub Pages demo): show a clearly labelled example
       renderBisectResult({
+        example: true,
         status: "isolated",
         total_commits_evaluated: 4,
         culprit: {
@@ -4177,20 +4179,30 @@ def fetch_user_profile(user_id: str, db_pool=None):
 
     function renderBisectResult(data) {
       const box = document.getElementById("bisectResultsBox");
-      box.innerHTML = `
+      const steps = (data.bisect_steps || []).map(st => `<div style="font-family:var(--f-mono);font-size:10.5px;"><span style="color:${st.verdict === "GOOD" ? "var(--ok)" : "var(--bad)"};font-weight:700;">${escHtml(st.verdict)}</span> ${escHtml(st.sha)} ${escHtml(st.message)}</div>`).join("");
+      const stepsBox = steps ? `<div style="margin-bottom:8px;"><div style="font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;margin-bottom:4px;">Commits tested</div>${steps}</div>` : "";
+      if (data.status !== "isolated") {
+        const tone = data.status === "no_regression" ? "var(--ok)" : data.status === "older_than_window" ? "var(--warn)" : "var(--bad)";
+        const title = { no_regression: "No regression found", older_than_window: "The failure is older than the commits checked", inconclusive: "Bisect stopped", error: "Bisect couldn't run" }[data.status] || "No culprit found";
+        box.innerHTML = `<div style="border:1px solid ${tone};border-radius:8px;padding:12px;margin-bottom:8px;"><b style="color:${tone};font-size:12px;">${escHtml(title)}</b><div style="font-size:11.5px;margin-top:4px;">${escHtml(data.summary || data.error || "")}</div></div>` + stepsBox;
+        return;
+      }
+      box.innerHTML = (data.example ? `<div style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:6px;">EXAMPLE ONLY: run DevSquad on your computer to bisect your own repository.</div>` : "") + `
         <div style="background:var(--bad-bg);border:1px solid var(--bad);border-radius:8px;padding:12px;margin-bottom:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <b style="color:var(--bad);font-size:12px;">🚨 CULPRIT COMMIT ISOLATED: ${escHtml(data.culprit.sha.slice(0, 10))}</b>
+            <b style="color:var(--bad);font-size:12px;">First failing commit: ${escHtml(data.culprit.sha.slice(0, 10))}</b>
             <span style="font-size:10px;color:var(--dim);">${escHtml(data.culprit.date)}</span>
           </div>
           <div style="font-size:11.5px;color:var(--ink);margin-bottom:4px;">"${escHtml(data.culprit.message)}"</div>
           <div style="font-size:10.5px;color:var(--dim);">Author: <b>${escHtml(data.culprit.author)}</b></div>
         </div>
         <div style="background:var(--ok-bg);border:1px solid var(--ok);border-radius:8px;padding:10px;margin-bottom:8px;">
-          <div style="font-weight:700;font-size:11px;color:var(--ok);margin-bottom:4px;">AUTOMATED REMEDIATION PLAN:</div>
+          <div style="font-size:11.5px;margin-bottom:6px;">${escHtml(data.remediation.summary)}</div>
+          <div style="font-weight:700;font-size:11px;color:var(--ok);margin-bottom:4px;">IF THE DIFF CONFIRMS IT:</div>
           <code style="font-family:var(--f-mono);font-size:11px;background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:4px;display:block;">${escHtml(data.remediation.recommended_command)}</code>
         </div>
         <div>
+          ${stepsBox}
           <div style="font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;margin-bottom:4px;">Culprit Patch:</div>
           <pre style="font-family:var(--f-mono);font-size:10px;background:rgba(0,0,0,0.2);padding:8px;border-radius:4px;max-height:140px;overflow-y:auto;color:var(--ink);">${escHtml(data.culprit_diff || 'No diff available.')}</pre>
         </div>

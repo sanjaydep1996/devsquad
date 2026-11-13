@@ -202,20 +202,20 @@ devsquad rollback <task_id>
 
 ## 🚀 DevSquad Studio v0.4.0 Capabilities
 
-### 1. 🌐 Universal Multi-AI Gateway & Local Machine Auto-Discovery
-- **CLI Binary Auto-Detection**: Automatically inspects the developer's computer for installed AI tools (`claude` CLI, `gemini` CLI, `cursor`, `aider`, `ollama`, `gh copilot`).
-- **Multi-Model Routing**: Seamlessly routes tasks across Claude 3.5/3.7, Gemini 2.0/2.5, ChatGPT / OpenAI, or local Ollama / LM Studio models using zero-dependency Python `urllib` (no external `pip` dependencies required).
-- **Workspace Context Ingestion**: Automatically reads `~/.claude.json`, `.cursorrules`, `CLAUDE.md`, and `.aider.conf.yml`.
+### 1. 🌐 Local AI Discovery
+- **Tool detection**: Reports which AI tools are installed on your computer (`claude`, `gemini`, `cursor`, `aider`, `ollama`) and which local Ollama models you have.
+- **Free AI only**: Agents run on Ollama or another model server on your computer, or in template mode. Paid cloud APIs are not used, and API keys in your shell are ignored.
+- **Workspace context**: Reads `CLAUDE.md`, `.cursorrules` and `.aider.conf.yml` when present.
 
 ### 2. 🔮 Flight Recorder & Incident Blackbox (Interactive RCA & Time Machine)
-- **Immutable Session Ledger**: Records every agent action, AST modification, tool call, and diff into an append-only JSONL event stream.
-- **Time Machine Scrubber**: Drag the interactive scrubber backward or forward in the 3D Studio to view exact file states and diff snapshots at any step.
-- **Automated 5 Whys RCA**: One-click generation of blameless post-mortem reports detailing timeline, blast radius, root cause, and remediation diff.
+- **Session ledger**: Every relay stage (plan, code, tests, healing, staging) is recorded to an append-only JSONL file in `.devsquad/flight_recorder/`.
+- **Time Machine Scrubber**: Step backward or forward through a run to see what each agent did and which files changed.
+- **Factual post-mortems**: A failed run gets a report built only from what was recorded: what failed, where, the last change before it, and the timeline. It says plainly when the root cause isn't known.
 
 ### 3. 🧬 Autonomous Git Bisect & Regression Teleporter
-- **Automated Binary-Search**: Given a failing test or assertion, an agent binary-searches past git commit history in isolated scratch worktrees.
-- **Zero-Clobber Bug Hunting**: Evaluates commits without touching your active branch or unstaged working files.
-- **Auto-Remediation**: Isolates the exact culprit commit and recommends a verified cherry-pick or revert command.
+- **Real binary search**: Runs your own test command on past commits, in a scratch git worktree, to find the first commit where it fails. Each commit has a time limit.
+- **Never touches your work**: Your branch, working tree and uncommitted changes stay as they are, and the scratch worktree is removed afterwards.
+- **Honest results**: If the newest commit passes it says there's no regression; if the oldest commit checked also fails it says the bug is older. It suggests a revert only for a confirmed culprit, and asks you to check the diff first.
 
 ---
 
@@ -232,7 +232,7 @@ python3 -m unittest discover tests -v
 ## 🏛️ Architecture & Principles
 
 - **[ADR 0001: Autonomous Relay Architecture & The Review Desk](docs/adr/0001-autonomous-relay-and-staging-desk.md)**
-- **Local-First with Universal Multi-AI Support**: Defaults to local Ollama or offline template mode with zero mandatory API keys. Seamlessly connects to installed machine tools (`claude`, `gemini`, `cursor`, `aider`, `ollama`) or BYOK cloud endpoints (Anthropic, Google, OpenAI) using standard library HTTP.
+- **Free AI only**: Agents use Ollama or another model server on your computer, or template mode. No paid cloud APIs, and no API keys needed.
 - **Zero Hallucinated Clobbering**: No agent writes directly to your git working tree without staged approval.
 
 ---
