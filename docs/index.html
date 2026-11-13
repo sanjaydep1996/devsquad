@@ -4244,7 +4244,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     // ---------- room ----------
-    const RW = 24, RD = 16, WH = 3.4, X0 = -RW / 2, X1 = RW / 2, Z0 = -RD / 2, Z1 = RD / 2;
+    const RW = 24, RD = 16, WH = 4.8, X0 = -RW / 2, X1 = RW / 2, Z0 = -RD / 2, Z1 = RD / 2;
     box(RW, 0.2, RD, M.floor, 0, -0.1, 0, { cast: false });
     box(13.4, 0.02, 9.4, M.carpet, -3.1, 0.011, 0, { cast: false });
     box(RW + 0.6, 0.6, RD + 0.6, new THREE.MeshStandardMaterial({ color: "#3B3F47", roughness: 0.8 }), 0, -0.5, 0, { cast: false });
@@ -4349,10 +4349,6 @@ def fetch_user_profile(user_id: str, db_pool=None):
       const tip = new THREE.Mesh(new THREE.ConeGeometry(0.45, 11, 10), burjMat); tip.position.y = y + 5.5; burj.add(tip);
       BURJ.top = y + 11;
     }
-    // A soft glow around the tower at night
-    const glowTex = canvasTex(128, 256, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h * 0.62, 2, w / 2, h * 0.62, h * 0.6); gr.addColorStop(0, "rgba(190,215,255,.75)"); gr.addColorStop(.35, "rgba(150,185,255,.22)"); gr.addColorStop(1, "rgba(120,160,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
-    const burjGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0.55 }));
-    burjGlow.scale.set(64, 150, 1); burjGlow.position.set(BURJ.x, GROUND_Y + BURJ.top * BURJ.scale * 0.5, BURJ.z + 2); scene.add(burjGlow);
     const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.7, 10, 10), new THREE.MeshBasicMaterial({ color: "#FF3B30", fog: false })); beacon.position.set(BURJ.x, GROUND_Y + BURJ.top * BURJ.scale, BURJ.z); scene.add(beacon);
 
     box(RW, 0.5, 0.25, M.wall, 0, 0.25, Z0, {}); box(RW, 0.35, 0.25, M.wall, 0, WH - 0.175, Z0, {});
@@ -4579,7 +4575,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       groundMat.color.set(night ? "#0B0F1E" : "#9AA5AD");
       towerSide.emissiveIntensity = night ? 0.75 : 0; towerSide.color.set(night ? "#2A3350" : "#FFFFFF");
       towerRoof.color.set(night ? "#1B2030" : "#7C858E");
-      burjMat.emissiveIntensity = night ? 1.25 : 0; burjMat.color.set(night ? "#5B7090" : "#C4D3E0"); burjLights.visible = night; burjGlow.visible = night;
+      burjMat.emissiveIntensity = night ? 1.25 : 0; burjMat.color.set(night ? "#5B7090" : "#C4D3E0"); burjLights.visible = night;
       scene.background = null;
       renderer.toneMappingExposure = night ? 0.9 : 1.05;
       scene.environmentIntensity = night ? 0.35 : 0.9;
