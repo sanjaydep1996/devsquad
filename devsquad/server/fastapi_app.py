@@ -8,6 +8,7 @@ import json
 import os
 import pathlib
 import urllib.parse
+from dataclasses import asdict
 from typing import Any, Dict, List, Optional
 
 try:
@@ -33,6 +34,9 @@ from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
 from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
+from ..core.ai_discovery import AIDiscoveryEngine
+from ..core.flight_recorder import FlightRecorder
+from ..core.git_bisect import AutonomousBisect
 from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
@@ -338,6 +342,56 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
         if not project_files.delete(name):
             raise HTTPException(status_code=404, detail="Not Found")
         return {"success": True}
+
+    @app.get("/api/v1/ai/discovery")
+    async def ai_discovery():
+        return AIDiscoveryEngine(root).full_inventory()
+
+    @app.get("/api/v1/flight-recorder/timeline")
+    async def flight_recorder_timeline(session_id: str = "default"):
+        recorder = FlightRecorder(root)
+        return {"session_id": session_id, "timeline": recorder.get_timeline(session_id)}
+
+    @app.post("/api/v1/flight-recorder/event")
+    async def flight_recorder_event(request: Request):
+        payload = await request.json()
+        recorder = FlightRecorder(root)
+        ev = recorder.record_event(
+            session_id=payload.get("session_id", "default"),
+            step=int(payload.get("step", 1)),
+            agent=payload.get("agent", "apex"),
+            action=payload.get("action", "test"),
+            status=payload.get("status", "ok"),
+            payload=payload.get("payload"),
+            diff=payload.get("diff", ""),
+            file_path=payload.get("file_path"),
+        )
+        return {"status": "recorded", "event": asdict(ev)}
+
+    @app.post("/api/v1/flight-recorder/scrub")
+    async def flight_recorder_scrub(request: Request):
+        payload = await request.json()
+        recorder = FlightRecorder(root)
+        return recorder.scrub_state(payload.get("session_id", "default"), int(payload.get("step", 1)))
+
+    @app.post("/api/v1/flight-recorder/post-mortem")
+    async def flight_recorder_post_mortem(request: Request):
+        payload = await request.json()
+        recorder = FlightRecorder(root)
+        return recorder.generate_post_mortem(
+            session_id=payload.get("session_id", "default"),
+            failure_step=int(payload.get("failure_step", 1)),
+            failure_summary=payload.get("summary", "Uncaught regression in test suite"),
+        )
+
+    @app.post("/api/v1/bisect/run")
+    async def bisect_run(request: Request):
+        payload = await request.json()
+        bisect = AutonomousBisect(root)
+        return bisect.bisect_with_test_command(
+            test_command=payload.get("test_command", "python3 -m unittest"),
+            lookback=int(payload.get("lookback", 10)),
+        )
 
     # --- WebSocket for Retro CRT Terminal (xterm.js) ---
     @app.websocket("/ws/terminal/{agent_id}")

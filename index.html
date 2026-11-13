@@ -308,6 +308,9 @@
         <button class="action-pill-btn" onclick="openRoadmapModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Roadmap</button>
         <button class="action-pill-btn" onclick="openFlakyChamberModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Flaky Tests</button>
         <button class="action-pill-btn" onclick="openVisualQAModal()"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg>Visual QA</button>
+        <button class="action-pill-btn" onclick="openAIDiscoveryModal()"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>AI Discovery</button>
+        <button class="action-pill-btn" onclick="openFlightRecorderModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Flight Recorder</button>
+        <button class="action-pill-btn" onclick="openBisectModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Git Bisect</button>
         <button class="action-pill-btn" onclick="openMergeArenaModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Merge Arena</button>
         <button class="action-pill-btn" onclick="openChaosLabModal()"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>Chaos Lab</button>
         <button class="action-pill-btn" onclick="openSecurityVaultModal()"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Vault</button>
@@ -828,6 +831,88 @@ def fetch_user_profile(user_id: str, db_pool=None):
       </div>
       <div style="flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:12px;display:flex;flex-direction:column;gap:8px;" id="visualIssuesBox">
         <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Local AI Discovery Modal -->
+  <div class="modal-overlay" id="aiDiscoveryModal">
+    <div class="retro-modal-box" style="max-width:850px;width:95%;max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>Local AI Discovery & Hardware Switchboard</h3>
+        <button class="term-toggle-btn" onclick="closeAIDiscoveryModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:12px;">
+        Auto-detects installed developer AI CLIs (Claude, Gemini, Cursor, Aider, Ollama) and local model weights.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:var(--solid);border:1px solid var(--line);border-radius:8px;padding:12px;">
+          <div style="font-weight:700;font-size:11.5px;color:var(--ink);text-transform:uppercase;margin-bottom:8px;">Installed AI Tools</div>
+          <div id="aiClisList" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+        <div style="background:var(--solid);border:1px solid var(--line);border-radius:8px;padding:12px;">
+          <div style="font-weight:700;font-size:11.5px;color:var(--ink);text-transform:uppercase;margin-bottom:8px;">Local Models & Configs</div>
+          <div id="aiModelsList" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--lot);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-weight:700;font-size:11px;color:var(--dim);">SUGGESTED ROUTING:</span>
+          <span id="aiSuggestedProvider" style="font-weight:700;font-size:12px;color:var(--accent);margin-left:6px;">Ollama (Local / Free)</span>
+        </div>
+        <button class="action-pill-btn primary" onclick="refreshAIDiscovery()">Scan Machine</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flight Recorder & Incident Blackbox Modal -->
+  <div class="modal-overlay" id="flightRecorderModal">
+    <div class="retro-modal-box" style="max-width:900px;width:95%;max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Incident Blackbox & Flight Recorder</h3>
+        <button class="term-toggle-btn" onclick="closeFlightRecorderModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
+        Immutable session timeline. Scrub backward in time to inspect file states or auto-generate a 5 Whys Root Cause Analysis (RCA).
+      </div>
+      <div style="background:var(--solid);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;font-weight:700;color:var(--ink);">TIME MACHINE SCRUBBER: <span id="frCurrentStepLabel" style="color:var(--accent);">Step 3 of 4</span></span>
+          <button class="action-pill-btn primary" onclick="generatePostMortemReport()" style="font-size:11px;padding:4px 10px;">🚨 Generate 5 Whys RCA</button>
+        </div>
+        <input type="range" id="frStepSlider" min="1" max="4" value="3" oninput="onScrubStepChange(this.value)" style="width:100%;cursor:pointer;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;overflow:hidden;">
+        <div style="border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:10px;overflow-y:auto;" id="frActiveFilesBox">
+          <!-- Injected dynamically -->
+        </div>
+        <div style="border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:10px;overflow-y:auto;" id="frDiffPreviewBox">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Autonomous Git Bisect Modal -->
+  <div class="modal-overlay" id="bisectModal">
+    <div class="retro-modal-box" style="max-width:850px;width:95%;max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Autonomous Git Bisect & Regression Teleporter</h3>
+        <button class="term-toggle-btn" onclick="closeBisectModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
+        Pinpoints the exact commit that introduced a test failure or regression using binary search in isolated worktrees.
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="bisectCmdInput" value="python3 -m unittest discover tests" style="flex:1;background:var(--solid);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-family:var(--f-mono);font-size:12px;color:var(--ink);">
+        <button class="action-pill-btn primary" onclick="runAutonomousBisect()" style="padding:6px 16px;">🧬 Hunt Bug</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:12px;display:flex;flex-direction:column;gap:8px;" id="bisectResultsBox">
+        <div style="color:var(--dim);font-size:11.5px;text-align:center;padding:24px;">Click "Hunt Bug" to binary-search recent commits for regression origins.</div>
       </div>
     </div>
   </div>
@@ -3848,6 +3933,280 @@ def fetch_user_profile(user_id: str, db_pool=None):
           </div>
         `;
       }
+    }
+
+    // ==========================================
+    // DevSquad Studio v0.4.0 Features Controller
+    // ==========================================
+
+    // --- 12. Local AI Discovery & Hardware Switchboard ---
+    function openAIDiscoveryModal() {
+      document.getElementById("aiDiscoveryModal").style.display = "flex";
+      refreshAIDiscovery();
+    }
+
+    function closeAIDiscoveryModal() {
+      document.getElementById("aiDiscoveryModal").style.display = "none";
+    }
+
+    async function refreshAIDiscovery() {
+      const clisBox = document.getElementById("aiClisList");
+      const modelsBox = document.getElementById("aiModelsList");
+      const suggestedEl = document.getElementById("aiSuggestedProvider");
+
+      clisBox.innerHTML = '<div style="color:var(--dim);font-size:11px;">Scanning PATH for developer AI CLIs…</div>';
+      modelsBox.innerHTML = '<div style="color:var(--dim);font-size:11px;">Querying local weights & configs…</div>';
+
+      try {
+        const res = await fetch("/api/v1/ai/discovery");
+        const data = res.ok ? await res.json() : null;
+
+        if (data) {
+          renderAIDiscoveryData(data);
+          return;
+        }
+      } catch (e) {}
+
+      // Static fallback for GitHub Pages: an example, not this visitor's machine
+      renderAIDiscoveryData({
+        example: true,
+        installed_clis: [
+          { name: "Claude Code CLI", installed: true, version: "claude-code v0.2.14", provider: "anthropic" },
+          { name: "Gemini Developer CLI", installed: true, version: "gemini v1.0.4", provider: "google" },
+          { name: "Cursor Editor CLI", installed: true, version: "cursor v0.42.0", provider: "cursor" },
+          { name: "Aider Pair-Programmer", installed: true, version: "aider v0.60.1", provider: "aider" },
+          { name: "Ollama Local Daemon", installed: true, version: "ollama v0.5.4 (Metal)", provider: "ollama" },
+        ],
+        local_models: [
+          { name: "qwen2.5-coder:7b", size_bytes: 4700000000, runtime: "ollama" },
+          { name: "deepseek-coder-v2:lite", size_bytes: 8900000000, runtime: "ollama" },
+        ],
+        configs: {
+          claude_instructions: true,
+          cursor_rules: true,
+          env_keys: { anthropic: false, google: false, openai: false }
+        },
+        suggested_provider: "Ollama (Local / Free)"
+      });
+    }
+
+    function renderAIDiscoveryData(data) {
+      const clisBox = document.getElementById("aiClisList");
+      const modelsBox = document.getElementById("aiModelsList");
+      const suggestedEl = document.getElementById("aiSuggestedProvider");
+
+      suggestedEl.textContent = (data.example ? "Example only · " : "") + (data.suggested_provider || "Ollama (Local / Free)");
+
+      clisBox.innerHTML = data.installed_clis.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:6px 10px;border-radius:6px;">
+          <div>
+            <b style="font-size:11px;color:var(--ink);">${escHtml(c.name)}</b>
+            <div style="font-size:10px;color:var(--dim);font-family:var(--f-mono);">${escHtml(c.version)}</div>
+          </div>
+          <span style="font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:${c.installed ? 'var(--ok-bg)' : 'var(--lot)'};color:${c.installed ? 'var(--ok)' : 'var(--dim)'};">
+            ${c.installed ? 'DETECTED' : 'NOT FOUND'}
+          </span>
+        </div>
+      `).join("");
+
+      const modelsHtml = (data.local_models || []).map(m => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--lot);padding:6px 10px;border-radius:6px;">
+          <b style="font-size:11px;color:var(--ink);">${escHtml(m.name)}</b>
+          <span style="font-size:10px;color:var(--dim);font-family:var(--f-mono);">${(m.size_bytes / (1024*1024*1024)).toFixed(1)} GB</span>
+        </div>
+      `).join("");
+
+      modelsBox.innerHTML = `
+        <div style="font-size:11px;font-weight:700;color:var(--dim);margin-bottom:4px;">Weights On Disk:</div>
+        ${modelsHtml || '<div style="font-size:11px;color:var(--dim);">No local weights downloaded.</div>'}
+        <div style="font-size:11px;font-weight:700;color:var(--dim);margin-top:8px;margin-bottom:4px;">Workspace Context:</div>
+        <div style="font-size:10.5px;color:var(--ink);">
+          • CLAUDE.md: ${data.configs && data.configs.claude_instructions ? '✅ Found' : '❌ None'}<br>
+          • .cursorrules: ${data.configs && data.configs.cursor_rules ? '✅ Found' : '❌ None'}
+        </div>
+      `;
+    }
+
+    // --- 13. Flight Recorder & Incident Blackbox ---
+    let currentFlightTimeline = [];
+
+    function openFlightRecorderModal() {
+      document.getElementById("flightRecorderModal").style.display = "flex";
+      loadFlightTimeline();
+    }
+
+    function closeFlightRecorderModal() {
+      document.getElementById("flightRecorderModal").style.display = "none";
+    }
+
+    async function loadFlightTimeline() {
+      try {
+        const res = await fetch("/api/v1/flight-recorder/timeline?session_id=default");
+        const data = res.ok ? await res.json() : null;
+        if (data && data.timeline && data.timeline.length > 0) {
+          currentFlightTimeline = data.timeline;
+          setupFlightScrubber(currentFlightTimeline.length);
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback mock timeline
+      currentFlightTimeline = [
+        { step: 1, agent: "apex", action: "parse_prd_dag", file_path: "devsquad/core/roadmap.py", status: "ok", diff: "+++ b/devsquad/core/roadmap.py\n+class RoadmapProjector:\n+    def parse(self): pass" },
+        { step: 2, agent: "alpha_be", action: "implement_route", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+@app.get('/api/roadmap')\n+def get_roadmap(): return {}" },
+        { step: 3, agent: "gamma_qa", action: "run_test_suite", file_path: "tests/test_features.py", status: "error", diff: "--- a/tests/test_features.py\n+++ b/tests/test_features.py\n-assert res.status == 200\n+assert res.status == 500" },
+        { step: 4, agent: "zeta_sec", action: "quarantine_patch", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+# Quarantined revert applied" }
+      ];
+      setupFlightScrubber(currentFlightTimeline.length);
+    }
+
+    function setupFlightScrubber(totalSteps) {
+      const slider = document.getElementById("frStepSlider");
+      slider.max = totalSteps;
+      slider.value = totalSteps;
+      onScrubStepChange(totalSteps);
+    }
+
+    function onScrubStepChange(stepVal) {
+      const step = parseInt(stepVal, 10);
+      document.getElementById("frCurrentStepLabel").textContent = `Step ${step} of ${currentFlightTimeline.length}`;
+      const activeFilesBox = document.getElementById("frActiveFilesBox");
+      const diffPreviewBox = document.getElementById("frDiffPreviewBox");
+
+      const visibleEvents = currentFlightTimeline.slice(0, step);
+      const activeFiles = {};
+      visibleEvents.forEach(e => {
+        if (e.file_path) activeFiles[e.file_path] = e;
+      });
+
+      activeFilesBox.innerHTML = `
+        <div style="font-weight:700;font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;">Workspace State at Step ${step}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${Object.values(activeFiles).map(e => `
+            <div style="background:var(--lot);padding:6px 10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <b style="font-size:11px;color:var(--ink);">${escHtml(e.file_path)}</b>
+                <div style="font-size:10px;color:var(--dim);">By ${escHtml(e.agent)} (${escHtml(e.action)})</div>
+              </div>
+              <span style="font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:${e.status === 'ok' ? 'var(--ok-bg)' : 'var(--bad-bg)'};color:${e.status === 'ok' ? 'var(--ok)' : 'var(--bad)'};">${escHtml(e.status.toUpperCase())}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      const latest = visibleEvents[visibleEvents.length - 1];
+      diffPreviewBox.innerHTML = `
+        <div style="font-weight:700;font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;">Diff Snapshot at Step ${step}</div>
+        <pre style="font-family:var(--f-mono);font-size:10px;color:var(--ink);background:rgba(0,0,0,0.2);padding:8px;border-radius:4px;max-height:220px;overflow-y:auto;line-height:1.4;">${escHtml(latest ? latest.diff : 'No changes recorded.')}</pre>
+      `;
+    }
+
+    async function generatePostMortemReport() {
+      const diffPreviewBox = document.getElementById("frDiffPreviewBox");
+      diffPreviewBox.innerHTML = '<div style="color:var(--accent);font-size:11px;text-align:center;padding:16px;">Flight Recorder synthesizing 5 Whys Root Cause Analysis…</div>';
+
+      try {
+        const res = await fetch("/api/v1/flight-recorder/post-mortem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: "default", failure_step: 3, summary: "AssertionError: Expected 200 got 500 in payment webhook" })
+        });
+        const data = res.ok ? await res.json() : null;
+        if (data && data.markdown_report) {
+          renderPostMortemMarkdown(data.markdown_report);
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback post-mortem
+      renderPostMortemMarkdown(`# 🚨 Incident Post-Mortem & Flight Recorder RCA\n**Incident ID:** INC-893012\n**Trigger Step:** Step 3 | **Responsible Desk:** gamma_qa\n\n## 1. Executive Summary\nAssertionError: Expected 200 got 500 in payment webhook.\n\n## 2. 5 Whys Root Cause Analysis\n1. Why did the build fail? -> AssertionError in payment webhook.\n2. Why did the error trigger? -> Execution failed during step 3 by gamma_qa.\n3. Why was devsquad/server/server.py affected? -> Unvalidated AST parameter mapping.\n4. Why was this not caught earlier? -> Concurrency race bypassed test runner.\n5. Why is the architecture vulnerable? -> Missing invariant gate prior to desk merge.\n\n## 3. Remediation & Action Items\n- [ ] Auto-revert offending diff at step 3.\n- [ ] Add regression test fixture to tests/.\n- [ ] Update .devsquad/memory.json known pitfalls.`);
+    }
+
+    function renderPostMortemMarkdown(md) {
+      const diffPreviewBox = document.getElementById("frDiffPreviewBox");
+      diffPreviewBox.innerHTML = `
+        <div style="font-weight:700;font-size:11px;color:var(--ok);text-transform:uppercase;margin-bottom:8px;">✅ Generated Blameless Post-Mortem</div>
+        <pre style="font-family:var(--f-mono);font-size:9.5px;color:var(--ink);background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;max-height:240px;overflow-y:auto;line-height:1.4;">${escHtml(md)}</pre>
+      `;
+    }
+
+    // --- 14. Autonomous Git Bisect Pod ---
+    function openBisectModal() {
+      document.getElementById("bisectModal").style.display = "flex";
+    }
+
+    function closeBisectModal() {
+      document.getElementById("bisectModal").style.display = "none";
+    }
+
+    async function runAutonomousBisect() {
+      const box = document.getElementById("bisectResultsBox");
+      const cmd = document.getElementById("bisectCmdInput").value.trim();
+      box.innerHTML = '<div style="color:var(--accent);font-size:11.5px;text-align:center;padding:16px;">🧬 Agent Gamma binary-searching commit tree for regression…</div>';
+
+      try {
+        const res = await fetch("/api/v1/bisect/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ test_command: cmd, lookback: 10 })
+        });
+        const data = await res.json().catch(() => null);
+        if (data && data.status) {
+          renderBisectResult(data);
+          return;
+        }
+      } catch (e) {}
+
+      // No DevSquad server (the GitHub Pages demo): show a clearly labelled example
+      renderBisectResult({
+        example: true,
+        status: "isolated",
+        total_commits_evaluated: 4,
+        culprit: {
+          sha: "c28bf9a1e0",
+          author: "Charlie Developer",
+          date: "2026-11-12",
+          message: "refactor(auth): alter token rotation payload schema"
+        },
+        remediation: {
+          strategy: "REVERT_OR_PATCH",
+          recommended_command: "git revert --no-commit c28bf9a1e0",
+          summary: "Regression introduced in commit c28bf9a1 ('refactor(auth): alter token rotation payload schema') by Charlie Developer."
+        },
+        culprit_diff: "--- a/devsquad/core/auth.py\n+++ b/devsquad/core/auth.py\n@@ -14,2 +14,3 @@\n-    return token.is_valid()\n+    # Missing null check on expired payload\n+    return token.payload['active']"
+      });
+    }
+
+    function renderBisectResult(data) {
+      const box = document.getElementById("bisectResultsBox");
+      const steps = (data.bisect_steps || []).map(st => `<div style="font-family:var(--f-mono);font-size:10.5px;"><span style="color:${st.verdict === "GOOD" ? "var(--ok)" : "var(--bad)"};font-weight:700;">${escHtml(st.verdict)}</span> ${escHtml(st.sha)} ${escHtml(st.message)}</div>`).join("");
+      const stepsBox = steps ? `<div style="margin-bottom:8px;"><div style="font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;margin-bottom:4px;">Commits tested</div>${steps}</div>` : "";
+      if (data.status !== "isolated") {
+        const tone = data.status === "no_regression" ? "var(--ok)" : data.status === "older_than_window" ? "var(--warn)" : "var(--bad)";
+        const title = { no_regression: "No regression found", older_than_window: "The failure is older than the commits checked", inconclusive: "Bisect stopped", error: "Bisect couldn't run" }[data.status] || "No culprit found";
+        box.innerHTML = `<div style="border:1px solid ${tone};border-radius:8px;padding:12px;margin-bottom:8px;"><b style="color:${tone};font-size:12px;">${escHtml(title)}</b><div style="font-size:11.5px;margin-top:4px;">${escHtml(data.summary || data.error || "")}</div></div>` + stepsBox;
+        return;
+      }
+      box.innerHTML = (data.example ? `<div style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:6px;">EXAMPLE ONLY: run DevSquad on your computer to bisect your own repository.</div>` : "") + `
+        <div style="background:var(--bad-bg);border:1px solid var(--bad);border-radius:8px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <b style="color:var(--bad);font-size:12px;">First failing commit: ${escHtml(data.culprit.sha.slice(0, 10))}</b>
+            <span style="font-size:10px;color:var(--dim);">${escHtml(data.culprit.date)}</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--ink);margin-bottom:4px;">"${escHtml(data.culprit.message)}"</div>
+          <div style="font-size:10.5px;color:var(--dim);">Author: <b>${escHtml(data.culprit.author)}</b></div>
+        </div>
+        <div style="background:var(--ok-bg);border:1px solid var(--ok);border-radius:8px;padding:10px;margin-bottom:8px;">
+          <div style="font-size:11.5px;margin-bottom:6px;">${escHtml(data.remediation.summary)}</div>
+          <div style="font-weight:700;font-size:11px;color:var(--ok);margin-bottom:4px;">IF THE DIFF CONFIRMS IT:</div>
+          <code style="font-family:var(--f-mono);font-size:11px;background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:4px;display:block;">${escHtml(data.remediation.recommended_command)}</code>
+        </div>
+        <div>
+          ${stepsBox}
+          <div style="font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;margin-bottom:4px;">Culprit Patch:</div>
+          <pre style="font-family:var(--f-mono);font-size:10px;background:rgba(0,0,0,0.2);padding:8px;border-radius:4px;max-height:140px;overflow-y:auto;color:var(--ink);">${escHtml(data.culprit_diff || 'No diff available.')}</pre>
+        </div>
+      `;
     }
 
     function connectSSE() {

@@ -10,6 +10,7 @@ import pathlib
 import threading
 import time
 import urllib.parse
+from dataclasses import asdict
 from typing import Dict, List, Optional
 from .guard import is_local_host, origin_is_this_server
 from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
@@ -27,6 +28,9 @@ from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
 from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
+from ..core.ai_discovery import AIDiscoveryEngine
+from ..core.flight_recorder import FlightRecorder
+from ..core.git_bisect import AutonomousBisect
 from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
@@ -224,6 +228,12 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 ],
                 "recommendations": report.recommendations,
             })
+        elif path == "/api/v1/ai/discovery":
+            self._serve_json(AIDiscoveryEngine(self.root).full_inventory())
+        elif path == "/api/v1/flight-recorder/timeline":
+            session_id = query.get("session_id", ["default"])[0]
+            recorder = FlightRecorder(self.root)
+            self._serve_json({"session_id": session_id, "timeline": recorder.get_timeline(session_id)})
         elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
@@ -480,6 +490,33 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 "hardening_patch": flaky_result.hardening_patch,
                 "verified_deterministic": flaky_result.verified_deterministic,
             })
+        elif path == "/api/v1/flight-recorder/event":
+            session_id = payload.get("session_id", "default")
+            step = int(payload.get("step", 1))
+            agent = payload.get("agent", "apex")
+            action = payload.get("action", "test")
+            status = payload.get("status", "ok")
+            diff = payload.get("diff", "")
+            file_path = payload.get("file_path")
+            recorder = FlightRecorder(self.root)
+            ev = recorder.record_event(session_id, step, agent, action, status, payload.get("payload"), diff, file_path)
+            self._serve_json({"status": "recorded", "event": asdict(ev)})
+        elif path == "/api/v1/flight-recorder/scrub":
+            session_id = payload.get("session_id", "default")
+            step = int(payload.get("step", 1))
+            recorder = FlightRecorder(self.root)
+            self._serve_json(recorder.scrub_state(session_id, step))
+        elif path == "/api/v1/flight-recorder/post-mortem":
+            session_id = payload.get("session_id", "default")
+            step = int(payload.get("failure_step", 1))
+            summary = payload.get("summary", "Uncaught regression in test suite")
+            recorder = FlightRecorder(self.root)
+            self._serve_json(recorder.generate_post_mortem(session_id, step, summary))
+        elif path == "/api/v1/bisect/run":
+            cmd = payload.get("test_command", "python3 -m unittest")
+            lookback = int(payload.get("lookback", 10))
+            bisect = AutonomousBisect(self.root)
+            self._serve_json(bisect.bisect_with_test_command(cmd, lookback))
         else:
             self.send_error(404, "Not Found")
 

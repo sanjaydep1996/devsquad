@@ -15,6 +15,9 @@ from .mcp_hub import MCPHub, MCPToolDefinition
 from .roadmap import SpecRoadmapProjector, RoadmapPlan, RoadmapTask
 from .flaky_detector import FlakyTestDetector, FlakyTestResult
 from .visual_qa import VisualQAAuditor, VisualAuditReport, VisualIssue
+from .ai_discovery import AIDiscoveryEngine
+from .flight_recorder import FlightRecorder, FlightEvent
+from .git_bisect import AutonomousBisect
 
 __all__ = [
     "RepoContextEngine",
@@ -46,4 +49,8 @@ __all__ = [
     "VisualQAAuditor",
     "VisualAuditReport",
     "VisualIssue",
+    "AIDiscoveryEngine",
+    "FlightRecorder",
+    "FlightEvent",
+    "AutonomousBisect",
 ]

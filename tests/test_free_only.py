@@ -29,7 +29,7 @@ class TestFreeOnly(unittest.TestCase):
     def test_no_source_file_has_a_paid_ai_address(self):
         for path in (ROOT / "devsquad").rglob("*.py"):
             text = path.read_text(encoding="utf-8")
-            for address in ("api.anthropic.com", "api.openai.com", "openrouter.ai", "api.groq.com"):
+            for address in ("api.anthropic.com", "api.openai.com", "openrouter.ai", "api.groq.com", "generativelanguage.googleapis.com"):
                 self.assertNotIn(address, text, f"{address} in {path}")
 
     def test_keys_in_the_shell_are_ignored(self):
@@ -40,6 +40,12 @@ class TestFreeOnly(unittest.TestCase):
         for name in ("anthropic", "openai", "claude", "groq"):
             with patch.dict(os.environ, PAID_KEYS, clear=True):
                 self.assertIsInstance(get_provider(provider_type=name), TemplateProvider, name)
+
+    def test_discovery_never_suggests_a_paid_service(self):
+        from devsquad.core.ai_discovery import AIDiscoveryEngine
+        with patch.dict(os.environ, {**PAID_KEYS, "GEMINI_API_KEY": "AIzaX"}, clear=True):
+            inventory = AIDiscoveryEngine().full_inventory()
+        self.assertIn(inventory["suggested_provider"], ("ollama", "template"))
 
     def test_ollama_is_used_when_running(self):
         with patch.dict(os.environ, PAID_KEYS, clear=True), patch.object(OllamaProvider, "is_available", return_value=True):
