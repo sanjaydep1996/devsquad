@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Sanjaydeep Gowrishankar. All rights reserved.
 # Licensed under the MIT License. See LICENSE in the project root.
 
-"""Zero-dependency LLM providers using Python standard library urllib."""
+"""Zero-dependency multi-AI providers using Python standard library urllib."""
 
 import json
 import os
@@ -82,28 +82,19 @@ class OllamaProvider(BaseProvider):
         )
 
 
-class OpenAICompatibleProvider(BaseProvider):
-    """A /v1/chat/completions server on this computer (LM Studio, llama.cpp, vLLM).
+class AnthropicProvider(BaseProvider):
+    """Anthropic Claude provider using Messages API via standard library urllib."""
 
-    Cloud addresses are refused and OPENAI_API_KEY is never read, so this can't reach a paid service.
-    """
-
-    def __init__(
-        self,
-        base_url: str = "http://localhost:1234/v1",
-        api_key: Optional[str] = None,
-        model: str = "local-model",
-    ):
+    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-5-sonnet-latest"):
         super().__init__(model=model)
-        self.base_url = base_url.rstrip("/")
-        self.api_key = api_key or ""
+        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
 
     @property
     def provider_name(self) -> str:
-        return "openai-compatible"
+        return "anthropic"
 
     def is_available(self) -> bool:
-        return urllib.parse.urlsplit(self.base_url).hostname in ("localhost", "127.0.0.1", "::1")
+        return bool(self.api_key and self.api_key.startswith("sk-ant"))
 
     def complete(
         self,
@@ -113,8 +104,167 @@ class OpenAICompatibleProvider(BaseProvider):
         temperature: float = 0.2,
     ) -> LLMResponse:
         if not self.is_available():
-            raise RuntimeError(f"DevSquad only uses free AI on this computer, so it won't call {self.base_url}.")
+            raise RuntimeError("AnthropicProvider requires a valid ANTHROPIC_API_KEY.")
 
+        start_time = time.time()
+        url = "https://api.anthropic.com/v1/messages"
+
+        payload: Dict[str, Any] = {
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if system:
+            payload["system"] = system
+
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": self.api_key,
+            "anthropic-version": "2023-06-01",
+        }
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=45.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            raise RuntimeError(f"Anthropic API call failed: {e}") from e
+
+        latency_ms = (time.time() - start_time) * 1000.0
+        content_blocks = data.get("content", [])
+        text_output = "".join(b.get("text", "") for b in content_blocks if b.get("type") == "text")
+
+        usage_raw = data.get("usage", {})
+        in_tok = usage_raw.get("input_tokens", len(prompt) // 4)
+        out_tok = usage_raw.get("output_tokens", len(text_output) // 4)
+
+        # Estimate pricing ($3/M in, $15/M out for Sonnet)
+        cost = (in_tok * 0.000003) + (out_tok * 0.000015)
+
+        return LLMResponse(
+            text=text_output.strip(),
+            usage=LLMUsage(input_tokens=in_tok, output_tokens=out_tok),
+            latency_ms=latency_ms,
+            model=self.model,
+            provider=self.provider_name,
+            cost_usd=round(cost, 6),
+            raw=data,
+        )
+
+
+class GeminiProvider(BaseProvider):
+    """Google Gemini provider via standard library urllib."""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.0-flash"):
+        super().__init__(model=model)
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+
+    @property
+    def provider_name(self) -> str:
+        return "gemini"
+
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+
+    def complete(
+        self,
+        prompt: str,
+        system: Optional[str] = None,
+        max_tokens: int = 2000,
+        temperature: float = 0.2,
+    ) -> LLMResponse:
+        if not self.is_available():
+            raise RuntimeError("GeminiProvider requires GEMINI_API_KEY or GOOGLE_API_KEY.")
+
+        start_time = time.time()
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+
+        contents = []
+        if system:
+            contents.append({"role": "user", "parts": [{"text": f"System Instructions: {system}"}]})
+            contents.append({"role": "model", "parts": [{"text": "Understood. I will follow these guidelines."}]})
+        contents.append({"role": "user", "parts": [{"text": prompt}]})
+
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
+                "temperature": temperature,
+            }
+        }
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=45.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            raise RuntimeError(f"Gemini API call failed: {e}") from e
+
+        latency_ms = (time.time() - start_time) * 1000.0
+        candidates = data.get("candidates", [])
+        text_output = ""
+        if candidates:
+            parts = candidates[0].get("content", {}).get("parts", [])
+            text_output = "".join(p.get("text", "") for p in parts)
+
+        usage_meta = data.get("usageMetadata", {})
+        in_tok = usage_meta.get("promptTokenCount", len(prompt) // 4)
+        out_tok = usage_meta.get("candidatesTokenCount", len(text_output) // 4)
+
+        return LLMResponse(
+            text=text_output.strip(),
+            usage=LLMUsage(input_tokens=in_tok, output_tokens=out_tok),
+            latency_ms=latency_ms,
+            model=self.model,
+            provider=self.provider_name,
+            cost_usd=round((in_tok * 0.0000001) + (out_tok * 0.0000004), 6),
+            raw=data,
+        )
+
+
+class OpenAICompatibleProvider(BaseProvider):
+    """OpenAI / ChatGPT / Local server provider (LM Studio, llama.cpp, vLLM, OpenAI)."""
+
+    def __init__(
+        self,
+        base_url: str = "http://localhost:1234/v1",
+        api_key: Optional[str] = None,
+        model: str = "gpt-4o-mini",
+    ):
+        super().__init__(model=model)
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+
+    @property
+    def provider_name(self) -> str:
+        return "openai" if "api.openai.com" in self.base_url else "openai-compatible"
+
+    def is_available(self) -> bool:
+        if "api.openai.com" in self.base_url:
+            return bool(self.api_key)
+        # Local server check
+        return urllib.parse.urlsplit(self.base_url).hostname in ("localhost", "127.0.0.1", "::1")
+
+    def complete(
+        self,
+        prompt: str,
+        system: Optional[str] = None,
+        max_tokens: int = 2000,
+        temperature: float = 0.2,
+    ) -> LLMResponse:
         start_time = time.time()
         url = f"{self.base_url}/chat/completions"
 
@@ -145,15 +295,18 @@ class OpenAICompatibleProvider(BaseProvider):
             with urllib.request.urlopen(req, timeout=45.0) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
         except Exception as e:
-            raise RuntimeError(f"OpenAI-compatible endpoint failed ({url}): {e}") from e
+            raise RuntimeError(f"OpenAI compatible endpoint failed ({url}): {e}") from e
 
         latency_ms = (time.time() - start_time) * 1000.0
         choices = data.get("choices", [])
         text_output = choices[0].get("message", {}).get("content", "").strip() if choices else ""
 
         usage_raw = data.get("usage") or {}
-        in_tok = usage_raw.get("prompt_tokens", 0)
-        out_tok = usage_raw.get("completion_tokens", 0)
+        in_tok = usage_raw.get("prompt_tokens", len(prompt) // 4)
+        out_tok = usage_raw.get("completion_tokens", len(text_output) // 4)
+
+        is_cloud = "api.openai.com" in self.base_url
+        cost = ((in_tok * 0.00000015) + (out_tok * 0.0000006)) if is_cloud else 0.0
 
         return LLMResponse(
             text=text_output,
@@ -161,7 +314,7 @@ class OpenAICompatibleProvider(BaseProvider):
             latency_ms=latency_ms,
             model=self.model,
             provider=self.provider_name,
-            cost_usd=0.0,
+            cost_usd=round(cost, 6),
             raw=data,
         )
 

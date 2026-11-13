@@ -200,9 +200,28 @@ devsquad rollback <task_id>
 
 ---
 
+## 🚀 DevSquad Studio v0.4.0 Capabilities
+
+### 1. 🌐 Universal Multi-AI Gateway & Local Machine Auto-Discovery
+- **CLI Binary Auto-Detection**: Automatically inspects the developer's computer for installed AI tools (`claude` CLI, `gemini` CLI, `cursor`, `aider`, `ollama`, `gh copilot`).
+- **Multi-Model Routing**: Seamlessly routes tasks across Claude 3.5/3.7, Gemini 2.0/2.5, ChatGPT / OpenAI, or local Ollama / LM Studio models using zero-dependency Python `urllib` (no external `pip` dependencies required).
+- **Workspace Context Ingestion**: Automatically reads `~/.claude.json`, `.cursorrules`, `CLAUDE.md`, and `.aider.conf.yml`.
+
+### 2. 🔮 Flight Recorder & Incident Blackbox (Interactive RCA & Time Machine)
+- **Immutable Session Ledger**: Records every agent action, AST modification, tool call, and diff into an append-only JSONL event stream.
+- **Time Machine Scrubber**: Drag the interactive scrubber backward or forward in the 3D Studio to view exact file states and diff snapshots at any step.
+- **Automated 5 Whys RCA**: One-click generation of blameless post-mortem reports detailing timeline, blast radius, root cause, and remediation diff.
+
+### 3. 🧬 Autonomous Git Bisect & Regression Teleporter
+- **Automated Binary-Search**: Given a failing test or assertion, an agent binary-searches past git commit history in isolated scratch worktrees.
+- **Zero-Clobber Bug Hunting**: Evaluates commits without touching your active branch or unstaged working files.
+- **Auto-Remediation**: Isolates the exact culprit commit and recommends a verified cherry-pick or revert command.
+
+---
+
 ## 🧪 Testing & Verification
 
-DevSquad includes full unit test coverage across repo scanning, diff computation, task staging, AST blast-radius analysis, git worktree isolation, bug swarm, and multi-agent relay orchestration:
+DevSquad includes full unit test coverage across repo scanning, diff computation, task staging, AST blast-radius analysis, git worktree isolation, bug swarm, multi-agent relay orchestration, flight recording, and autonomous git bisect:
 
 ```bash
 python3 -m unittest discover tests -v
@@ -213,7 +232,7 @@ python3 -m unittest discover tests -v
 ## 🏛️ Architecture & Principles
 
 - **[ADR 0001: Autonomous Relay Architecture & The Review Desk](docs/adr/0001-autonomous-relay-and-staging-desk.md)**
-- **Local-First by Design**: Free AI only. Agents use Ollama or another model server on your computer, or template mode. Paid cloud APIs are not supported, and `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` are ignored.
+- **Local-First with Universal Multi-AI Support**: Defaults to local Ollama or offline template mode with zero mandatory API keys. Seamlessly connects to installed machine tools (`claude`, `gemini`, `cursor`, `aider`, `ollama`) or BYOK cloud endpoints (Anthropic, Google, OpenAI) using standard library HTTP.
 - **Zero Hallucinated Clobbering**: No agent writes directly to your git working tree without staged approval.
 
 ---
