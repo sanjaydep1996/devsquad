@@ -111,10 +111,8 @@ class TestDevSquadV3Features(unittest.TestCase):
         detector = FlakyTestDetector()
         res = detector.stress_test("tests/test_async_auth.py::test_token_exchange", iterations=10, simulated_flaky_rate=0.30)
         self.assertEqual(res.total_runs, 10)
-        self.assertTrue(res.verified_deterministic)
-        if res.is_flaky:
-            self.assertGreater(res.flakiness_percentage, 0.0)
-            self.assertIn("asyncio", res.hardening_patch)
+        self.assertFalse(res.verified_deterministic)   # a simulation proves nothing, and says so
+        self.assertIn("Simulation only", res.root_cause_diagnosis)
 
     def test_visual_qa_auditor(self):
         auditor = VisualQAAuditor(self.root)

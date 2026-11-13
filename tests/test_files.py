@@ -61,7 +61,7 @@ class TestProjectFiles(unittest.TestCase):
         self.assertIn("Users sign in with email.", text)
         self.assertIn("mock.png", text)
         self.assertIn("brief.pdf", text)
-        self.assertIn("can't be read", text)
+        self.assertIn("couldn't be read", text)
         self.assertNotIn("missing.txt", text)
         self.assertNotIn("PNG....", text)
 
