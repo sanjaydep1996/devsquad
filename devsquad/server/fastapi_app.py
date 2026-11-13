@@ -19,6 +19,7 @@ except ImportError:
 
 from .guard import is_local_host, origin_matches_host
 from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
+from ..core.status import StatusBoard, StatusReporter
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -293,6 +294,17 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
             ],
             "recommendations": report.recommendations,
         }
+
+    # --- Status answers ("What is Delta working on?") ---
+    status_board = StatusBoard()
+
+    @app.post("/api/ask")
+    async def ask(payload: Dict[str, Any]):
+        provider = get_provider()
+        names = payload.get("names") if isinstance(payload.get("names"), dict) else {}
+        reporter = StatusReporter(staging, status_board, provider_name=provider.provider_name, model=provider.model)
+        report = reporter.answer(str(payload.get("question", "")), selected=payload.get("selected"), names={k: str(v) for k, v in names.items()})
+        return report or {"answered": False}
 
     # --- Project files: planning material people upload for the team ---
     project_files = ProjectFiles(root)

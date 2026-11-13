@@ -77,6 +77,15 @@
     .bubble3d.urgent { border-color: var(--bad); }
     #office3dHint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 5px 11px; border-radius: 999px; background: rgba(10,14,24,.62); color: #fff; font: 500 11px var(--f-ui); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
     #office3d.used #office3dHint { opacity: 0; }
+    .status-answer { max-width: 100%; }
+    .status-answer p { margin: 2px 0 0; }
+    .status-answer .st-agent { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-top: 8px; }
+    .status-answer .st-agent:first-child { margin-top: 0; }
+    .status-answer .st-agent span { font: 600 10.5px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; }
+    .status-answer .st-h { margin-top: 10px; font: 600 10.5px var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+    .status-answer ul { margin: 3px 0 0; padding-left: 16px; }
+    .status-answer li { margin: 2px 0; }
+    .status-answer .st-none { color: var(--dim); }
     .file-drop { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 12px; border: 1.5px dashed var(--line2); border-radius: 12px; background: var(--lot); cursor: pointer; text-align: center; font-size: 12.5px; }
     .file-drop:hover, .file-drop.over, .file-drop:focus-within { border-color: var(--accent); background: var(--accent-soft); }
     .file-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
@@ -2016,6 +2025,27 @@ def fetch_user_profile(user_id: str, db_pool=None):
       `;
     }
 
+    // ---------- Status answers ----------
+    async function askStatus(question) {
+      try {
+        const names = Object.fromEntries(Object.values(AGENTS).filter(a => !a.isUser).map(a => [a.id, a.name]));
+        const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, selected: selectedAgentId, names }) });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.answered ? data : null;
+      } catch (e) { return null; }
+    }
+    function showStatusAnswer(r) {
+      const STATE = { working: ["Working", "var(--ok)"], waiting: ["Waiting", "var(--warn)"], done: ["Stage done", "var(--info)"], idle: ["Idle", "var(--dim)"] };
+      const list = (title, items) => `<div class="st-h">${title}</div>` + (items.length ? `<ul>${items.map(x => `<li>${escHtml(x)}</li>`).join("")}</ul>` : `<div class="st-none">None</div>`);
+      const b = document.createElement("div");
+      b.className = "msg-bubble msg-agent status-answer";
+      b.innerHTML = r.agents.map(a => `<div class="st-agent"><b>${escHtml(a.name)}</b><span style="color:${STATE[a.state][1]}">${STATE[a.state][0]}</span></div><p>${escHtml(a.working_on)}${a.last_done ? " " + escHtml(a.last_done) : ""}</p>`).join("")
+        + `<div class="st-h">ETA</div><p>${escHtml(r.eta)}</p>` + list("Blockers", r.blockers) + list("Decisions needed", r.decisions) + list("Suggestions", r.suggestions);
+      const thread = document.getElementById("chatThread");
+      thread.appendChild(b); thread.scrollTop = thread.scrollHeight;
+    }
+
     // ---------- Project files ----------
     const attachedFiles = new Set();
     function fileSize(n) { return n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(0)} KB` : `${(n / 1048576).toFixed(1)} MB`; }
@@ -2121,6 +2151,12 @@ def fetch_user_profile(user_id: str, db_pool=None):
       userBubble.textContent = text;
       thread.appendChild(userBubble);
       thread.scrollTop = thread.scrollHeight;
+
+      // A question about status gets an answer, not a new task
+      if (hasLiveDaemon) {
+        const report = await askStatus(text);
+        if (report) { showStatusAnswer(report); return; }
+      }
 
       const ag = AGENTS[selectedAgentId];
       if (ag) {

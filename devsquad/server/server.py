@@ -13,6 +13,7 @@ import urllib.parse
 from typing import Dict, List, Optional
 from .guard import is_local_host, origin_is_this_server
 from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
+from ..core.status import StatusBoard, StatusReporter
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -40,6 +41,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
     clients_lock: threading.Lock = threading.Lock()
     relay: Optional[AutonomousRelay] = None
     staging: Optional[StagingDeck] = None
+    board: StatusBoard = StatusBoard()
     chaos_lab: ChaosLab = ChaosLab()
     model_router: HybridModelRouter = HybridModelRouter()
     mcp_hub: MCPHub = MCPHub()
@@ -245,6 +247,18 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
+        if path == "/api/ask":
+            # A status question gets an answer from recorded facts; anything else comes back as not answered
+            reporter = StatusReporter(
+                self.staging or StagingDeck(self.root), self.board,
+                provider_name=self.relay.provider.provider_name if self.relay else "",
+                model=self.relay.provider.model if self.relay else "",
+            )
+            names = payload.get("names") if isinstance(payload.get("names"), dict) else {}
+            report = reporter.answer(str(payload.get("question", "")), selected=payload.get("selected"), names={k: str(v) for k, v in names.items()})
+            self._serve_json(report or {"answered": False})
+            return
+
         if path == "/api/spawn":
             if not self.relay:
                 self._serve_json({"success": False, "error": "Relay engine is not initialized"}, status=503)
@@ -257,7 +271,10 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
 
             try:
                 reference = ProjectFiles(self.root).context_for(payload.get("files") or [])
-                task = self.relay.run_task(task_text, reference=reference)
+                try:
+                    task = self.relay.run_task(task_text, reference=reference)
+                finally:
+                    self.board.finish()   # also when the run fails, so nobody is left "working" forever
                 self._serve_json({
                     "success": True,
                     "agent": agent_id,
@@ -578,7 +595,13 @@ def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -
 
     provider = get_provider()
 
+    StudioHandler.board = StatusBoard()
+
     def on_event(agent, event, data):
+        if event == "STAGED":
+            StudioHandler.board.finish()
+        else:
+            StudioHandler.board.record(agent, event, data)
         StudioHandler._broadcast(agent, event, data)
 
     StudioHandler.relay = AutonomousRelay(provider=provider, root=r, event_callback=on_event)

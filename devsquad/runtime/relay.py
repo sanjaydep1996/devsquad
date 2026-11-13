@@ -43,7 +43,7 @@ class AutonomousRelay:
         payload = data or {}
         entry = f"[{time.strftime('%H:%M:%S')}] [{agent}] {event}: {message}"
         task.relay_logs.append(entry)
-        self.event_cb(agent, event, {"message": message, **payload})
+        self.event_cb(agent, event, {"message": message, "task_id": task.task_id, "goal": task.goal, **payload})
 
     def run_task(
         self,
