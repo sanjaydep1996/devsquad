@@ -12,6 +12,7 @@ import time
 import urllib.parse
 from typing import Dict, List, Optional
 from .guard import is_local_host, origin_is_this_server
+from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -74,7 +75,11 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        if path in ("/", "/index.html", "/studio", "/office"):
+        if path == "/api/files":
+            self._serve_json({"files": ProjectFiles(self.root).list()})
+        elif path.startswith("/api/files/"):
+            self._download_file(urllib.parse.unquote(path[len("/api/files/"):]))
+        elif path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
         elif path == "/data/usage.json":
             usage_file = self.root / "data" / "usage.json"
@@ -230,6 +235,10 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         query = urllib.parse.parse_qs(parsed.query)
 
         content_length = int(self.headers.get("Content-Length", 0))
+        if path == "/api/files":
+            # Uploads are raw bytes, so they're handled before the body is read as JSON
+            self._upload_file((query.get("name") or [""])[0], content_length)
+            return
         body = self.rfile.read(content_length).decode("utf-8") if content_length > 0 else "{}"
         try:
             payload = json.loads(body)
@@ -247,7 +256,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 return
 
             try:
-                task = self.relay.run_task(task_text)
+                reference = ProjectFiles(self.root).context_for(payload.get("files") or [])
+                task = self.relay.run_task(task_text, reference=reference)
                 self._serve_json({
                     "success": True,
                     "agent": agent_id,
@@ -455,6 +465,41 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             })
         else:
             self.send_error(404, "Not Found")
+
+    def do_DELETE(self):
+        if self._refuse_outsiders(changes_state=True):
+            return
+        path = urllib.parse.urlparse(self.path).path
+        if path.startswith("/api/files/") and ProjectFiles(self.root).delete(urllib.parse.unquote(path[len("/api/files/"):])):
+            self._serve_json({"success": True})
+        else:
+            self.send_error(404, "Not Found")
+
+    def _upload_file(self, name: str, content_length: int):
+        if content_length > MAX_FILE_BYTES:
+            self._serve_json({"error": f"That file is over the {MAX_FILE_BYTES // (1024 * 1024)} MB limit."}, status=413)
+            return
+        try:
+            info = ProjectFiles(self.root).save(name, self.rfile.read(content_length))
+        except FileRejected as e:
+            self._serve_json({"error": str(e)}, status=400)
+            return
+        self._serve_json({"success": True, "file": info})
+
+    def _download_file(self, name: str):
+        data = ProjectFiles(self.root).read(name)
+        if data is None:
+            self.send_error(404, "Not Found")
+            return
+        safe = ProjectFiles.safe_name(name)
+        self.send_response(200)
+        # Always a download, never a page: an uploaded .html file must not run on the studio's own address
+        self.send_header("Content-Type", "application/octet-stream")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(safe)}")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
 
     def _serve_json_file(self, file_path: pathlib.Path):
         try:

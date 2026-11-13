@@ -7,16 +7,18 @@ import asyncio
 import json
 import os
 import pathlib
+import urllib.parse
 from typing import Any, Dict, List, Optional
 
 try:
-    from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+    from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, HTTPException
     from fastapi.responses import HTMLResponse, JSONResponse
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
 from .guard import is_local_host, origin_matches_host
+from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
 from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
@@ -291,6 +293,39 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
             ],
             "recommendations": report.recommendations,
         }
+
+    # --- Project files: planning material people upload for the team ---
+    project_files = ProjectFiles(root)
+
+    @app.get("/api/files")
+    async def list_files():
+        return {"files": project_files.list()}
+
+    @app.post("/api/files")
+    async def upload_file(request: Request, name: str = ""):
+        if int(request.headers.get("content-length") or 0) > MAX_FILE_BYTES:
+            return JSONResponse({"error": f"That file is over the {MAX_FILE_BYTES // (1024 * 1024)} MB limit."}, status_code=413)
+        try:
+            return {"success": True, "file": project_files.save(name, await request.body())}
+        except FileRejected as e:
+            return JSONResponse({"error": str(e)}, status_code=400)
+
+    @app.get("/api/files/{name}")
+    async def download_file(name: str):
+        data = project_files.read(name)
+        if data is None:
+            raise HTTPException(status_code=404, detail="Not Found")
+        # Always a download, never a page: an uploaded .html file must not run on the studio's own address
+        return Response(data, media_type="application/octet-stream", headers={
+            "X-Content-Type-Options": "nosniff",
+            "Content-Disposition": f"attachment; filename*=UTF-8''{urllib.parse.quote(ProjectFiles.safe_name(name))}",
+        })
+
+    @app.delete("/api/files/{name}")
+    async def delete_file(name: str):
+        if not project_files.delete(name):
+            raise HTTPException(status_code=404, detail="Not Found")
+        return {"success": True}
 
     # --- WebSocket for Retro CRT Terminal (xterm.js) ---
     @app.websocket("/ws/terminal/{agent_id}")
