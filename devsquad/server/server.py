@@ -11,13 +11,21 @@ import threading
 import time
 import urllib.parse
 from typing import Dict, List, Optional
+from .guard import is_local_host, origin_is_this_server
+from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
+from ..core.status import StatusBoard, StatusReporter
+from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
 from ..core.context import RepoContextEngine
+from ..core.flaky_detector import FlakyTestDetector
+from ..core.mcp_hub import MCPHub
 from ..core.memory import MemoryLake
 from ..core.merge_arena import MergeConflictArena
+from ..core.roadmap import SpecRoadmapProjector
 from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
+from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
 from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
@@ -33,25 +41,47 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
     clients_lock: threading.Lock = threading.Lock()
     relay: Optional[AutonomousRelay] = None
     staging: Optional[StagingDeck] = None
+    board: StatusBoard = StatusBoard()
     chaos_lab: ChaosLab = ChaosLab()
     model_router: HybridModelRouter = HybridModelRouter()
+    mcp_hub: MCPHub = MCPHub()
+    roadmap_projector: SpecRoadmapProjector = SpecRoadmapProjector()
+    flaky_detector: FlakyTestDetector = FlakyTestDetector()
+    visual_auditor: VisualQAAuditor = VisualQAAuditor()
+    artifacts_publisher: ArtifactsPublisher = ArtifactsPublisher()
 
     def log_message(self, format, *args):
         # Mute default server access logs to keep terminal clean
         pass
 
     def do_HEAD(self):
+        if self._refuse_outsiders(changes_state=False):
+            return
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
+    def _refuse_outsiders(self, changes_state: bool) -> bool:
+        """Sends a 403 and returns True unless the request comes from the studio's own page or a local tool."""
+        ok = is_local_host(self.headers.get("Host"))
+        if ok and changes_state:
+            ok = origin_is_this_server(self.headers.get("Origin"), self.server.server_address[1])
+        if not ok:
+            self.send_error(403, "DevSquad Studio only answers to its own local page")
+        return not ok
+
     def do_GET(self):
+        if self._refuse_outsiders(changes_state=False):
+            return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        if path in ("/", "/index.html", "/studio", "/office"):
+        if path == "/api/files":
+            self._serve_json({"files": ProjectFiles(self.root).list()})
+        elif path.startswith("/api/files/"):
+            self._download_file(urllib.parse.unquote(path[len("/api/files/"):]))
+        elif path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
         elif path == "/data/usage.json":
             usage_file = self.root / "data" / "usage.json"
@@ -161,22 +191,73 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             })
         elif path == "/api/v1/models/local":
             self._serve_json(self.model_router.get_router_status())
+        elif path == "/api/v1/mcp/desks":
+            self._serve_json({
+                "desks": self.mcp_hub.desk_bindings,
+                "all_tools": self.mcp_hub.list_tools_for_desk("all"),
+            })
+        elif path == "/api/v1/artifacts/adrs":
+            adr_dir = self.root / "docs" / "adr"
+            adrs = []
+            if adr_dir.exists():
+                for p in sorted(adr_dir.glob("*.md")):
+                    adrs.append({"filename": p.name, "content": p.read_text(encoding="utf-8")})
+            self._serve_json({"adrs": adrs})
+        elif path == "/api/v1/visual/audit":
+            index_path = self.root / "index.html"
+            content = index_path.read_text(encoding="utf-8") if index_path.exists() else "<html><body></body></html>"
+            report = self.visual_auditor.audit_html(content, source_name="index.html")
+            self._serve_json({
+                "url_or_file": report.url_or_file,
+                "score": report.score,
+                "viewport_status": report.viewport_status,
+                "total_issues": report.total_issues,
+                "issues": [
+                    {
+                        "rule_id": i.rule_id,
+                        "severity": i.severity,
+                        "element_snippet": i.element_snippet,
+                        "description": i.description,
+                        "remediation_hint": i.remediation_hint,
+                    }
+                    for i in report.issues
+                ],
+                "recommendations": report.recommendations,
+            })
         elif path in ("/api/events", "/api/stream"):
             self._handle_sse()
         else:
             self.send_error(404, "Not Found")
 
     def do_POST(self):
+        if self._refuse_outsiders(changes_state=True):
+            return
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
         content_length = int(self.headers.get("Content-Length", 0))
+        if path == "/api/files":
+            # Uploads are raw bytes, so they're handled before the body is read as JSON
+            self._upload_file((query.get("name") or [""])[0], content_length)
+            return
         body = self.rfile.read(content_length).decode("utf-8") if content_length > 0 else "{}"
         try:
             payload = json.loads(body)
         except Exception:
             payload = {}
+
+        if path == "/api/ask":
+            # A status question gets an answer from recorded facts; anything else comes back as not answered
+            reporter = StatusReporter(
+                self.staging or StagingDeck(self.root), self.board,
+                provider_name=self.relay.provider.provider_name if self.relay else "",
+                model=self.relay.provider.model if self.relay else "",
+            )
+            names = payload.get("names") if isinstance(payload.get("names"), dict) else {}
+            report = reporter.answer(str(payload.get("question", "")), selected=payload.get("selected"), names={k: str(v) for k, v in names.items()})
+            self._serve_json(report or {"answered": False})
+            return
 
         if path == "/api/spawn":
             if not self.relay:
@@ -189,7 +270,11 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 return
 
             try:
-                task = self.relay.run_task(task_text)
+                reference = ProjectFiles(self.root).context_for(payload.get("files") or [])
+                try:
+                    task = self.relay.run_task(task_text, reference=reference)
+                finally:
+                    self.board.finish()   # also when the run fails, so nobody is left "working" forever
                 self._serve_json({
                     "success": True,
                     "agent": agent_id,
@@ -337,8 +422,101 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 })
             except Exception as e:
                 self._serve_json({"error": str(e)}, status=400)
+
+        elif path == "/api/v1/artifacts/adr":
+            title = payload.get("title", "New Architecture Decision")
+            ctx = payload.get("context", "Need clean-room modular architecture.")
+            dec = payload.get("decision", "Adopted micro-core modular engine.")
+            cons = payload.get("consequences", "Zero external dependencies.")
+            status = payload.get("status", "Accepted")
+            adr = self.artifacts_publisher.generate_adr(title, ctx, dec, cons, status=status)
+            self._serve_json({
+                "number": adr.number,
+                "title": adr.title,
+                "status": adr.status,
+                "date": adr.date,
+                "markdown": adr.markdown_content,
+            })
+
+        elif path == "/api/v1/mcp/rpc":
+            res = self.mcp_hub.handle_jsonrpc(payload)
+            self._serve_json(res)
+
+        elif path == "/api/v1/roadmap/parse":
+            prd_text = payload.get("prd_text", "# Feature: Real-Time Sync\n\n## Objectives\n- Zero latency\n- 100% tests")
+            plan = self.roadmap_projector.parse_prd(prd_text)
+            self._serve_json({
+                "project_title": plan.project_title,
+                "objectives": plan.objectives,
+                "tasks": [
+                    {
+                        "task_id": t.task_id,
+                        "title": t.title,
+                        "assigned_agent": t.assigned_agent,
+                        "role_description": t.role_description,
+                        "dependencies": t.dependencies,
+                        "estimated_tokens": t.estimated_tokens,
+                        "status": t.status,
+                    }
+                    for t in plan.tasks
+                ],
+                "mermaid_dag": plan.mermaid_dag,
+                "execution_order": plan.execution_order,
+                "total_estimated_tokens": plan.total_estimated_tokens,
+            })
+
+        elif path == "/api/v1/flaky/stress-test":
+            test_name = payload.get("test_name", "test_async_token_rotation")
+            iterations = int(payload.get("iterations", 10))
+            flaky_result = self.flaky_detector.stress_test(test_name, iterations=iterations)
+            self._serve_json({
+                "test_identifier": flaky_result.test_identifier,
+                "total_runs": flaky_result.total_runs,
+                "passed_runs": flaky_result.passed_runs,
+                "failed_runs": flaky_result.failed_runs,
+                "flakiness_percentage": flaky_result.flakiness_percentage,
+                "is_flaky": flaky_result.is_flaky,
+                "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
+                "hardening_patch": flaky_result.hardening_patch,
+                "verified_deterministic": flaky_result.verified_deterministic,
+            })
         else:
             self.send_error(404, "Not Found")
+
+    def do_DELETE(self):
+        if self._refuse_outsiders(changes_state=True):
+            return
+        path = urllib.parse.urlparse(self.path).path
+        if path.startswith("/api/files/") and ProjectFiles(self.root).delete(urllib.parse.unquote(path[len("/api/files/"):])):
+            self._serve_json({"success": True})
+        else:
+            self.send_error(404, "Not Found")
+
+    def _upload_file(self, name: str, content_length: int):
+        if content_length > MAX_FILE_BYTES:
+            self._serve_json({"error": f"That file is over the {MAX_FILE_BYTES // (1024 * 1024)} MB limit."}, status=413)
+            return
+        try:
+            info = ProjectFiles(self.root).save(name, self.rfile.read(content_length))
+        except FileRejected as e:
+            self._serve_json({"error": str(e)}, status=400)
+            return
+        self._serve_json({"success": True, "file": info})
+
+    def _download_file(self, name: str):
+        data = ProjectFiles(self.root).read(name)
+        if data is None:
+            self.send_error(404, "Not Found")
+            return
+        safe = ProjectFiles.safe_name(name)
+        self.send_response(200)
+        # Always a download, never a page: an uploaded .html file must not run on the studio's own address
+        self.send_header("Content-Type", "application/octet-stream")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(safe)}")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
 
     def _serve_json_file(self, file_path: pathlib.Path):
         try:
@@ -346,7 +524,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:
@@ -357,7 +534,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
 
@@ -378,7 +554,6 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/event-stream")
         self.send_header("Cache-Control", "no-cache")
         self.send_header("Connection", "keep-alive")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
         with StudioHandler.clients_lock:
@@ -420,7 +595,13 @@ def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -
 
     provider = get_provider()
 
+    StudioHandler.board = StatusBoard()
+
     def on_event(agent, event, data):
+        if event == "STAGED":
+            StudioHandler.board.finish()
+        else:
+            StudioHandler.board.record(agent, event, data)
         StudioHandler._broadcast(agent, event, data)
 
     StudioHandler.relay = AutonomousRelay(provider=provider, root=r, event_callback=on_event)

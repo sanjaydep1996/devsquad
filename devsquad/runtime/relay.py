@@ -43,7 +43,7 @@ class AutonomousRelay:
         payload = data or {}
         entry = f"[{time.strftime('%H:%M:%S')}] [{agent}] {event}: {message}"
         task.relay_logs.append(entry)
-        self.event_cb(agent, event, {"message": message, **payload})
+        self.event_cb(agent, event, {"message": message, "task_id": task.task_id, "goal": task.goal, **payload})
 
     def run_task(
         self,
@@ -51,8 +51,12 @@ class AutonomousRelay:
         target_file: Optional[str] = None,
         test_file: Optional[str] = None,
         task_id: Optional[str] = None,
+        reference: str = "",
     ) -> StagedTask:
-        """Executes the full relay: Spec -> Code -> Test -> Auto-Heal -> Git metadata -> Staging."""
+        """Executes the full relay: Spec -> Code -> Test -> Auto-Heal -> Git metadata -> Staging.
+
+        `reference` is the text of any files the person attached; the architect plans from it.
+        """
         tid = task_id or f"task-{uuid.uuid4().hex[:8]}"
         task = self.staging.create_task(tid, goal)
 
@@ -69,6 +73,9 @@ class AutonomousRelay:
         # 2. Stage 1: Apex Architect
         self._log(task, "Apex", "PLANNING", f"Creating architecture specification for '{goal}'...")
         context_str = f"Languages: {', '.join(meta.languages)}\nFiles:\n{tree}"
+        if reference:
+            context_str += f"\n\n{reference}"
+            self._log(task, "Apex", "READING", "Reading the attached reference files...")
         spec = self.apex.plan(goal, context_str, rules)
         task.artifacts["spec.md"] = spec
         self._log(task, "Apex", "SPEC_READY", f"Architecture specification drafted ({len(spec.splitlines())} lines).")

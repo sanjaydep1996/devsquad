@@ -34,7 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_task.add_argument("goal", help="Engineering goal or feature description (e.g., 'Add JWT refresh rotation')")
     p_task.add_argument("--file", dest="target_file", help="Explicit target file to implement")
     p_task.add_argument("--test-file", dest="test_file", help="Explicit test file to verify")
-    p_task.add_argument("--provider", choices=["ollama", "anthropic", "openai-compatible", "template"], help="LLM Provider")
+    p_task.add_argument("--provider", choices=["ollama", "openai-compatible", "template"], help="Free AI provider (default: Ollama if running, else template)")
     p_task.add_argument("--model", help="Model name (e.g. qwen2.5-coder:7b)")
 
     # up

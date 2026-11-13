@@ -6,7 +6,6 @@
 from .base import BaseProvider, LLMResponse, LLMUsage
 from .factory import get_provider
 from .providers import (
-    AnthropicProvider,
     OllamaProvider,
     OpenAICompatibleProvider,
     TemplateProvider,
@@ -18,7 +17,6 @@ __all__ = [
     "LLMUsage",
     "get_provider",
     "OllamaProvider",
-    "AnthropicProvider",
     "OpenAICompatibleProvider",
     "TemplateProvider",
 ]

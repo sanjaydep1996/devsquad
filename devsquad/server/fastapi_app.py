@@ -7,24 +7,33 @@ import asyncio
 import json
 import os
 import pathlib
+import urllib.parse
 from typing import Any, Dict, List, Optional
 
 try:
-    from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, HTTPException
     from fastapi.responses import HTMLResponse, JSONResponse
     FASTAPI_AVAILABLE = True
 except ImportError:
     FASTAPI_AVAILABLE = False
 
+from .guard import is_local_host, origin_matches_host
+from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
+from ..core.status import StatusBoard, StatusReporter
+from ..core.artifacts import ArtifactsPublisher
 from ..core.blast_radius import BlastRadiusAnalyzer
 from ..core.chaos import ChaosLab
 from ..core.context import RepoContextEngine
+from ..core.flaky_detector import FlakyTestDetector
+from ..core.mcp_hub import MCPHub
 from ..core.memory import MemoryLake
 from ..core.merge_arena import MergeConflictArena
+from ..core.roadmap import SpecRoadmapProjector
 from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
+from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
+from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
@@ -40,17 +49,19 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     root = (root_dir or pathlib.Path.cwd()).resolve()
     app = FastAPI(
         title="DevSquad Studio API",
-        version="0.2.0",
+        version="0.3.0",
         description="Local-first autonomous AI engineering studio and multi-agent development team.",
     )
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # No CORS headers at all: the studio page is served from this same origin, and no other site should read or drive it.
+    @app.middleware("http")
+    async def refuse_outsiders(request, call_next):
+        ok = is_local_host(request.headers.get("host"))
+        if ok and request.method not in ("GET", "HEAD"):
+            ok = origin_matches_host(request.headers.get("origin"), request.headers.get("host"))
+        if not ok:
+            return JSONResponse({"detail": "DevSquad Studio only answers to its own local page"}, status_code=403)
+        return await call_next(request)
 
     # Initialize studio engines
     chaos_lab = ChaosLab()
@@ -60,7 +71,12 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     staging = StagingDeck(root)
     memory_lake = MemoryLake(root)
     worktree_mgr = WorktreeManager(root)
-    swarm = BugSwarm(root)
+    swarm = BugSwarm(get_provider(), root)
+    mcp_hub = MCPHub(root)
+    roadmap_projector = SpecRoadmapProjector()
+    flaky_detector = FlakyTestDetector()
+    visual_auditor = VisualQAAuditor(root)
+    artifacts_publisher = ArtifactsPublisher(root)
 
     # Connected WebSockets
     terminal_sockets: Dict[str, List[WebSocket]] = {}
@@ -173,9 +189,164 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     async def get_local_models():
         return model_router.get_router_status()
 
+    # --- MCP Desk Hub Endpoints ---
+    @app.get("/api/v1/mcp/desks")
+    async def get_mcp_desks():
+        return {
+            "desks": mcp_hub.desk_bindings,
+            "all_tools": mcp_hub.list_tools_for_desk("all"),
+        }
+
+    @app.post("/api/v1/mcp/rpc")
+    async def mcp_rpc(payload: Dict[str, Any]):
+        return mcp_hub.handle_jsonrpc(payload)
+
+    # --- Artifacts & ADR Endpoints ---
+    @app.get("/api/v1/artifacts/adrs")
+    async def list_adrs():
+        adr_dir = root / "docs" / "adr"
+        adrs = []
+        if adr_dir.exists():
+            for p in sorted(adr_dir.glob("*.md")):
+                adrs.append({"filename": p.name, "content": p.read_text(encoding="utf-8")})
+        return {"adrs": adrs}
+
+    @app.post("/api/v1/artifacts/adr")
+    async def create_adr(payload: Dict[str, Any]):
+        adr = artifacts_publisher.generate_adr(
+            title=payload.get("title", "New Architecture Decision"),
+            context=payload.get("context", "Need clean-room modular architecture."),
+            decision=payload.get("decision", "Adopted micro-core modular engine."),
+            consequences=payload.get("consequences", "Zero external dependencies."),
+            status=payload.get("status", "Accepted"),
+        )
+        return {
+            "number": adr.number,
+            "title": adr.title,
+            "status": adr.status,
+            "date": adr.date,
+            "markdown": adr.markdown_content,
+        }
+
+    # --- Spec-to-Code Roadmap Endpoints ---
+    @app.post("/api/v1/roadmap/parse")
+    async def parse_roadmap(payload: Dict[str, Any]):
+        prd_text = payload.get("prd_text", "# Feature: Real-Time Sync\n\n## Objectives\n- Zero latency\n- 100% tests")
+        plan = roadmap_projector.parse_prd(prd_text)
+        return {
+            "project_title": plan.project_title,
+            "objectives": plan.objectives,
+            "tasks": [
+                {
+                    "task_id": t.task_id,
+                    "title": t.title,
+                    "assigned_agent": t.assigned_agent,
+                    "role_description": t.role_description,
+                    "dependencies": t.dependencies,
+                    "estimated_tokens": t.estimated_tokens,
+                    "status": t.status,
+                }
+                for t in plan.tasks
+            ],
+            "mermaid_dag": plan.mermaid_dag,
+            "execution_order": plan.execution_order,
+            "total_estimated_tokens": plan.total_estimated_tokens,
+        }
+
+    # --- Flaky Test Isolation Endpoints ---
+    @app.post("/api/v1/flaky/stress-test")
+    async def stress_test_flaky(payload: Dict[str, Any]):
+        test_name = payload.get("test_name", "test_async_token_rotation")
+        iterations = int(payload.get("iterations", 10))
+        flaky_result = flaky_detector.stress_test(test_name, iterations=iterations)
+        return {
+            "test_identifier": flaky_result.test_identifier,
+            "total_runs": flaky_result.total_runs,
+            "passed_runs": flaky_result.passed_runs,
+            "failed_runs": flaky_result.failed_runs,
+            "flakiness_percentage": flaky_result.flakiness_percentage,
+            "is_flaky": flaky_result.is_flaky,
+            "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
+            "hardening_patch": flaky_result.hardening_patch,
+            "verified_deterministic": flaky_result.verified_deterministic,
+        }
+
+    # --- Visual QA & Accessibility Endpoints ---
+    @app.get("/api/v1/visual/audit")
+    async def visual_audit():
+        index_path = root / "index.html"
+        content = index_path.read_text(encoding="utf-8") if index_path.exists() else "<html><body></body></html>"
+        report = visual_auditor.audit_html(content, source_name="index.html")
+        return {
+            "url_or_file": report.url_or_file,
+            "score": report.score,
+            "viewport_status": report.viewport_status,
+            "total_issues": report.total_issues,
+            "issues": [
+                {
+                    "rule_id": i.rule_id,
+                    "severity": i.severity,
+                    "element_snippet": i.element_snippet,
+                    "description": i.description,
+                    "remediation_hint": i.remediation_hint,
+                }
+                for i in report.issues
+            ],
+            "recommendations": report.recommendations,
+        }
+
+    # --- Status answers ("What is Delta working on?") ---
+    status_board = StatusBoard()
+
+    @app.post("/api/ask")
+    async def ask(payload: Dict[str, Any]):
+        provider = get_provider()
+        names = payload.get("names") if isinstance(payload.get("names"), dict) else {}
+        reporter = StatusReporter(staging, status_board, provider_name=provider.provider_name, model=provider.model)
+        report = reporter.answer(str(payload.get("question", "")), selected=payload.get("selected"), names={k: str(v) for k, v in names.items()})
+        return report or {"answered": False}
+
+    # --- Project files: planning material people upload for the team ---
+    project_files = ProjectFiles(root)
+
+    @app.get("/api/files")
+    async def list_files():
+        return {"files": project_files.list()}
+
+    @app.post("/api/files")
+    async def upload_file(request: Request, name: str = ""):
+        if int(request.headers.get("content-length") or 0) > MAX_FILE_BYTES:
+            return JSONResponse({"error": f"That file is over the {MAX_FILE_BYTES // (1024 * 1024)} MB limit."}, status_code=413)
+        try:
+            return {"success": True, "file": project_files.save(name, await request.body())}
+        except FileRejected as e:
+            return JSONResponse({"error": str(e)}, status_code=400)
+
+    @app.get("/api/files/{name}")
+    async def download_file(name: str):
+        data = project_files.read(name)
+        if data is None:
+            raise HTTPException(status_code=404, detail="Not Found")
+        # Always a download, never a page: an uploaded .html file must not run on the studio's own address
+        return Response(data, media_type="application/octet-stream", headers={
+            "X-Content-Type-Options": "nosniff",
+            "Content-Disposition": f"attachment; filename*=UTF-8''{urllib.parse.quote(ProjectFiles.safe_name(name))}",
+        })
+
+    @app.delete("/api/files/{name}")
+    async def delete_file(name: str):
+        if not project_files.delete(name):
+            raise HTTPException(status_code=404, detail="Not Found")
+        return {"success": True}
+
     # --- WebSocket for Retro CRT Terminal (xterm.js) ---
     @app.websocket("/ws/terminal/{agent_id}")
     async def terminal_websocket(websocket: WebSocket, agent_id: str):
+        # Browsers don't apply the same-origin policy to WebSockets, so check it here.
+        if not (is_local_host(websocket.headers.get("host"))
+                and origin_matches_host(websocket.headers.get("origin"), websocket.headers.get("host"))):
+            await websocket.close(code=1008)
+            return
         await websocket.accept()
         agent_name = agent_id.upper()
         if agent_id not in terminal_sockets:

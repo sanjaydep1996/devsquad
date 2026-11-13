@@ -7,6 +7,7 @@ import json
 import os
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any, Dict, Optional
 from .base import BaseProvider, LLMResponse, LLMUsage
@@ -81,84 +82,11 @@ class OllamaProvider(BaseProvider):
         )
 
 
-class AnthropicProvider(BaseProvider):
-    """Direct Anthropic Messages API provider via stdlib urllib."""
-
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-5-sonnet-20241022"):
-        super().__init__(model=model)
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
-
-    @property
-    def provider_name(self) -> str:
-        return "anthropic"
-
-    def is_available(self) -> bool:
-        return bool(self.api_key.strip())
-
-    def complete(
-        self,
-        prompt: str,
-        system: Optional[str] = None,
-        max_tokens: int = 2000,
-        temperature: float = 0.2,
-    ) -> LLMResponse:
-        if not self.is_available():
-            raise RuntimeError("AnthropicProvider requires ANTHROPIC_API_KEY environment variable.")
-
-        start_time = time.time()
-        url = "https://api.anthropic.com/v1/messages"
-
-        payload: Dict[str, Any] = {
-            "model": self.model,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        if system:
-            payload["system"] = system
-
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "x-api-key": self.api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            method="POST",
-        )
-
-        try:
-            with urllib.request.urlopen(req, timeout=45.0) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
-            raise RuntimeError(f"Anthropic API call failed: {e}") from e
-
-        latency_ms = (time.time() - start_time) * 1000.0
-        text_parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
-        text_output = "\n".join(text_parts).strip()
-
-        usage_raw = data.get("usage", {})
-        in_tok = usage_raw.get("input_tokens", 0)
-        out_tok = usage_raw.get("output_tokens", 0)
-        cached_tok = usage_raw.get("cache_read_input_tokens", 0)
-
-        # Rough pricing calculation for Sonnet
-        cost = (in_tok * 3.0 + out_tok * 15.0 + cached_tok * 0.3) / 1_000_000.0
-
-        return LLMResponse(
-            text=text_output,
-            usage=LLMUsage(input_tokens=in_tok, output_tokens=out_tok, cached_tokens=cached_tok),
-            latency_ms=latency_ms,
-            model=self.model,
-            provider=self.provider_name,
-            cost_usd=round(cost, 5),
-            raw=data,
-        )
-
-
 class OpenAICompatibleProvider(BaseProvider):
-    """OpenAI-compatible /v1/chat/completions provider (LM Studio, vLLM, Groq, OpenRouter)."""
+    """A /v1/chat/completions server on this computer (LM Studio, llama.cpp, vLLM).
+
+    Cloud addresses are refused and OPENAI_API_KEY is never read, so this can't reach a paid service.
+    """
 
     def __init__(
         self,
@@ -168,14 +96,14 @@ class OpenAICompatibleProvider(BaseProvider):
     ):
         super().__init__(model=model)
         self.base_url = base_url.rstrip("/")
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.api_key = api_key or ""
 
     @property
     def provider_name(self) -> str:
         return "openai-compatible"
 
     def is_available(self) -> bool:
-        return True
+        return urllib.parse.urlsplit(self.base_url).hostname in ("localhost", "127.0.0.1", "::1")
 
     def complete(
         self,
@@ -184,6 +112,9 @@ class OpenAICompatibleProvider(BaseProvider):
         max_tokens: int = 2000,
         temperature: float = 0.2,
     ) -> LLMResponse:
+        if not self.is_available():
+            raise RuntimeError(f"DevSquad only uses free AI on this computer, so it won't call {self.base_url}.")
+
         start_time = time.time()
         url = f"{self.base_url}/chat/completions"
 
@@ -230,7 +161,7 @@ class OpenAICompatibleProvider(BaseProvider):
             latency_ms=latency_ms,
             model=self.model,
             provider=self.provider_name,
-            cost_usd=0.0 if "localhost" in self.base_url or "127.0.0.1" in self.base_url else 0.001,
+            cost_usd=0.0,
             raw=data,
         )
 
