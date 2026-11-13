@@ -62,7 +62,20 @@
     #main-viewport { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
     .viewport-topbar { min-height: 54px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
     .tb-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .viewport-topbar .tb-group:last-child { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+    .viewport-topbar .tb-group:last-child { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    /* Toolbar menus: the less-used tools, grouped so the office keeps its height */
+    .tb-menu { position: relative; display: inline-flex; }
+    .tb-chev { width: 10px; height: 6px; margin-left: 1px; transition: transform .14s ease; }
+    .tb-menu-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+    .tb-menu-btn[aria-expanded="true"] .tb-chev { transform: rotate(180deg); }
+    .tb-menu-panel { position: fixed; z-index: 95; width: min(300px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; border-radius: 12px; border: 1px solid var(--line2); background: var(--solid); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+    .tb-menu-panel[hidden] { display: none; }
+    .tb-menu-panel button { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; text-align: left; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font-family: var(--f-ui); cursor: pointer; }
+    .tb-menu-panel button:hover, .tb-menu-panel button:focus-visible { background: var(--hover); outline: none; }
+    .tb-menu-panel button:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+    .tb-menu-panel .i { margin-top: 2px; color: var(--dim); }
+    .tb-menu-panel b { display: block; font-size: 12.5px; font-weight: 600; }
+    .tb-menu-panel small { display: block; font-size: 11px; color: var(--dim); line-height: 1.35; margin-top: 1px; }
     /* 3D office */
     #office3d { position: relative; width: 100%; height: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow, 0 18px 40px -24px rgba(0,0,0,.5)); }
     #office3d canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
@@ -230,6 +243,7 @@
     .gen-file pre { margin: 6px 0 2px; max-height: 240px; overflow: auto; padding: 8px 10px; font: 11px/1.5 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
     .gen-note { margin-top: 8px; font-size: 11px; line-height: 1.45; color: var(--dim); }
 
+    @media (max-width: 1440px) and (min-width: 769px) { .viewport-topbar .tb-group:last-child { gap: 5px; } .viewport-topbar .tb-group:last-child .action-pill-btn { padding: 6px 8px; } }
     @media (max-width: 1160px) { #chat-panel { width: 280px; } #sidebar { width: 54px; } .nav-text { display: none; } .nav-item { justify-content: center; padding: 10px 0; } .token-badge { display: none; } }
     @media (max-width: 768px) {
       body { display: block; }
@@ -239,6 +253,7 @@
       #main-viewport { height: 54vh; } .mobile-menu-btn, .mobile-chat-toggle { display: inline-flex; min-height: 40px; min-width: 40px; }
       .viewport-topbar { padding: 6px 10px; gap: 6px; } .room-dropdown, .data-mode-badge { display: none; }
       .tb-group { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+      .viewport-topbar .tb-group:last-child { flex-wrap: nowrap; justify-content: flex-start; width: 100%; scrollbar-width: none; } .viewport-topbar .tb-group:last-child > * { flex-shrink: 0; }
       .action-pill-btn { min-height: 38px; padding: 6px 10px; font-size: 11px; }
       .office-canvas-frame { padding: 6px; }
       #chat-panel { position: fixed; left: 0; right: 0; bottom: 0; width: auto; height: 46vh; border-left: 0; border-top: 1px solid var(--line2); z-index: 30; } #chat-panel.collapsed { display: none; }
@@ -342,24 +357,39 @@
         <button class="mobile-chat-toggle" onclick="toggleMobileChat()"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>Chat</button>
         <div class="room-dropdown" id="roomSelector" onclick="toggleFloorSelector()" role="button" tabindex="0" title="Call everyone to the War Room or send them back">Work floor</div>
         <button class="action-pill-btn primary" onclick="openWorkshop('board')" title="Task board, plan then build, new app, DevOps desk and setup"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Workshop <span id="setupBtnDot" title="Setup needs attention" style="display:none;width:7px;height:7px;border-radius:50%;background:var(--warn);"></span></button>
-        <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>The Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
+        <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
         <button class="action-pill-btn" onclick="openFilesModal()"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg>Files</button>
-        <button class="action-pill-btn" onclick="openBlastRadiusModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Blast Radius</button>
-        <button class="action-pill-btn" onclick="openBugSwarmModal()"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg>Bug Swarm</button>
-        <button class="action-pill-btn" onclick="openArtifactsModal()"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg>ADRs</button>
-        <button class="action-pill-btn" onclick="openMCPHubModal()"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>MCP Hub</button>
-        <button class="action-pill-btn" onclick="openRoadmapModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Roadmap</button>
-        <button class="action-pill-btn" onclick="openFlakyChamberModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Flaky Tests</button>
-        <button class="action-pill-btn" onclick="openVisualQAModal()"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg>Visual QA</button>
-        <button class="action-pill-btn" onclick="openAIDiscoveryModal()"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>AI Discovery</button>
-        <button class="action-pill-btn" onclick="openFlightRecorderModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Flight Recorder</button>
-        <button class="action-pill-btn" onclick="openBisectModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Git Bisect</button>
-        <button class="action-pill-btn" onclick="openMergeArenaModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Merge Arena</button>
-        <button class="action-pill-btn" onclick="openChaosLabModal()"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>Chaos Lab</button>
-        <button class="action-pill-btn" onclick="openSecurityVaultModal()"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Vault</button>
-        <button class="action-pill-btn" onclick="openTerminalSidecar('apex')"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg>CRT</button>
-        <button class="action-pill-btn" onclick="openModelRouterModal()"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>Local AI</button>
-        <button class="action-pill-btn" onclick="openReplayModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Replay</button>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-build" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-build">Build<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-build" role="menu" aria-labelledby="menuBtn-build" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openRoadmapModal"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span><b>Roadmap</b><small>Break a PRD into a task graph</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBlastRadiusModal"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span><b>Blast Radius</b><small>What a change could affect, from the imports</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBugSwarmModal"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg><span><b>Bug Swarm</b><small>Turn an issue into a failing test</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openMergeArenaModal"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg><span><b>Merge Arena</b><small>Find and settle merge conflicts</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openArtifactsModal"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg><span><b>ADRs</b><small>Architecture decision records</small></span></button>
+          </div>
+        </div>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-quality" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-quality">Quality<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-quality" role="menu" aria-labelledby="menuBtn-quality" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openFlakyChamberModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Flaky Tests</b><small>Rerun a test to catch flakiness</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBisectModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Git Bisect</b><small>Find the commit that broke a test</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openVisualQAModal"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Visual QA</b><small>Accessibility and layout checks on your pages</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openSecurityVaultModal"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Vault</b><small>Secret leaks and vulnerable code</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openChaosLabModal"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><span><b>Chaos Lab</b><small>Simulated CI outages and healing</small></span></button>
+          </div>
+        </div>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-tools" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-tools">Tools<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-tools" role="menu" aria-labelledby="menuBtn-tools" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openFlightRecorderModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Flight Recorder</b><small>Step through what each run did</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openReplayModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Replay</b><small>Replay a past agent session</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openTerminalSidecar" data-arg="apex"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg><span><b>Terminal</b><small>The agents' command line</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openModelRouterModal"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg><span><b>Local AI</b><small>Models running on this computer</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openAIDiscoveryModal"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg><span><b>AI Discovery</b><small>AI tools installed here</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openMCPHubModal"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg><span><b>MCP Hub</b><small>Tools the agents can call</small></span></button>
+          </div>
+        </div>
         <button class="action-pill-btn primary" onclick="openRelayModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Run a relay</button>
       </div>
     </div>
@@ -4837,6 +4867,60 @@ def fetch_user_profile(user_id: str, db_pool=None):
       const r = await v5("setup");
       if (r.ok && !r.data.ready) { document.getElementById("wsSetupDot").classList.add("on"); const b = document.getElementById("setupBtnDot"); if (b) b.style.display = "inline-block"; }
     }, 1500);
+  </script>
+  <script>
+    // ---- Toolbar menus ----
+    (function () {
+      let open = null;
+      const items = panel => [...panel.querySelectorAll('[role="menuitem"]')];
+      function place(btn, panel) {
+        const r = btn.getBoundingClientRect(), w = panel.offsetWidth, h = panel.offsetHeight;
+        let left = Math.min(r.right - w, window.innerWidth - w - 8); left = Math.max(8, left);
+        let top = r.bottom + 6; if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+        panel.style.left = left + "px"; panel.style.top = top + "px";
+      }
+      function close(focusButton) {
+        if (!open) return;
+        const { btn, panel } = open; open = null;
+        panel.hidden = true; btn.setAttribute("aria-expanded", "false");
+        if (focusButton) btn.focus();
+      }
+      function show(btn, focusIndex) {
+        const panel = document.getElementById(btn.getAttribute("aria-controls"));
+        close(false);
+        panel.hidden = false; btn.setAttribute("aria-expanded", "true"); place(btn, panel);
+        open = { btn, panel };
+        if (focusIndex != null) { const list = items(panel); list[(focusIndex + list.length) % list.length].focus(); }
+      }
+      document.querySelectorAll(".tb-menu-btn").forEach(btn => {
+        btn.addEventListener("click", e => { e.stopPropagation(); open && open.btn === btn ? close(false) : show(btn, null); });
+        btn.addEventListener("keydown", e => {
+          if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); show(btn, 0); }
+          if (e.key === "ArrowUp") { e.preventDefault(); show(btn, -1); }
+        });
+      });
+      document.querySelectorAll(".tb-menu-panel").forEach(panel => {
+        panel.addEventListener("click", e => {
+          const item = e.target.closest('[role="menuitem"]'); if (!item) return;
+          e.stopPropagation(); close(false);
+          const fn = window[item.dataset.fn];
+          if (typeof fn === "function") item.dataset.arg ? fn(item.dataset.arg) : fn();
+        });
+        panel.addEventListener("keydown", e => {
+          const list = items(panel), i = list.indexOf(document.activeElement);
+          if (e.key === "ArrowDown") { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
+          else if (e.key === "Home") { e.preventDefault(); list[0].focus(); }
+          else if (e.key === "End") { e.preventDefault(); list[list.length - 1].focus(); }
+          else if (e.key === "Escape") { e.preventDefault(); close(true); }
+          else if (e.key === "Tab") { close(false); }
+        });
+      });
+      document.addEventListener("click", e => { if (open && !open.panel.contains(e.target)) close(false); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape" && open) close(true); });
+      window.addEventListener("resize", () => close(false));
+      document.addEventListener("scroll", () => { if (open) place(open.btn, open.panel); }, true);
+    })();
   </script>
   <script type="module">
     // 3D office. Replaces the pixel canvas when Three.js loads; if it can't load (offline), the 2D office stays.
