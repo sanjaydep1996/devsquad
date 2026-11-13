@@ -11,6 +11,7 @@ from ..agents.personas import AlphaCoder, ApexLead, DeltaDevOps, GammaQA
 from ..core.context import RepoContextEngine
 from ..core.diff import DiffEngine, FileDiff
 from ..core.runner import SandboxRunner, TestRunResult
+from ..core.flight_recorder import FlightRecorder
 from ..core.staging import StagedTask, StagingDeck
 from ..llm.base import BaseProvider
 
@@ -38,11 +39,26 @@ class AutonomousRelay:
         self.alpha = AlphaCoder(provider)
         self.gamma = GammaQA(provider)
         self.delta = DeltaDevOps(provider)
+        self.recorder = FlightRecorder(self.root)
 
     def _log(self, task: StagedTask, agent: str, event: str, message: str, data: Optional[Dict] = None):
         payload = data or {}
         entry = f"[{time.strftime('%H:%M:%S')}] [{agent}] {event}: {message}"
         task.relay_logs.append(entry)
+        # The flight recorder keeps every stage, so a run can be replayed and a failure explained
+        try:
+            self.recorder.record_event(
+                session_id=task.task_id,
+                step=len(task.relay_logs),
+                agent=agent,
+                action=event,
+                status="error" if event.endswith("_RED") or "FAIL" in event else "ok",
+                payload={"message": message, "goal": task.goal},
+                diff=str(payload.get("diff", ""))[:20000],
+                file_path=payload.get("file_path"),
+            )
+        except OSError:
+            pass   # a full disk mustn't stop the run
         self.event_cb(agent, event, {"message": message, "task_id": task.task_id, "goal": task.goal, **payload})
 
     def run_task(

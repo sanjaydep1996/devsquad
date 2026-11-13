@@ -7,6 +7,7 @@ import json
 import pathlib
 import shutil
 import tempfile
+import sys
 import unittest
 
 from devsquad.core.ai_discovery import AIDiscoveryEngine
@@ -128,7 +129,7 @@ class TestFlightRecorder(unittest.TestCase):
         self.assertEqual(pm["culprit_agent"], "gamma_qa")
         self.assertEqual(len(pm["whys"]), 5)
         self.assertIn("AssertionError", pm["markdown_report"])
-        self.assertIn("5 Whys Root Cause Analysis", pm["markdown_report"])
+        self.assertIn("What the record shows", pm["markdown_report"])
 
 
 class TestAutonomousBisect(unittest.TestCase):
@@ -156,6 +157,112 @@ class TestAutonomousBisect(unittest.TestCase):
         self.assertEqual(result["culprit"]["sha"], "c2222222")
         self.assertEqual(result["culprit"]["author"], "Charlie")
         self.assertIn("git revert", result["remediation"]["recommended_command"])
+
+
+import shutil
+import subprocess
+import tempfile
+
+
+def git(repo, *args):
+    return subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, text=True).stdout.strip()
+
+
+class TestRealBisect(unittest.TestCase):
+    """Runs the person's own test command on real commits in a scratch worktree."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.repo = pathlib.Path(tmp.name) / "repo"
+        self.repo.mkdir()
+        git(self.repo, "init", "-q", "-b", "main")
+        git(self.repo, "config", "user.email", "t@example.com")
+        git(self.repo, "config", "user.name", "Tester")
+        # check.py fails when VALUE is wrong. Commit 4 of 6 breaks it, and the message gives no hint.
+        values = ["1", "1", "1", "2", "2", "2"]
+        messages = ["initial", "docs: readme", "feat: logging", "feat: harmless refactor", "chore: tidy", "feat: newest"]
+        (self.repo / "check.py").write_text("import sys\nfrom value import VALUE\nsys.exit(0 if VALUE == 1 else 1)\n")
+        for i, (v, m) in enumerate(zip(values, messages)):
+            (self.repo / "value.py").write_text(f"VALUE = {v}\n# {i}\n")
+            git(self.repo, "add", "-A")
+            git(self.repo, "commit", "-q", "-m", m)
+        self.shas = git(self.repo, "log", "--format=%H").splitlines()   # newest first
+        self.bisect = AutonomousBisect(self.repo)
+
+    def test_finds_the_commit_that_really_broke_the_test(self):
+        result = self.bisect.bisect_with_test_command(f"{sys.executable} check.py", lookback=6)
+        self.assertEqual(result["status"], "isolated")
+        self.assertEqual(result["culprit"]["message"], "feat: harmless refactor")
+        self.assertEqual(result["culprit"]["sha"], self.shas[2])
+        self.assertIn("git revert", result["remediation"]["recommended_command"])
+        self.assertTrue(all(s["verdict"] in ("GOOD", "BAD") for s in result["bisect_steps"]))
+
+    def test_a_scary_commit_message_does_not_make_it_the_culprit(self):
+        git(self.repo, "commit", "-q", "--allow-empty", "-m", "fix: error handling regression break")
+        result = AutonomousBisect(self.repo).bisect_with_test_command(f"{sys.executable} check.py", lookback=7)
+        self.assertEqual(result["culprit"]["message"], "feat: harmless refactor")
+
+    def test_a_passing_newest_commit_means_no_regression(self):
+        result = self.bisect.bisect_with_test_command(f"{sys.executable} -c pass", lookback=6)
+        self.assertEqual(result["status"], "no_regression")
+        self.assertNotIn("culprit", result)
+
+    def test_a_failure_older_than_the_window_says_so(self):
+        result = self.bisect.bisect_with_test_command(f"{sys.executable} -c 'import sys; sys.exit(1)'", lookback=6)
+        self.assertEqual(result["status"], "older_than_window")
+        self.assertNotIn("culprit", result)
+
+    def test_the_working_tree_is_never_touched(self):
+        (self.repo / "uncommitted.txt").write_text("keep me")
+        head = git(self.repo, "rev-parse", "HEAD")
+        self.bisect.bisect_with_test_command(f"{sys.executable} check.py", lookback=6)
+        self.assertEqual(git(self.repo, "rev-parse", "HEAD"), head)
+        self.assertEqual((self.repo / "uncommitted.txt").read_text(), "keep me")
+        self.assertEqual(git(self.repo, "worktree", "list").count("\n"), 0)   # the scratch worktree is gone
+
+    def test_a_command_that_hangs_is_stopped(self):
+        result = AutonomousBisect(self.repo, timeout_s=1).bisect_with_test_command(f"{sys.executable} -c 'import time; time.sleep(30)'", lookback=6)
+        self.assertEqual(result["status"], "inconclusive")
+        self.assertIn("time", result["error"].lower())
+
+    def test_an_empty_command_is_an_error(self):
+        self.assertEqual(self.bisect.bisect_with_test_command("", lookback=6)["status"], "error")
+
+
+class TestRelayRecordsToTheFlightRecorder(unittest.TestCase):
+    def test_every_relay_stage_is_recorded_and_a_failure_gets_a_factual_post_mortem(self):
+        from devsquad.llm.providers import TemplateProvider
+        from devsquad.runtime.relay import AutonomousRelay
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "requirements.txt").write_text("")
+            task = AutonomousRelay(provider=TemplateProvider(), root=root).run_task("Add a health check")
+            timeline = FlightRecorder(workspace_root=root).get_timeline(task.task_id)
+            self.assertEqual(len(timeline), len(task.relay_logs))
+            self.assertEqual([e["step"] for e in timeline], list(range(1, len(timeline) + 1)))
+            self.assertEqual({e["agent"] for e in timeline} >= {"Apex", "Alpha", "Gamma", "Delta"}, True)
+            failed = [e for e in timeline if e["status"] == "error"]
+            if task.status == "tested_red":
+                self.assertTrue(failed)
+                pm = FlightRecorder(workspace_root=root).generate_post_mortem(task.task_id, failed[0]["step"], "tests failed")
+                self.assertIn(failed[0]["payload"]["message"][:30], pm["markdown_report"])
+
+
+class TestPostMortemIsFactual(unittest.TestCase):
+    def test_it_reports_only_what_was_recorded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rec = FlightRecorder(workspace_root=pathlib.Path(tmp))
+            rec.record_event("s1", 1, "Apex", "PLANNING", payload={"message": "Planning the login page"})
+            rec.record_event("s1", 2, "Alpha", "CODING", payload={"message": "Edited src/login.py"}, file_path="src/login.py", diff="+ return 500")
+            rec.record_event("s1", 3, "Gamma", "VERIFIED_RED", status="error", payload={"message": "2 tests failed"})
+            pm = rec.generate_post_mortem("s1", 3, "AssertionError: expected 200 got 500")
+            report = pm["markdown_report"]
+            for fact in ("AssertionError: expected 200 got 500", "Gamma", "VERIFIED_RED", "src/login.py", "Alpha", "+ return 500"):
+                self.assertIn(fact, report)
+            for invented in ("Concurrency race", "Missing invariant validation gate", "pre-flight validation"):
+                self.assertNotIn(invented, report)
+            self.assertIn("not known", report.lower())
 
 
 if __name__ == "__main__":

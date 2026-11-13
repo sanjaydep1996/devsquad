@@ -120,44 +120,41 @@ class FlightRecorder:
         culprit_action = failing_event.get("action", "unknown action")
         culprit_file = failing_event.get("file_path", "workspace")
 
+        message = lambda ev: (ev.get("payload") or {}).get("message", "")
+        before = [ev for ev in timeline if ev.get("step", 0) < failure_step]
+        last_change = next((ev for ev in reversed(before) if ev.get("file_path")), None)
+        by_agent: Dict[str, int] = {}
+        for ev in before:
+            by_agent[ev.get("agent", "?")] = by_agent.get(ev.get("agent", "?"), 0) + 1
+
+        # Every line comes from the recording or the failure text. Nothing here is guessed.
         whys = [
-            f"Why did the build fail? -> {failure_summary}",
-            f"Why did the error trigger? -> Execution failed during step {failure_step} by {culprit_agent} ({culprit_action}).",
-            f"Why was {culprit_file} affected? -> A staged AST modification or test assertion was violated without pre-flight validation.",
-            f"Why was this not caught earlier? -> Concurrency race or edge-case input bypassed local unit tests before staging.",
-            "Why is the architecture vulnerable? -> Missing invariant validation gate prior to desk diff application.",
+            f"What failed: {failure_summary}",
+            f"Where it was caught: step {failure_step}, {culprit_agent} ({culprit_action})" + (f": {message(failing_event)}" if message(failing_event) else ""),
+            (f"Last recorded change before it: {last_change.get('file_path')} by {last_change.get('agent')} at step {last_change.get('step')}"
+             if last_change else "Last recorded change before it: none was recorded"),
+            "What ran before it: " + (", ".join(f"{agent} ({n} step{'s' if n != 1 else ''})" for agent, n in by_agent.items()) or "nothing was recorded"),
+            "Root cause: not known from the record. Read the diff and the full test output to confirm it.",
         ]
 
-        markdown_report = f"""# 🚨 Incident Post-Mortem & Flight Recorder RCA
-**Incident ID:** `INC-{session_id[-8:] if len(session_id) >= 8 else session_id}`
-**Trigger Step:** Step {failure_step} | **Responsible Desk:** {culprit_agent}
-**Timestamp:** {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}
+        markdown_report = f"""# Incident post-mortem
+**Session:** `{session_id}`
+**Failed at:** step {failure_step}, {culprit_agent}
+**Written:** {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}
 
----
-
-## 1. Executive Summary
-{failure_summary}
-
-## 2. 5 Whys Root Cause Analysis
-1. **{whys[0]}**
-2. **{whys[1]}**
-3. **{whys[2]}**
-4. **{whys[3]}**
-5. **{whys[4]}**
-
-## 3. Timeline of Events
+## What the record shows
+""" + "".join(f"{i}. {w}\n" for i, w in enumerate(whys, 1)) + """
+## Timeline
 """
-        for ev in timeline[: failure_step + 1]:
-            markdown_report += f"- **Step {ev.get('step')}** (`{ev.get('agent')}`): {ev.get('action')} [{ev.get('status').upper()}]\n"
-
-        markdown_report += f"""
-## 4. Blast Radius & Affected Files
-- `{culprit_file}`: Modified by {culprit_agent} at step {failure_step}.
-
-## 5. Remediation & Action Items
-- [ ] Auto-revert offending diff at step {failure_step}.
-- [ ] Add regression test fixture to `tests/` capturing this boundary condition.
-- [ ] Update `.devsquad/memory.json` known pitfalls to prevent recurring clobbering.
+        for ev in timeline[:failure_step]:
+            markdown_report += f"- Step {ev.get('step')} · {ev.get('agent')} · {ev.get('action')} [{str(ev.get('status', '')).upper()}]" + (f": {message(ev)}" if message(ev) else "") + "\n"
+        if last_change and last_change.get("diff"):
+            markdown_report += f"\n## Last recorded change: {last_change.get('file_path')}\n```diff\n{last_change.get('diff')[:3000]}\n```\n"
+        markdown_report += """
+## Next steps
+- [ ] Read the full test output for the failing step.
+- [ ] Check the last recorded change above, then fix or revert it.
+- [ ] Add a test that reproduces the failure, so it can't come back unnoticed.
 """
 
         return {

@@ -4,15 +4,19 @@
 """Autonomous Git Bisect & Regression Teleporter: binary-search regression hunting across commit history."""
 
 import pathlib
+import shlex
+import shutil
 import subprocess
+import tempfile
 from typing import Any, Callable, Dict, List, Optional
 
 
 class AutonomousBisect:
     """Automates binary-search git bisect to pinpoint the exact commit that introduced a failure."""
 
-    def __init__(self, repo_root: Optional[pathlib.Path] = None):
+    def __init__(self, repo_root: Optional[pathlib.Path] = None, timeout_s: float = 300.0):
         self.repo_root = (repo_root or pathlib.Path.cwd()).resolve()
+        self.timeout_s = timeout_s   # per commit
 
     def get_commit_history(self, count: int = 15) -> List[Dict[str, str]]:
         """Returns recent commits as structured dictionaries."""
@@ -108,27 +112,86 @@ class AutonomousBisect:
             },
         }
 
+    def _run_in_worktree(self, worktree: pathlib.Path, sha: str, argv: List[str]) -> bool:
+        """Checks out one commit in the scratch worktree and runs the test command there. True means it passed."""
+        subprocess.run(["git", "checkout", "-q", "--detach", "--force", sha], cwd=str(worktree), check=True, capture_output=True, timeout=60)
+        subprocess.run(["git", "clean", "-q", "-fdx"], cwd=str(worktree), check=True, capture_output=True, timeout=60)
+        result = subprocess.run(argv, cwd=str(worktree), capture_output=True, timeout=self.timeout_s)
+        return result.returncode == 0
+
     def bisect_with_test_command(
         self,
         test_command: str,
         lookback: int = 10,
     ) -> Dict[str, Any]:
-        """Evaluates commits against a shell reproduction command in an isolated read-only flow."""
-        commits = self.get_commit_history(count=lookback)
+        """Finds the commit that made `test_command` start failing, by running it on real commits.
+
+        The command runs in a scratch git worktree, so the working tree, its uncommitted changes and
+        the current branch are never touched. It is split like a shell command but not run through
+        a shell. Exit code 0 counts as good, anything else as bad.
+        """
+        try:
+            argv = shlex.split(test_command or "")
+        except ValueError as e:
+            return {"status": "error", "error": f"The test command can't be read: {e}"}
+        if not argv:
+            return {"status": "error", "error": "Give the command that shows the failure, for example: python3 -m pytest tests/test_login.py"}
+        commits = self.get_commit_history(count=max(2, int(lookback)))
         if len(commits) < 2:
-            return {
-                "status": "error",
-                "error": f"Need at least 2 commits to bisect, found {len(commits)}.",
-            }
+            return {"status": "error", "error": f"Need at least 2 commits to bisect, found {len(commits)}."}
 
-        # Simulated test runner for safe execution
-        def runner(commit: Dict[str, str]) -> bool:
-            # Deterministic evaluation based on message or hash
-            # If commit introduces breaking bug, return False
-            msg_lower = commit["message"].lower()
-            if any(term in msg_lower for term in ("break", "regression", "flaky", "clobber", "error")):
-                return False
-            # Otherwise runs synthetic evaluation
-            return commit["sha"] != commits[0]["sha"]
+        steps: List[Dict[str, Any]] = []
+        verdicts: Dict[int, bool] = {}
+        scratch = tempfile.mkdtemp(prefix="devsquad-bisect-")
+        worktree = pathlib.Path(scratch) / "wt"
+        try:
+            subprocess.run(["git", "worktree", "add", "-q", "--detach", str(worktree), commits[0]["sha"]],
+                           cwd=str(self.repo_root), check=True, capture_output=True, timeout=120)
 
-        return self.simulate_bisect(commits, runner)
+            def check(i: int) -> bool:
+                if i not in verdicts:
+                    verdicts[i] = self._run_in_worktree(worktree, commits[i]["sha"], argv)
+                    steps.append({"step": len(steps) + 1, "sha": commits[i]["sha"][:8], "message": commits[i]["message"],
+                                  "verdict": "GOOD" if verdicts[i] else "BAD"})
+                return verdicts[i]
+
+            # commits are newest first: index 0 should fail and the oldest should pass
+            if check(0):
+                return {"status": "no_regression", "total_commits_evaluated": len(steps), "bisect_steps": steps,
+                        "summary": "The command passes on the newest commit, so there is no regression to find."}
+            oldest = len(commits) - 1
+            if not check(oldest):
+                return {"status": "older_than_window", "total_commits_evaluated": len(steps), "bisect_steps": steps,
+                        "summary": f"The command also fails {len(commits)} commits back, so the regression is older. Try a larger lookback."}
+            bad, good = 0, oldest
+            while good - bad > 1:
+                mid = (bad + good) // 2
+                if check(mid):
+                    good = mid
+                else:
+                    bad = mid
+        except subprocess.TimeoutExpired:
+            return {"status": "inconclusive", "bisect_steps": steps,
+                    "error": f"The test command timed out after {self.timeout_s:g} seconds on one commit, so the search stopped."}
+        except (subprocess.CalledProcessError, OSError) as e:
+            detail = getattr(e, "stderr", b"") or b""
+            detail = detail.decode("utf-8", "replace") if isinstance(detail, bytes) else str(detail)
+            return {"status": "error", "bisect_steps": steps, "error": f"Bisect couldn't run: {(detail.strip() or str(e))[:300]}"}
+        finally:
+            subprocess.run(["git", "worktree", "remove", "--force", str(worktree)], cwd=str(self.repo_root), capture_output=True, timeout=60)
+            shutil.rmtree(scratch, ignore_errors=True)
+
+        culprit = commits[bad]
+        return {
+            "status": "isolated",
+            "total_commits_evaluated": len(steps),
+            "bisect_steps": steps,
+            "culprit": culprit,
+            "culprit_diff": self.get_commit_patch(culprit["sha"]),
+            "remediation": {
+                "strategy": "REVIEW_THEN_REVERT_OR_PATCH",
+                "recommended_command": f"git revert --no-commit {culprit['sha']}",
+                "summary": (f"The command passes on {commits[good]['sha'][:8]} and fails from {culprit['sha'][:8]} "
+                            f"('{culprit['message']}') by {culprit['author']}. Check the diff before reverting."),
+            },
+        }
