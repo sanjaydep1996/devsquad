@@ -10,7 +10,7 @@
 **[▶ Open Live Interactive Demo](https://sanjaydep1996.github.io/devsquad/)** *(runs 100% in-browser with live animated agents, Review Desk, and Whiteboard)*
 
 <p align="center">
-  <img src="docs/screenshot-office.jpg" alt="DevSquad 2D Pixel Office" width="100%" />
+  <img src="docs/screenshot-office.jpg" alt="DevSquad Studio: the 3D office at night, with the team at their desks and the Burj Khalifa behind the glass" width="100%" />
 </p>
 
 ---
@@ -36,13 +36,13 @@ Current AI coding tools fall into two frustrating extremes:
 ## 🏢 Interactive Virtual Office & Features
 
 <p align="center">
-  <img src="docs/screenshot-inspector.jpg" alt="DevSquad Agent Inspector & Whiteboard" width="100%" />
+  <img src="docs/screenshot-office-day.jpg" alt="The same office in day mode, with Apex's status on the right and the Build, Quality and Tools menus in the topbar" width="100%" />
 </p>
 
-DevSquad combines high-fidelity terminal execution with a retro **2D Pixel Office** canvas running at 60 FPS:
+DevSquad combines real terminal execution with a **3D office** you can orbit and zoom, switch between day and night, and click into (the **2D Pixel Office** is the fallback where WebGL isn't available). The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
 
 ### 1. 🔍 Interactive Blast-Radius Visualizer (On the Office Whiteboard)
-Click directly on the **Whiteboard** on the office back wall or click **Blast Radius** in the topbar to inspect AST dependencies:
+Click directly on the **Whiteboard** on the office back wall or click **Build → Blast Radius** in the topbar to inspect AST dependencies:
 - **Direct Modifications (Amber)**: Code units being added or edited.
 - **Caller / Consumer Risks (Red)**: Existing files and functions in the repo that import or call the modified components.
 - **Active Test Coverage (Green)**: Verified test suites guarding the callers.
@@ -64,7 +64,7 @@ Paste a GitHub Issue, Sentry error log, or raw stack trace:
 - Injects past pitfalls and rules into agent prompts so past mistakes are never repeated.
 
 ### 5. ⚔️ The Merge Conflict Arena ("The Negotiation Table")
-Click the **Glass Conference Room** in the office or **Merge Arena** in the topbar:
+Click the **Glass Conference Room** in the office or **Build → Merge Arena** in the topbar:
 - **Semantic 3-Way AST Merge**: Detects when parallel agent worktrees diverge on imports, function signatures, or method bodies.
 - **Autonomous Agent Negotiation**: Apex, Alpha, and Beta hold an automated negotiation meeting to harmonize interfaces without breaking callers.
 - **AST Syntax Verification**: Verifies the synthesized merge with Python's AST parser ensuring `0 SyntaxErrors` before committing.
@@ -81,39 +81,39 @@ Click the **Industrial Server Rack** on the work floor:
 - **Closed-Loop Healing Swarm**: Gamma QA and Alpha BE diagnose the failure, auto-synthesize resilience patterns (exponential backoff with jitter, circuit breakers, schema adapters), and generate regression tests.
 
 ### 8. 🛡️ Cyber Bunker & Security Vault (Zeta's Pentest Hub)
-Click **Vault** in the topbar:
+Click **Quality → Vault** in the topbar:
 - Audits repo files and staged PRs for **Secret Leaks** (Anthropic, OpenAI, GitHub, AWS keys), **unsafe DOM sinks** (`innerHTML`, `eval`), **Command Injections**, and **OWASP Top 10** risks.
 - Provides a real-time **Security Score (0-100)** and instant automated remediation diffs.
 
 ### 9. 🔀 Hybrid Model Router (Offline Ollama/vLLM + Cloud)
-Click **Local AI** in the topbar:
+Click **Tools → Local AI** in the topbar:
 - Route routine coding, linting, and tests to **100% free, private offline models** (Qwen 2.5 Coder, DeepSeek-Coder, Llama 3) via local Ollama/vLLM daemons.
 - Live **Dollar Savings Tracker** estimating costs saved compared to cloud frontier APIs.
 
 ### 10. 🖨️ Engineering Artifacts Engine & Living ADR Publisher
-Click **ADRs** in the topbar:
+Click **Build → ADRs** in the topbar:
 - **Autonomous Architecture Decision Records**: Zeta and Apex generate standardized ADRs (`docs/adr/`) documenting architectural decisions, context, and consequences.
 - **OpenAPI 3.0 AST Extractor**: Auto-extracts OpenAPI/Swagger schemas directly from endpoint decorators and docstrings.
 - **Automated Changelog Engine**: Formats conventional commits into styled markdown release notes.
 
 ### 11. 🔌 Multi-Agent MCP Desk Hub (Model Context Protocol)
-Click **MCP Hub** in the topbar:
+Click **Tools → MCP Hub** in the topbar:
 - Model Context Protocol (MCP) JSON-RPC 2.0 tool router for individual agent desks.
 - Assign specialized tools (`run_test_suite`, `ast_blast_radius`, `flaky_stress_runner`, `security_audit`) to specific personas or connect external CLI tools.
 
 ### 12. 🎯 Spec-to-Code Roadmap Projector (PRD to DAG)
-Click **Roadmap** in the topbar:
+Click **Build → Roadmap** in the topbar:
 - Ingests raw Product Requirement Documents (PRDs) or feature stories.
 - Decomposes specifications into an interactive **Directed Acyclic Graph (DAG)** with token budgets and topological task dispatch across Alpha, Beta, Delta, and Gamma.
 
 ### 13. 👻 Flaky Test & Race Condition Isolation Chamber
-Click **Flaky Tests** in the topbar:
+Click **Quality → Flaky Tests** in the topbar:
 - Runs your real test command 5 to 50 times in the project, each run with a different `PYTHONHASHSEED`, and shows which runs passed and failed.
 - Tells a flaky test (sometimes fails) apart from a broken one (always fails), shows the failing output, and gives the command to replay the first failure.
 - Suggests a likely cause only when the output has a clear clue, such as a timeout or a refused connection.
 
 ### 14. 📸 Visual QA & Accessibility Auditor (WCAG 2.1 AA)
-Click **Visual QA** in the topbar:
+Click **Quality → Visual QA** in the topbar:
 - Scans frontend viewports for WCAG 2.1 AA tap target sizing (<44x44px), horizontal mobile layout overflow risks (375px), missing accessibility labels, and Cumulative Layout Shift (CLS).
 
 ### 15. 📋 The Review Desk
@@ -223,6 +223,10 @@ devsquad rollback <task_id>
 ## 🧰 DevSquad Studio v0.5.0: the Workshop
 
 Click **Workshop** in the topbar. Everything below works in template mode and gets smarter with a local Ollama model. Nothing uses paid AI.
+
+<p align="center">
+  <img src="docs/screenshot-workshop.jpg" alt="The Workshop task board with Backlog, In progress, Review Desk and Merged columns" width="100%" />
+</p>
 
 ### 1. 📋 Task board, with GitHub Issues sync
 - Four columns: **Backlog**, **In progress**, **Review Desk** and **Merged**. Each card is a Markdown file in `.devsquad/tasks/`, so the board lives in git next to the code.

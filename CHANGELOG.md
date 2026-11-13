@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `/api/v5/` routes shared by the standard and FastAPI servers (`devsquad/server/v5_api.py`), behind the same local-only guard.
 
 ### Changed
+- **Tidier topbar**: the everyday actions stay in view and 16 other tools are grouped under Build, Quality and Tools menus (keyboard friendly). At 1280 to 1440 px the topbar is two rows instead of four or five, and on phones it is one row that scrolls sideways, so the office gets the space.
+- **README screenshots** now show the current 3D office (night and day) and the Workshop board.
 - **Flaky tests are real**: the runner now runs your test command repeatedly with a different hash seed per run and reports actual results. The old simulation is kept only as a deprecated function that says it ran nothing.
 
 ## [0.1.0] - 2026-11-09
