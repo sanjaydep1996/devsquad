@@ -4207,7 +4207,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     controls.target.set(0, 2.1, 0);
     controls.enablePan = false;
     controls.enableDamping = true;
-    controls.minDistance = 8; controls.maxDistance = 34;
+    controls.minDistance = 8; controls.maxDistance = 140;   // far enough to look down at the streets
     controls.minPolarAngle = 0.45; controls.maxPolarAngle = 1.48;
     controls.minAzimuthAngle = -0.85; controls.maxAzimuthAngle = 0.75;
 
@@ -4314,24 +4314,109 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }, [2, 5]);
     const towerSide = new THREE.MeshStandardMaterial({ map: facade(false), emissive: "#FFFFFF", emissiveMap: facade(true), emissiveIntensity: 0, roughness: 0.35, metalness: 0.35 });
     const towerRoof = new THREE.MeshStandardMaterial({ color: "#6F7780", roughness: 0.9 });
-    const TOWERS = 340, towers = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), [towerSide, towerSide, towerRoof, towerRoof, towerSide, towerSide], TOWERS);
+    // The city is a grid of blocks with streets between them. This tower stands in the middle block.
+    const PITCH = 52, ROAD_W = 12, BLOCK = PITCH - ROAD_W, GRID = 6, CITY = (GRID + 0.5) * PITCH;
+    const roadAt = k => (k + 0.5) * PITCH;                       // centre line of street k, for k from -GRID-1 to GRID
+    const BURJ_BLOCK = [0, -3];
+    const TOWERS = 320, towers = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), [towerSide, towerSide, towerRoof, towerRoof, towerSide, towerSide], TOWERS);
     const dummy = new THREE.Object3D(), tint = new THREE.Color();
-    for (let i = 0, placed = 0; placed < TOWERS && i < 6000; i++) {
-      const ang = rnd() * Math.PI * 2, dist = 34 + Math.pow(rnd(), 0.8) * 330, x = Math.sin(ang) * dist, z = Math.cos(ang) * dist;
-      const w = 9 + rnd() * 15, d = 9 + rnd() * 15;
-      let hgt = 16 + Math.pow(rnd(), 2.1) * (dist < 150 ? 105 : 75);
-      // Nothing tall between the camera and the office, and nothing on top of the Burj
-      const inView = z > -14 && Math.abs(x) < 70;
-      if (inView) hgt = Math.min(hgt, -GROUND_Y - 9 - rnd() * 14);
-      else hgt = Math.min(hgt, -GROUND_Y + 4 + rnd() * 9);                                        // a few rise just above this floor
-      if (z < -20 && Math.abs(x + 10) < 46) hgt = Math.min(hgt, -GROUND_Y - 5 - rnd() * 22);     // keep the view to the Burj open
-      if (Math.hypot(x + 10, z + 170) < 30) continue;
-      dummy.position.set(x, GROUND_Y + hgt / 2, z); dummy.scale.set(w, hgt, d); dummy.rotation.y = (rnd() - 0.5) * 0.5; dummy.updateMatrix();
-      towers.setMatrixAt(placed, dummy.matrix);
-      towers.setColorAt(placed, tint.setHSL(0.56 + rnd() * 0.06, 0.1 + rnd() * 0.25, 0.62 + rnd() * 0.3));
-      placed++;
+    let placed = 0;
+    for (let i = -GRID; i <= GRID; i++) for (let j = -GRID; j <= GRID; j++) {
+      if ((i === 0 && j === 0) || (i === BURJ_BLOCK[0] && j === BURJ_BLOCK[1])) continue;
+      const lots = rnd() < 0.45 ? 2 : 1;
+      for (let n = 0; n < lots && placed < TOWERS; n++) {
+        // One tower fills most of the block; two share it side by side
+        const w = lots === 2 ? 13 + rnd() * 4 : 20 + rnd() * 14, d = 18 + rnd() * 16;
+        const x = i * PITCH + (lots === 2 ? (n ? 1 : -1) * (BLOCK / 4) : (rnd() - 0.5) * (BLOCK - w - 6)), z = j * PITCH + (rnd() - 0.5) * (BLOCK - d - 6);
+        const dist = Math.hypot(x, z);
+        let hgt = 16 + Math.pow(rnd(), 2.1) * (dist < 150 ? 105 : 75);
+        // Nothing tall between the camera and the office, or between the office and the Burj
+        if (z > -14 && Math.abs(x) < 70) hgt = Math.min(hgt, -GROUND_Y - 9 - rnd() * 14);
+        else hgt = Math.min(hgt, -GROUND_Y + 4 + rnd() * 9);
+        if (z < -20 && Math.abs(x) < 46) hgt = Math.min(hgt, -GROUND_Y - 5 - rnd() * 22);
+        dummy.position.set(x, GROUND_Y + hgt / 2, z); dummy.scale.set(w, hgt, d); dummy.rotation.set(0, 0, 0); dummy.updateMatrix();
+        towers.setMatrixAt(placed, dummy.matrix);
+        towers.setColorAt(placed, tint.setHSL(0.56 + rnd() * 0.06, 0.1 + rnd() * 0.25, 0.62 + rnd() * 0.3));
+        placed++;
+      }
     }
-    towers.frustumCulled = false; scene.add(towers);
+    towers.count = placed; towers.frustumCulled = false; scene.add(towers);
+
+    // ---------- street level: pavements, roads, lights, traffic and people ----------
+    const paveMat = new THREE.MeshStandardMaterial({ color: "#A7AFB6", roughness: 0.95 });
+    const pavements = new THREE.InstancedMesh(new THREE.BoxGeometry(BLOCK, 0.5, BLOCK), paveMat, (GRID * 2 + 1) ** 2);
+    { let n = 0; for (let i = -GRID; i <= GRID; i++) for (let j = -GRID; j <= GRID; j++) { dummy.position.set(i * PITCH, GROUND_Y + 0.25, j * PITCH); dummy.scale.set(1, 1, 1); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); pavements.setMatrixAt(n++, dummy.matrix); } }
+    pavements.frustumCulled = false; scene.add(pavements);
+
+    // Lane markings, drawn once and repeated along every street
+    const laneTex = canvasTex(64, 128, (g, w, h) => {
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = "rgba(255,255,255,.85)"; g.fillRect(w / 2 - 1.5, 0, 3, h * 0.45);       // dashed centre line
+      g.fillStyle = "rgba(255,255,255,.55)"; g.fillRect(3, 0, 2, h); g.fillRect(w - 5, 0, 2, h); // kerb lines
+    });
+    laneTex.wrapT = THREE.RepeatWrapping; laneTex.repeat.set(1, CITY * 2 / 9);
+    const laneMat = new THREE.MeshBasicMaterial({ map: laneTex, transparent: true, depthWrite: false, opacity: 0.8 });
+    const STREETS = [];   // { axis: "x" | "z", at }: a street running along that axis
+    for (let k = -GRID - 1; k <= GRID; k++) ["x", "z"].forEach((axis, n) => {
+      STREETS.push({ axis, at: roadAt(k) });
+      const strip = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_W, CITY * 2), laneMat);
+      strip.rotation.x = -Math.PI / 2; if (axis === "x") strip.rotation.z = Math.PI / 2;
+      strip.position.set(axis === "x" ? 0 : roadAt(k), GROUND_Y + 0.03 + n * 0.02, axis === "x" ? roadAt(k) : 0); scene.add(strip);
+    });
+
+    // Street lights: a pole on each side of every street, with a pool of light under it at night
+    const LAMP_GAP = 26, lampSpots = [];
+    STREETS.forEach((st, n) => { for (let p = -CITY + 8 + (n % 2) * 13; p < CITY; p += LAMP_GAP) { const side = (Math.round(p / LAMP_GAP) + n) % 2 ? 1 : -1, off = st.at + side * (ROAD_W / 2 + 0.9); if (Math.abs(((p / PITCH) % 1 + 1.5) % 1 - 1) > 0.36) continue; lampSpots.push(st.axis === "x" ? [p, off] : [off, p]); } });
+    const poles = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.12, 0.16, 6.5, 6), new THREE.MeshStandardMaterial({ color: "#3A3F47", roughness: 0.6 }), lampSpots.length);
+    const pools = new THREE.InstancedMesh(new THREE.CircleGeometry(4.2, 20), new THREE.MeshBasicMaterial({ color: "#FFC27A", transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }), lampSpots.length);
+    const lampPos = new Float32Array(lampSpots.length * 3);
+    lampSpots.forEach(([x, z], n) => {
+      dummy.position.set(x, GROUND_Y + 3.75, z); dummy.scale.set(1, 1, 1); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); poles.setMatrixAt(n, dummy.matrix);
+      dummy.position.set(x, GROUND_Y + 0.56, z); dummy.rotation.set(-Math.PI / 2, 0, 0); dummy.updateMatrix(); pools.setMatrixAt(n, dummy.matrix);
+      lampPos.set([x, GROUND_Y + 7.1, z], n * 3);
+    });
+    poles.frustumCulled = pools.frustumCulled = false; scene.add(poles, pools);
+    const dotTex = canvasTex(64, 64, (g, w) => { const gr = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.25, "rgba(255,255,255,.8)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, w, w); });
+    const glowPoints = (positions, color, size) => { const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(positions, 3)); const pts = new THREE.Points(geo, new THREE.PointsMaterial({ map: dotTex, color, size, sizeAttenuation: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); pts.frustumCulled = false; scene.add(pts); return pts; };
+    const lampGlow = glowPoints(lampPos, "#FFD9A0", 7);
+
+    // Cars keep to their lane and loop round the city; people keep to the pavements
+    const CAR_COLORS = ["#E8E8E8", "#1C1F26", "#B9BEC6", "#C0392B", "#2F5D8A", "#F2C94C", "#4A4F58", "#FFFFFF"];
+    const NEAR = STREETS.filter(st => Math.abs(st.at) < PITCH * 3.6);
+    const mover = (count, laneOffsets, speedRange) => Array.from({ length: count }, () => { const st = NEAR[Math.floor(rnd() * NEAR.length)], dir = rnd() < 0.5 ? 1 : -1; return { st, dir, lane: laneOffsets[Math.floor(rnd() * laneOffsets.length)], p: (rnd() * 2 - 1) * CITY, speed: speedRange[0] + rnd() * (speedRange[1] - speedRange[0]) }; });
+    const cars = mover(170, [1.6, 4.1], [9, 17]);
+    const carMesh = new THREE.InstancedMesh(new RoundedBoxGeometry(4.4, 1.35, 1.9, 2, 0.35), new THREE.MeshStandardMaterial({ roughness: 0.3, metalness: 0.5 }), cars.length);
+    cars.forEach((c, n) => carMesh.setColorAt(n, tint.set(CAR_COLORS[n % CAR_COLORS.length])));
+    carMesh.frustumCulled = false; scene.add(carMesh);
+    const headPos = new Float32Array(cars.length * 3), tailPos = new Float32Array(cars.length * 3);
+    const headGlow = glowPoints(headPos, "#FFF6DC", 5), tailGlow = glowPoints(tailPos, "#FF3B30", 4);
+    const walkers = mover(260, [ROAD_W / 2 + 2.2, ROAD_W / 2 + 3.6], [1.1, 1.9]);
+    const walkerMesh = new THREE.InstancedMesh(new THREE.CapsuleGeometry(0.28, 1.05, 3, 8), new THREE.MeshStandardMaterial({ roughness: 0.9 }), walkers.length);
+    walkers.forEach((w, n) => walkerMesh.setColorAt(n, tint.setHSL(rnd(), 0.45, 0.35 + rnd() * 0.35)));
+    walkerMesh.frustumCulled = false; scene.add(walkerMesh);
+    function place(m, y, out) {
+      // A mover drives on the right: its lane sits on the side that matches its direction
+      const side = m.dir * m.lane;
+      if (m.st.axis === "x") { out.x = m.p; out.z = m.st.at + side; out.rot = m.dir > 0 ? 0 : Math.PI; }
+      else { out.x = m.st.at - side; out.z = m.p; out.rot = m.dir > 0 ? -Math.PI / 2 : Math.PI / 2; }
+      out.y = y; return out;
+    }
+    const spot = {};
+    function updateStreets(dt, night) {
+      cars.forEach((c, n) => {
+        c.p += c.dir * c.speed * dt; if (c.p > CITY) c.p -= CITY * 2; else if (c.p < -CITY) c.p += CITY * 2;
+        place(c, GROUND_Y + 0.75, spot); dummy.position.set(spot.x, spot.y, spot.z); dummy.rotation.set(0, spot.rot, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); carMesh.setMatrixAt(n, dummy.matrix);
+        const fx = c.st.axis === "x" ? c.dir * 2.3 : 0, fz = c.st.axis === "z" ? c.dir * 2.3 : 0;
+        headPos.set([spot.x + fx, spot.y, spot.z + fz], n * 3); tailPos.set([spot.x - fx, spot.y, spot.z - fz], n * 3);
+      });
+      carMesh.instanceMatrix.needsUpdate = true;
+      if (night) { headGlow.geometry.attributes.position.needsUpdate = true; tailGlow.geometry.attributes.position.needsUpdate = true; }
+      walkers.forEach((w, n) => {
+        w.p += w.dir * w.speed * dt; if (w.p > CITY) w.p -= CITY * 2; else if (w.p < -CITY) w.p += CITY * 2;
+        place(w, GROUND_Y + 1.3 + Math.abs(Math.sin(clock * 7 + n)) * 0.06, spot); dummy.position.set(spot.x, spot.y, spot.z); dummy.rotation.set(0, 0, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); walkerMesh.setMatrixAt(n, dummy.matrix);
+      });
+      walkerMesh.instanceMatrix.needsUpdate = true;
+    }
 
     // The tower this office sits in
     const ownTowerMat = new THREE.MeshStandardMaterial({ color: "#3A4658", roughness: 0.18, metalness: 0.7 });
@@ -4353,7 +4438,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }, [4, 1]);
     const burjMat = new THREE.MeshStandardMaterial({ map: burjTex(false), color: "#B4C6D6", roughness: 0.2, metalness: 0.7, emissive: "#FFFFFF", emissiveMap: burjTex(true), emissiveIntensity: 0 });
     const burjLightMat = new THREE.MeshBasicMaterial({ color: "#EAF3FF", fog: false });
-    const BURJ = { x: -10, z: -170, scale: 0.44, tiers: 56, tierH: 3 };
+    const BURJ = { x: BURJ_BLOCK[0] * PITCH, z: BURJ_BLOCK[1] * PITCH, scale: 0.44, tiers: 56, tierH: 3 };
     const burj = new THREE.Group(); burj.position.set(BURJ.x, GROUND_Y, BURJ.z); burj.scale.setScalar(BURJ.scale); scene.add(burj);
     const burjLights = new THREE.Group(); burj.add(burjLights);
     {
@@ -4608,7 +4693,9 @@ def fetch_user_profile(user_id: str, db_pool=None):
       const night = isDark();
       skyMat.map = night ? SKY.night : SKY.day;
       scene.fog.color.set(night ? "#1A1F45" : "#D5E6F2");
-      groundMat.color.set(night ? "#0B0F1E" : "#9AA5AD");
+      groundMat.color.set(night ? "#0A0D16" : "#4B5057");                      // the ground between blocks is the road surface
+      paveMat.color.set(night ? "#1B2030" : "#A7AFB6"); laneMat.opacity = night ? 0.45 : 0.8;
+      pools.visible = lampGlow.visible = headGlow.visible = tailGlow.visible = night;
       towerSide.emissiveIntensity = night ? 0.75 : 0; towerSide.color.set(night ? "#2A3350" : "#FFFFFF");
       towerRoof.color.set(night ? "#1B2030" : "#7C858E");
       burjMat.emissiveIntensity = night ? 1.25 : 0; burjMat.color.set(night ? "#5B7090" : "#C4D3E0"); burjLights.visible = night;
@@ -4859,6 +4946,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; }
       if (isMeetingMode && clock > meetNext) { const seated = workers.filter(w => w.where === "meeting" && w.pose === "sit"); workers.forEach(w => { w.meetTalk3d = false; }); if (seated.length) seated[Math.floor(Math.random() * seated.length)].meetTalk3d = true; meetNext = clock + between(2.5, 5); }
       updatePeople(dt);
+      if (motionOn3d) updateStreets(dt, isDark());
       controls.update();
       renderer.render(scene, camera);
       updateLabels();
