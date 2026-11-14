@@ -36,6 +36,7 @@ from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
 from .v5_api import PREFIX as V5_PREFIX, V5Api
+from ..core.replay import build_replay
 
 
 class StudioHandler(http.server.BaseHTTPRequestHandler):
@@ -119,6 +120,14 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 for t in tasks
             ]
             self._serve_json({"sessions": sessions})
+        elif path == "/api/replay":
+            provider = self.relay.provider if self.relay else None
+            replay = build_replay(self.root, query.get("session_id", [""])[0], self.staging,
+                                  getattr(provider, "provider_name", ""), getattr(provider, "model", ""))
+            if replay:
+                self._serve_json(replay)
+            else:
+                self._serve_json({"error": "No recorded run with that id."}, status=404)
         elif path == "/api/tasks":
             tasks = self.staging.list_tasks() if self.staging else []
             self._serve_json([

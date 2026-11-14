@@ -42,6 +42,7 @@ from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
 from .v5_api import V5Api
+from ..core.replay import build_replay
 
 
 def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
@@ -306,6 +307,12 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
             status_board.finish()
 
     v5 = V5Api(root, get_provider, run_task)
+
+    @app.get("/api/replay")
+    def get_replay(session_id: str = ""):
+        provider = get_provider()
+        replay = build_replay(root, session_id, staging, provider.provider_name, provider.model)
+        return replay if replay else JSONResponse({"error": "No recorded run with that id."}, status_code=404)
 
     # Plain `def` so long runs (agents, test reruns, model downloads) go to a worker thread
     @app.get("/api/v5/{route:path}")
