@@ -10,7 +10,7 @@
 **[▶ Open Live Interactive Demo](https://sanjaydep1996.github.io/devsquad/)** *(runs 100% in-browser with live animated agents, Review Desk, and Whiteboard)*
 
 <p align="center">
-  <img src="docs/screenshot-office.jpg" alt="DevSquad Studio: the 3D office at night, with the team at their desks and the Burj Khalifa behind the glass" width="100%" />
+  <img src="docs/screenshot-office.jpg" alt="DevSquad Studio: the 3D office at night, with realistic, rigged people working at their desks and the city behind the glass" width="100%" />
 </p>
 
 ---
@@ -36,13 +36,26 @@ Current AI coding tools fall into two frustrating extremes:
 ## 🏢 Interactive Virtual Office & Features
 
 <p align="center">
-  <img src="docs/screenshot-office-day.jpg" alt="The same office in day mode, with Apex's status on the right and the Build, Quality and Tools menus in the topbar" width="100%" />
+  <img src="docs/screenshot-office-day.jpg" alt="The whole office in day mode, with the task board on the left wall and the Build, Quality and Tools menus in the topbar" width="100%" />
 </p>
 
-DevSquad combines real terminal execution with a **3D office** you can walk into (the **2D Pixel Office** is the fallback where WebGL isn't available). Jump to **Overview**, **Desks**, **Meeting room**, **Lounge**, **Window** or **Walk in** at eye level; drag to look, right-drag to move, scroll to zoom toward the pointer, and double-click a spot to go there or a person to see their face. With the office focused, **W A S D** or the arrow keys walk, **Q E** turn, **+ -** zoom and **1-6** pick a view. The team moves like people do: they keep right in the aisles, take coffee and whiteboard breaks, and **You** walk the floor checking in on whoever is working. The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
+DevSquad combines real terminal execution with a **3D office** you can walk into (the **2D Pixel Office** is the fallback where WebGL isn't available). Jump to **Overview**, **Desks**, **Meeting room**, **Lounge**, **Window**, **Walk in** at eye level, or the **Board**; drag to look, right-drag to move, scroll to zoom toward the pointer, and double-click a spot to go there or a person to see their face. With the office focused, **W A S D** or the arrow keys walk, **Q E** turn, **+ -** zoom and **1-7** pick a view. The team moves like people do: they keep right in the aisles, take coffee and whiteboard breaks, and **You** walk the floor checking in on whoever is working.
 
-### 1. 🔍 Interactive Blast-Radius Visualizer (On the Office Whiteboard)
-Click directly on the **Whiteboard** on the office back wall or click **Build → Blast Radius** in the topbar to inspect AST dependencies:
+- **Real people**: the team are rigged, realistic people from Microsoft's Rocketbox library (MIT licence), with recorded motion for walking, sitting at a desk, typing, talking, listening, presenting, drinking coffee and reading a phone. Pick your own look in Settings. Where the models can't load, the drawn people are used instead.
+- **The task board is on the wall**: the Workshop's real board, as sticky notes on the whiteboard. When a card moves to In progress, its owner walks over to pick it up, then goes back to their desk to work on it.
+- **Click a desk or a person** for their status: their card, what's next, their last run, the ETA and any blockers, from the same recorded facts as the chat's status answers.
+
+<p align="center">
+  <img src="docs/screenshot-people.jpg" alt="A close-up of Apex, a rigged, realistic person, sitting at a desk" width="49%" />
+  <img src="docs/screenshot-desk-card.jpg" alt="Apex's desk card: what they're working on, their card, last run, ETA and blockers" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshot-board-wall.jpg" alt="The task board on the office wall, with cards as sticky notes in Backlog, In progress, Review Desk and Merged" width="100%" />
+</p>
+ The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
+
+### 1. 🔍 Interactive Blast-Radius Visualizer
+Click **Build → Blast Radius** in the topbar to inspect AST dependencies:
 - **Direct Modifications (Amber)**: Code units being added or edited.
 - **Caller / Consumer Risks (Red)**: Existing files and functions in the repo that import or call the modified components.
 - **Active Test Coverage (Green)**: Verified test suites guarding the callers.
@@ -211,7 +224,8 @@ devsquad rollback <task_id>
 ### 2. 🔮 Flight Recorder & Incident Blackbox (Interactive RCA & Time Machine)
 - **Session ledger**: Every relay stage (plan, code, tests, healing, staging) is recorded to an append-only JSONL file in `.devsquad/flight_recorder/`.
 - **Time Machine Scrubber**: Step backward or forward through a run to see what each agent did and which files changed.
-- **Factual post-mortems**: A failed run gets a report built only from what was recorded: what failed, where, the last change before it, and the timeline. It says plainly when the root cause isn't known.
+- **Factual post-mortems**: Pick a run and write its post-mortem, built only from what was recorded: what failed, where, the test command, the files changed and the timeline. It says plainly when the root cause isn't known, and when nothing failed.
+- **Save as Markdown or PDF**: post-mortems, run replays (Session Replay) and plans (Workshop) download as `.md` or `.pdf`. The PDF writer uses the standard library only.
 
 ### 3. 🧬 Autonomous Git Bisect & Regression Teleporter
 - **Real binary search**: Runs your own test command on past commits, in a scratch git worktree, to find the first commit where it fails. Each commit has a time limit.
@@ -236,6 +250,7 @@ Click **Workshop** in the topbar. Everything below works in template mode and ge
 ### 2. 🗺️ Plan, then build
 - Describe a feature. Apex proposes tasks with owners, risks and questions you should answer first. With attached files, Apex reads them.
 - Edit, remove or add tasks, then approve. Approving only adds cards to the board; nothing is built until you assign a card.
+- Save the plan as Markdown or PDF to share it.
 
 ### 3. 🏗️ New app from one sentence
 - "Build me an inventory app with login" becomes a FastAPI + SQLite app with sign-up, login (salted PBKDF2), per-user records, a responsive page, six passing tests, a README and a first ADR.
