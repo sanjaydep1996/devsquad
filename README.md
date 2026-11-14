@@ -10,7 +10,7 @@
 **[▶ Open Live Interactive Demo](https://sanjaydep1996.github.io/devsquad/)** *(runs 100% in-browser with live animated agents, Review Desk, and Whiteboard)*
 
 <p align="center">
-  <img src="docs/screenshot-office.jpg" alt="DevSquad 2D Pixel Office" width="100%" />
+  <img src="docs/screenshot-office.jpg" alt="DevSquad Studio: the 3D office at night, with realistic, rigged people working at their desks and the city behind the glass" width="100%" />
 </p>
 
 ---
@@ -36,13 +36,27 @@ Current AI coding tools fall into two frustrating extremes:
 ## 🏢 Interactive Virtual Office & Features
 
 <p align="center">
-  <img src="docs/screenshot-inspector.jpg" alt="DevSquad Agent Inspector & Whiteboard" width="100%" />
+  <img src="docs/screenshot-office-day.jpg" alt="The whole office in day mode, with the task board on the left wall and the Build, Quality and Tools menus in the topbar" width="100%" />
 </p>
 
-DevSquad combines high-fidelity terminal execution with a retro **2D Pixel Office** canvas running at 60 FPS:
+DevSquad combines real terminal execution with a **3D office** you can walk into (the **2D Pixel Office** is the fallback where WebGL isn't available). Jump to **Overview**, **Desks**, **Meeting room**, **Lounge**, **Window**, **Walk in** at eye level, or the **Board**; drag to look, right-drag to move, scroll to zoom toward the pointer, and double-click a spot to go there or a person to see their face. With the office focused, **W A S D** or the arrow keys walk, **Q E** turn, **+ -** zoom and **1-7** pick a view. The team moves like people do: they keep right in the aisles, take coffee and whiteboard breaks, and **You** walk the floor checking in on whoever is working.
 
-### 1. 🔍 Interactive Blast-Radius Visualizer (On the Office Whiteboard)
-Click directly on the **Whiteboard** on the office back wall or click **Blast Radius** in the topbar to inspect AST dependencies:
+- **Real people**: the team are rigged, realistic people from Microsoft's Rocketbox library (MIT licence), with recorded motion for walking, sitting at a desk, typing, talking, listening, presenting, drinking coffee and reading a phone. Pick your own look in Settings. Where the models can't load, the drawn people are used instead.
+- **The task board is on the wall**: the Workshop's real board, as sticky notes on the whiteboard. When a card moves to In progress, its owner walks over to pick it up, then goes back to their desk to work on it.
+- **A reef tank** beside the server rack: a pair of clownfish living in their anemone and two blue tangs cruising the tank, under a blue reef light. Click it for a close look.
+- **Click a desk or a person** for their status: their card, what's next, their last run, the ETA and any blockers, from the same recorded facts as the chat's status answers.
+
+<p align="center">
+  <img src="docs/screenshot-people.jpg" alt="A close-up of Apex, a rigged, realistic person, sitting at a desk" width="49%" />
+  <img src="docs/screenshot-desk-card.jpg" alt="Apex's desk card: what they're working on, their card, last run, ETA and blockers" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshot-board-wall.jpg" alt="The task board on the office wall, with cards as sticky notes in Backlog, In progress, Review Desk and Merged" width="100%" />
+</p>
+ The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
+
+### 1. 🔍 Interactive Blast-Radius Visualizer
+Click **Build → Blast Radius** in the topbar to inspect AST dependencies:
 - **Direct Modifications (Amber)**: Code units being added or edited.
 - **Caller / Consumer Risks (Red)**: Existing files and functions in the repo that import or call the modified components.
 - **Active Test Coverage (Green)**: Verified test suites guarding the callers.
@@ -64,7 +78,7 @@ Paste a GitHub Issue, Sentry error log, or raw stack trace:
 - Injects past pitfalls and rules into agent prompts so past mistakes are never repeated.
 
 ### 5. ⚔️ The Merge Conflict Arena ("The Negotiation Table")
-Click the **Glass Conference Room** in the office or **Merge Arena** in the topbar:
+Click the **Glass Conference Room** in the office or **Build → Merge Arena** in the topbar:
 - **Semantic 3-Way AST Merge**: Detects when parallel agent worktrees diverge on imports, function signatures, or method bodies.
 - **Autonomous Agent Negotiation**: Apex, Alpha, and Beta hold an automated negotiation meeting to harmonize interfaces without breaking callers.
 - **AST Syntax Verification**: Verifies the synthesized merge with Python's AST parser ensuring `0 SyntaxErrors` before committing.
@@ -81,38 +95,39 @@ Click the **Industrial Server Rack** on the work floor:
 - **Closed-Loop Healing Swarm**: Gamma QA and Alpha BE diagnose the failure, auto-synthesize resilience patterns (exponential backoff with jitter, circuit breakers, schema adapters), and generate regression tests.
 
 ### 8. 🛡️ Cyber Bunker & Security Vault (Zeta's Pentest Hub)
-Click **Vault** in the topbar:
+Click **Quality → Vault** in the topbar:
 - Audits repo files and staged PRs for **Secret Leaks** (Anthropic, OpenAI, GitHub, AWS keys), **unsafe DOM sinks** (`innerHTML`, `eval`), **Command Injections**, and **OWASP Top 10** risks.
 - Provides a real-time **Security Score (0-100)** and instant automated remediation diffs.
 
 ### 9. 🔀 Hybrid Model Router (Offline Ollama/vLLM + Cloud)
-Click **Local AI** in the topbar:
+Click **Tools → Local AI** in the topbar:
 - Route routine coding, linting, and tests to **100% free, private offline models** (Qwen 2.5 Coder, DeepSeek-Coder, Llama 3) via local Ollama/vLLM daemons.
 - Live **Dollar Savings Tracker** estimating costs saved compared to cloud frontier APIs.
 
 ### 10. 🖨️ Engineering Artifacts Engine & Living ADR Publisher
-Click **ADRs** in the topbar:
+Click **Build → ADRs** in the topbar:
 - **Autonomous Architecture Decision Records**: Zeta and Apex generate standardized ADRs (`docs/adr/`) documenting architectural decisions, context, and consequences.
 - **OpenAPI 3.0 AST Extractor**: Auto-extracts OpenAPI/Swagger schemas directly from endpoint decorators and docstrings.
 - **Automated Changelog Engine**: Formats conventional commits into styled markdown release notes.
 
 ### 11. 🔌 Multi-Agent MCP Desk Hub (Model Context Protocol)
-Click **MCP Hub** in the topbar:
+Click **Tools → MCP Hub** in the topbar:
 - Model Context Protocol (MCP) JSON-RPC 2.0 tool router for individual agent desks.
 - Assign specialized tools (`run_test_suite`, `ast_blast_radius`, `flaky_stress_runner`, `security_audit`) to specific personas or connect external CLI tools.
 
 ### 12. 🎯 Spec-to-Code Roadmap Projector (PRD to DAG)
-Click **Roadmap** in the topbar:
+Click **Build → Roadmap** in the topbar:
 - Ingests raw Product Requirement Documents (PRDs) or feature stories.
 - Decomposes specifications into an interactive **Directed Acyclic Graph (DAG)** with token budgets and topological task dispatch across Alpha, Beta, Delta, and Gamma.
 
 ### 13. 👻 Flaky Test & Race Condition Isolation Chamber
-Click **Flaky Tests** in the topbar:
-- Runs suspect test suites under synthetic concurrency stress and randomized execution jitter to trap intermittent race conditions.
-- Isolates async leaks or shared mutable state and synthesizes deterministic hardening patches verified by Gamma QA.
+Click **Quality → Flaky Tests** in the topbar:
+- Runs your real test command 5 to 50 times in the project, each run with a different `PYTHONHASHSEED`, and shows which runs passed and failed.
+- Tells a flaky test (sometimes fails) apart from a broken one (always fails), shows the failing output, and gives the command to replay the first failure.
+- Suggests a likely cause only when the output has a clear clue, such as a timeout or a refused connection.
 
 ### 14. 📸 Visual QA & Accessibility Auditor (WCAG 2.1 AA)
-Click **Visual QA** in the topbar:
+Click **Quality → Visual QA** in the topbar:
 - Scans frontend viewports for WCAG 2.1 AA tap target sizing (<44x44px), horizontal mobile layout overflow risks (375px), missing accessibility labels, and Cumulative Layout Shift (CLS).
 
 ### 15. 📋 The Review Desk
@@ -210,12 +225,72 @@ devsquad rollback <task_id>
 ### 2. 🔮 Flight Recorder & Incident Blackbox (Interactive RCA & Time Machine)
 - **Session ledger**: Every relay stage (plan, code, tests, healing, staging) is recorded to an append-only JSONL file in `.devsquad/flight_recorder/`.
 - **Time Machine Scrubber**: Step backward or forward through a run to see what each agent did and which files changed.
-- **Factual post-mortems**: A failed run gets a report built only from what was recorded: what failed, where, the last change before it, and the timeline. It says plainly when the root cause isn't known.
+- **Factual post-mortems**: Pick a run and write its post-mortem, built only from what was recorded: what failed, where, the test command, the files changed and the timeline. It says plainly when the root cause isn't known, and when nothing failed.
+- **Save as Markdown or PDF**: post-mortems, run replays (Session Replay) and plans (Workshop) download as `.md` or `.pdf`. The PDF writer uses the standard library only.
 
 ### 3. 🧬 Autonomous Git Bisect & Regression Teleporter
 - **Real binary search**: Runs your own test command on past commits, in a scratch git worktree, to find the first commit where it fails. Each commit has a time limit.
 - **Never touches your work**: Your branch, working tree and uncommitted changes stay as they are, and the scratch worktree is removed afterwards.
 - **Honest results**: If the newest commit passes it says there's no regression; if the oldest commit checked also fails it says the bug is older. It suggests a revert only for a confirmed culprit, and asks you to check the diff first.
+
+---
+
+## 🧰 DevSquad Studio v0.5.0: the Workshop
+
+Click **Workshop** in the topbar. Everything below works in template mode and gets smarter with a local Ollama model. Nothing uses paid AI.
+
+<p align="center">
+  <img src="docs/screenshot-workshop.jpg" alt="The Workshop task board with Backlog, In progress, Review Desk and Merged columns" width="100%" />
+</p>
+
+### 1. 📋 Task board, with GitHub Issues sync
+- Four columns: **Backlog**, **In progress**, **Review Desk** and **Merged**. Each card is a Markdown file in `.devsquad/tasks/`, so the board lives in git next to the code.
+- **Assign to squad** runs the agents on a card. It moves to In progress, then to the Review Desk with its run attached. If the run fails, the card goes back to the Backlog with the reason.
+- **Sync GitHub issues** adds open issues as cards using the `gh` CLI. It only reads issues; it never closes or edits them.
+
+### 2. 🗺️ Plan, then build
+- Describe a feature. Apex proposes tasks with owners, risks and questions you should answer first. With attached files, Apex reads them.
+- Edit, remove or add tasks, then approve. Approving only adds cards to the board; nothing is built until you assign a card.
+- Save the plan as Markdown or PDF to share it.
+
+### 3. 🏗️ New app from one sentence
+- "Build me an inventory app with login" becomes a FastAPI + SQLite app with sign-up, login (salted PBKDF2), per-user records, a responsive page, six passing tests, a README and a first ADR.
+- The model only decides what the app stores (name, record, fields). The code comes from tested templates, so the app runs and its tests pass every time.
+- Apps are staged in `.devsquad/greenfield/` and copied only into a new or empty folder you choose.
+
+### 4. 🚢 DevOps desk
+- Delta reads the project (dependencies, framework, start command, test runner, port) and every `os.getenv`, `os.environ`, and `process.env` it uses.
+- Drafts a multi-stage non-root `Dockerfile`, `.dockerignore`, `docker-compose.yml`, GitHub Actions CI, Cloud Run and Kubernetes manifests, and `.env.example`, where secrets are left blank and each variable lists the files that use it.
+- Preview each file, tick the ones you want, and add them. Existing files are kept unless you choose to replace them.
+
+### 5. ✅ Setup
+- Checks for Ollama, the recommended coding model (`qwen2.5-coder:7b`), an optional vision model, git and pytest, and says the next step for each gap. Models can be downloaded from the panel.
+
+### 6. 🧭 Know-how: agents decide from field guides
+- Each teammate keeps field guides with fundamentals and a decision rule per entry: **Architecture**, **Backend**, **Frontend**, **Testing**, **DevOps**, **Security**, **Docs** and **Research** (which user-research method answers which question, interview guides, usability tests, synthesis, success metrics).
+- When a task is assigned, each agent looks up the entries that fit (local keyword matching, free and offline), puts them in its prompt, and records its decisions with the guide each came from. You see them in the run log ("Drawing on…"), in the run's `decisions.md`, in every plan, and on the desk card.
+- This works in template mode too, so the team decides sensibly even with no AI connected. Add your own team's rules as Markdown files in `.devsquad/knowledge/`, and the agents use them alongside the built-in ones.
+
+### 7. 🔬 Research desk
+- Ask what you want to learn from your users ("Why do people drop off at checkout?"). The method is chosen from the Research guide: interviews, a usability test, a survey, card sorting, a diary study or an A/B test, with the sample size and timeline.
+- You get a study you can run: who to recruit, the session script, how to make sense of the results and how you'll know it worked. Save it as Markdown or PDF. A local model, if you have one, adds questions tailored to your study.
+
+### 8. 🎓 The team learns from your reviews
+- In the Review Desk, **Teach the team**: say whether to keep doing something or avoid it, and why. The reason becomes a rule in `.devsquad/knowledge/learned-<field>.md`, and the agents use it from the next task, naming the review it came from. You can reject the change at the same time.
+
+### 9. 🚀 Ship from the Review Desk
+- **Ship…** shows exactly what will happen first: the branch, the files, the commit message and the pull request text (with the run's decisions and test result). Nothing happens until you confirm.
+- It commits in a separate git worktree, pushes the branch and opens the pull request with `gh`. Your working copy, current branch and uncommitted work are never touched.
+
+### 10. 🧪 Code review agent
+- **Quality → Code review** (or **Review code** in the Review Desk): Gamma reviews your uncommitted changes, a branch, a pull request or a staged run. It reads only the added lines and flags secrets, string-built SQL and shell commands, weak password hashing, disabled TLS checks, unsafe HTML, swallowed errors, missing timeouts, images without alt text, clickable divs, `:latest` images, TODOs and code changes without tests. Each finding names its field guide; accept or dismiss it.
+
+### 11. 🧭 Guided tour
+- On your first visit an eight-step tour shows the team, the board, the Workshop, the Review Desk and the lounge. Take it again any time from **Tools → Take the tour**.
+
+### 12. 📄 Agents read PDFs and images
+- The text inside PDFs is extracted (standard library only) and given to the agents. Scanned PDFs are pictures of text and can't be read yet.
+- Images and mockups are described by a local vision model such as `llava` when one is installed.
 
 ---
 

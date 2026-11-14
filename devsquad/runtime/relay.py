@@ -12,6 +12,7 @@ from ..core.context import RepoContextEngine
 from ..core.diff import DiffEngine, FileDiff
 from ..core.runner import SandboxRunner, TestRunResult
 from ..core.flight_recorder import FlightRecorder
+from ..core.knowledge import KnowledgeBase
 from ..core.staging import StagedTask, StagingDeck
 from ..llm.base import BaseProvider
 
@@ -86,13 +87,23 @@ class AutonomousRelay:
         t_file = target_file or ("src/feature.py" if "python" in meta.languages else "src/feature.js")
         t_test = test_file or ("tests/test_feature.py" if "python" in meta.languages else "tests/feature.test.js")
 
+        # Each agent looks up its field guides for this task and decides from them, naming the guide
+        kb = KnowledgeBase(self.root)
+        briefs = {a: kb.brief(a, goal) for a in ("apex", "alpha_be", "gamma_qa", "delta_devops")}
+        task.artifacts["decisions.md"] = "# Decisions from the field guides\n\n" + "\n".join(
+            f"- **{d['owner']}** ({d['source']}): {d['decision']}" for a in briefs for d in kb.decide(a, goal)) + "\n"
+        names = {"apex": "Apex", "alpha_be": "Alpha", "gamma_qa": "Gamma", "delta_devops": "Delta"}
+        for a, entries in briefs.items():
+            if entries:
+                self._log(task, names[a], "DRAWING_ON", "; ".join(f"{e.field}: {e.title}" for e in entries))
+
         # 2. Stage 1: Apex Architect
         self._log(task, "Apex", "PLANNING", f"Creating architecture specification for '{goal}'...")
         context_str = f"Languages: {', '.join(meta.languages)}\nFiles:\n{tree}"
         if reference:
             context_str += f"\n\n{reference}"
             self._log(task, "Apex", "READING", "Reading the attached reference files...")
-        spec = self.apex.plan(goal, context_str, rules)
+        spec = self.apex.plan(goal, context_str, (rules + "\n\n" + kb.as_prompt(briefs["apex"])).strip())
         task.artifacts["spec.md"] = spec
         self._log(task, "Apex", "SPEC_READY", f"Architecture specification drafted ({len(spec.splitlines())} lines).")
 
@@ -106,13 +117,13 @@ class AutonomousRelay:
             except Exception:
                 pass
 
-        impl_code = self.alpha.implement(goal, spec, t_file, existing_code)
+        impl_code = self.alpha.implement(goal, (spec + "\n\n" + kb.as_prompt(briefs["alpha_be"])).strip(), t_file, existing_code)
         task.artifacts[t_file] = impl_code
         self._log(task, "Alpha", "CODE_READY", f"Implementation completed for {t_file}.")
 
         # 4. Stage 3: Gamma QA Test Suite Generation
         self._log(task, "Gamma", "TEST_DESIGN", f"Generating verification tests in {t_test}...")
-        test_code = self.gamma.write_tests(goal, spec, impl_code, t_test)
+        test_code = self.gamma.write_tests(goal, (spec + "\n\n" + kb.as_prompt(briefs["gamma_qa"])).strip(), impl_code, t_test)
         task.artifacts[t_test] = test_code
         self._log(task, "Gamma", "TESTS_READY", f"Test suite written for {t_test}.")
 

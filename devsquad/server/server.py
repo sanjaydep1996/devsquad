@@ -7,11 +7,12 @@ import http.server
 import json
 import os
 import pathlib
+import re
 import threading
 import time
 import urllib.parse
 from dataclasses import asdict
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 from .guard import is_local_host, origin_is_this_server
 from ..core.files import MAX_FILE_BYTES, FileRejected, ProjectFiles
 from ..core.status import StatusBoard, StatusReporter
@@ -35,6 +36,12 @@ from ..llm.factory import get_provider
 from ..llm.hybrid_router import HybridModelRouter
 from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
+from .v5_api import PREFIX as V5_PREFIX, V5Api
+from ..core.replay import build_replay
+from ..core.export import Download
+
+
+MODELS_DIR = pathlib.Path(__file__).resolve().parent.parent / "web" / "models" / "people"
 
 
 class StudioHandler(http.server.BaseHTTPRequestHandler):
@@ -53,6 +60,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
     flaky_detector: FlakyTestDetector = FlakyTestDetector()
     visual_auditor: VisualQAAuditor = VisualQAAuditor()
     artifacts_publisher: ArtifactsPublisher = ArtifactsPublisher()
+    v5: Optional[V5Api] = None
 
     def log_message(self, format, *args):
         # Mute default server access logs to keep terminal clean
@@ -81,10 +89,14 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
-        if path == "/api/files":
+        if path.startswith(V5_PREFIX):
+            self._v5("GET", path, {})
+        elif path == "/api/files":
             self._serve_json({"files": ProjectFiles(self.root).list()})
         elif path.startswith("/api/files/"):
             self._download_file(urllib.parse.unquote(path[len("/api/files/"):]))
+        elif path.startswith("/models/people/"):
+            self._serve_model(path[len("/models/people/"):])
         elif path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
         elif path == "/data/usage.json":
@@ -115,6 +127,14 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 for t in tasks
             ]
             self._serve_json({"sessions": sessions})
+        elif path == "/api/replay":
+            provider = self.relay.provider if self.relay else None
+            replay = build_replay(self.root, query.get("session_id", [""])[0], self.staging,
+                                  getattr(provider, "provider_name", ""), getattr(provider, "model", ""))
+            if replay:
+                self._serve_json(replay)
+            else:
+                self._serve_json({"error": "No recorded run with that id."}, status=404)
         elif path == "/api/tasks":
             tasks = self.staging.list_tasks() if self.staging else []
             self._serve_json([
@@ -257,6 +277,10 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
+        if path.startswith(V5_PREFIX):
+            self._v5("POST", path, payload)
+            return
+
         if path == "/api/ask":
             # A status question gets an answer from recorded facts; anything else comes back as not answered
             reporter = StatusReporter(
@@ -280,7 +304,7 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 return
 
             try:
-                reference = ProjectFiles(self.root).context_for(payload.get("files") or [])
+                reference = self._api().reference(payload.get("files") or [])
                 try:
                     task = self.relay.run_task(task_text, reference=reference)
                 finally:
@@ -476,20 +500,9 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             })
 
         elif path == "/api/v1/flaky/stress-test":
-            test_name = payload.get("test_name", "test_async_token_rotation")
-            iterations = int(payload.get("iterations", 10))
-            flaky_result = self.flaky_detector.stress_test(test_name, iterations=iterations)
-            self._serve_json({
-                "test_identifier": flaky_result.test_identifier,
-                "total_runs": flaky_result.total_runs,
-                "passed_runs": flaky_result.passed_runs,
-                "failed_runs": flaky_result.failed_runs,
-                "flakiness_percentage": flaky_result.flakiness_percentage,
-                "is_flaky": flaky_result.is_flaky,
-                "root_cause_diagnosis": flaky_result.root_cause_diagnosis,
-                "hardening_patch": flaky_result.hardening_patch,
-                "verified_deterministic": flaky_result.verified_deterministic,
-            })
+            # Kept for older pages: runs the real command now, the same as POST /api/v5/flaky
+            payload.setdefault("command", payload.get("test_name", ""))
+            self._v5("POST", V5_PREFIX + "flaky", payload)
         elif path == "/api/v1/flight-recorder/event":
             session_id = payload.get("session_id", "default")
             step = int(payload.get("step", 1))
@@ -524,10 +537,33 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         if self._refuse_outsiders(changes_state=True):
             return
         path = urllib.parse.urlparse(self.path).path
-        if path.startswith("/api/files/") and ProjectFiles(self.root).delete(urllib.parse.unquote(path[len("/api/files/"):])):
+        if path.startswith(V5_PREFIX):
+            self._v5("DELETE", path, {})
+        elif path.startswith("/api/files/") and ProjectFiles(self.root).delete(urllib.parse.unquote(path[len("/api/files/"):])):
             self._serve_json({"success": True})
         else:
             self.send_error(404, "Not Found")
+
+    def _api(self) -> V5Api:
+        if StudioHandler.v5 is None or StudioHandler.v5.root != self.root:
+            StudioHandler.v5 = _make_v5(self.root, lambda: StudioHandler.relay)
+        return StudioHandler.v5
+
+    def _v5(self, method: str, path: str, payload: Dict):
+        status, body = self._api().handle(method, path, payload)
+        if isinstance(body, Download):
+            self._send_download(body)
+        else:
+            self._serve_json(body, status=status)
+
+    def _send_download(self, file: Download):
+        self.send_response(200)
+        self.send_header("Content-Type", file.content_type)
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(file.filename)}")
+        self.send_header("Content-Length", str(len(file.data)))
+        self.end_headers()
+        self.wfile.write(file.data)
 
     def _upload_file(self, name: str, content_length: int):
         if content_length > MAX_FILE_BYTES:
@@ -551,6 +587,22 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(safe)}")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _serve_model(self, name: str):
+        """The 3D office's people: only the .glb files that ship in web/models/people."""
+        # A person you've customised (in .devsquad/people/, kept out of git) wins over the shipped one
+        own = self.root / ".devsquad" / "people" / name
+        path = own if own.is_file() else MODELS_DIR / name
+        if not re.fullmatch(r"[A-Za-z0-9_]{1,40}\.glb", name) or not path.is_file():
+            self.send_error(404, "Not Found")
+            return
+        data = path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", "model/gltf-binary")
+        self.send_header("Cache-Control", "max-age=86400")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
@@ -622,6 +674,29 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
                 for d in dead:
                     if d in cls.clients:
                         cls.clients.remove(d)
+
+
+def _make_v5(root: pathlib.Path, relay: "Callable[[], Optional[AutonomousRelay]]") -> V5Api:
+    """The v0.5 routes, running tasks through the same relay and status board as the chat."""
+    def provider():
+        r = relay()
+        return r.provider if r else get_provider()
+
+    def run_task(goal: str, reference: str):
+        r = relay()
+        if r is None:
+            raise RuntimeError("the agent relay isn't running")
+        try:
+            return r.run_task(goal, reference=reference)
+        finally:
+            StudioHandler.board.finish()
+
+    def status():
+        p = provider()
+        return StatusReporter(StudioHandler.staging or StagingDeck(root), StudioHandler.board,
+                              provider_name=getattr(p, "provider_name", ""), model=getattr(p, "model", ""))
+
+    return V5Api(root, provider, run_task, staging=StudioHandler.staging, status=status)
 
 
 def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -> http.server.ThreadingHTTPServer:

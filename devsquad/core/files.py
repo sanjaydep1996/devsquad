@@ -5,7 +5,9 @@
 
 import pathlib
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
+
+from .doc_reader import IMAGE_SUFFIXES, pdf_text
 
 MAX_FILE_BYTES = 25 * 1024 * 1024
 MAX_FILES = 200
@@ -45,7 +47,8 @@ class ProjectFiles:
 
     def _info(self, p: pathlib.Path) -> Dict[str, Any]:
         st = p.stat()
-        return {"name": p.name, "size": st.st_size, "modified": st.st_mtime, "readable": p.suffix.lower() in TEXT_SUFFIXES}
+        return {"name": p.name, "size": st.st_size, "modified": st.st_mtime, "readable": p.suffix.lower() in TEXT_SUFFIXES or p.suffix.lower() == ".pdf",
+                "image": p.suffix.lower() in IMAGE_SUFFIXES}
 
     def save(self, name: str, data: bytes) -> Dict[str, Any]:
         if len(data) > MAX_FILE_BYTES:
@@ -80,8 +83,12 @@ class ProjectFiles:
         p.unlink()
         return True
 
-    def context_for(self, names: List[str]) -> str:
-        """What the agents are told about attached files: text files in full, the rest by name only."""
+    def context_for(self, names: List[str], describe_image: Optional[Callable[[bytes], Optional[str]]] = None) -> str:
+        """What the agents are told about attached files.
+
+        Text files go in as they are and PDFs as their extracted text. Images are described by
+        `describe_image` (a local vision model) when one is given; otherwise they're listed by name.
+        """
         readable, unreadable = [], []
         budget = MAX_CONTEXT_CHARS
         for name in names or []:
@@ -89,17 +96,27 @@ class ProjectFiles:
             if data is None:
                 continue
             safe = self.safe_name(str(name))
-            if pathlib.Path(safe).suffix.lower() in TEXT_SUFFIXES and budget > 0:
+            suffix = pathlib.Path(safe).suffix.lower()
+            text, label = None, safe
+            if suffix in TEXT_SUFFIXES:
                 text = data.decode("utf-8", errors="replace")
-                if len(text) > budget:
-                    text = text[:budget] + "\n[cut short]"
-                budget -= len(text)
-                readable.append(f"--- {safe} ---\n{text}")
-            else:
+            elif suffix == ".pdf":
+                text = pdf_text(data) or None
+                label = f"{safe} (text from the PDF)"
+            elif suffix in IMAGE_SUFFIXES and describe_image is not None and budget > 0:
+                text = describe_image(data)
+                label = f"{safe} (described by a vision model)"
+            if text is None or budget <= 0:
                 unreadable.append(safe)
+                continue
+            if len(text) > budget:
+                text = text[:budget] + "\n[cut short]"
+            budget -= len(text)
+            readable.append(f"--- {label} ---\n{text}")
         if not readable and not unreadable:
             return ""
         parts = ["REFERENCE FILES FROM THE USER:"] + readable
         if unreadable:
-            parts.append("Also attached, but their contents can't be read yet (PDFs and images): " + ", ".join(unreadable))
+            parts.append("Also attached, but their contents couldn't be read (scanned PDFs, images without a vision model, "
+                         "or over the length limit): " + ", ".join(unreadable))
         return "\n\n".join(parts)

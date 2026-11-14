@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>DevSquad Studio · Autonomous Multi-Agent Engineering Office</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' ws: wss: http://localhost:8080 http://127.0.0.1:8080 http://localhost:8000 http://127.0.0.1:8000 http://localhost:8088 http://127.0.0.1:8088 https://sanjaydep1996.github.io; img-src 'self' data: https:; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' blob: ws: wss: http://localhost:8080 http://127.0.0.1:8080 http://localhost:8000 http://127.0.0.1:8000 http://localhost:8088 http://127.0.0.1:8088 https://sanjaydep1996.github.io; img-src 'self' data: blob: https:; object-src 'none'; base-uri 'self';">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1122'/%3E%3Cpath fill='%23FFB44C' d='M6 26V15l5-2.500V26zM13 26V7l7 3.500V26zM22 26V15l5 2.500V26z'/%3E%3C/svg%3E">
   <script>(function(){var t;try{t=localStorage.getItem('devsquad-theme')||localStorage.getItem('ucity-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t||'dark')})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,7 +62,20 @@
     #main-viewport { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
     .viewport-topbar { min-height: 54px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
     .tb-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .viewport-topbar .tb-group:last-child { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+    .viewport-topbar .tb-group:last-child { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    /* Toolbar menus: the less-used tools, grouped so the office keeps its height */
+    .tb-menu { position: relative; display: inline-flex; }
+    .tb-chev { width: 10px; height: 6px; margin-left: 1px; transition: transform .14s ease; }
+    .tb-menu-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+    .tb-menu-btn[aria-expanded="true"] .tb-chev { transform: rotate(180deg); }
+    .tb-menu-panel { position: fixed; z-index: 95; width: min(300px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; border-radius: 12px; border: 1px solid var(--line2); background: var(--solid); box-shadow: 0 18px 50px rgba(0, 0, 0, .35); }
+    .tb-menu-panel[hidden] { display: none; }
+    .tb-menu-panel button { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; text-align: left; width: 100%; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font-family: var(--f-ui); cursor: pointer; }
+    .tb-menu-panel button:hover, .tb-menu-panel button:focus-visible { background: var(--hover); outline: none; }
+    .tb-menu-panel button:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+    .tb-menu-panel .i { margin-top: 2px; color: var(--dim); }
+    .tb-menu-panel b { display: block; font-size: 12.5px; font-weight: 600; }
+    .tb-menu-panel small { display: block; font-size: 11px; color: var(--dim); line-height: 1.35; margin-top: 1px; }
     /* 3D office */
     #office3d { position: relative; width: 100%; height: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow, 0 18px 40px -24px rgba(0,0,0,.5)); }
     #office3d canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
@@ -75,7 +88,7 @@
     .tag3d:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .bubble3d { position: absolute; left: 0; top: 0; display: none; max-width: 260px; padding: 7px 12px; border-radius: 12px; border: 1.5px solid var(--accent); background: var(--solid); color: var(--ink); font: 600 12px var(--f-ui); box-shadow: 0 8px 20px -10px rgba(0,0,0,.6); will-change: transform; }
     .bubble3d.urgent { border-color: var(--bad); }
-    #office3dHint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 5px 11px; border-radius: 999px; background: rgba(10,14,24,.62); color: #fff; font: 500 11px var(--f-ui); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
+    #office3dHint { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); padding: 5px 11px; border-radius: 999px; background: rgba(10,14,24,.62); color: #fff; font: 500 11px var(--f-ui); pointer-events: none; transition: opacity .4s; white-space: nowrap; }
     #office3d.used #office3dHint { opacity: 0; }
     .status-answer { max-width: 100%; }
     .status-answer p { margin: 2px 0 0; }
@@ -98,13 +111,73 @@
     .file-row a:hover, .file-row button:hover { background: var(--hover); }
     .file-row button.del { color: var(--bad); }
     .file-row input { width: 16px; height: 16px; accent-color: var(--accent); }
-    .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .name-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
     .name-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--dim); }
     .name-grid input, #teamNameInput { background: var(--lot2); border: 1px solid var(--line); color: var(--ink); padding: 7px 9px; border-radius: 7px; font: 500 12.5px var(--f-ui); min-width: 0; }
     #office3dTime { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: rgba(10,14,24,.62); color: #fff; font: 600 12px var(--f-ui); cursor: pointer; backdrop-filter: blur(6px); }
     #office3dTime:hover { background: rgba(10,14,24,.8); }
     #office3dTime:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     #office3dTime svg { width: 15px; height: 15px; }
+    /* 3D navigation: views, turn, zoom and help */
+    #office3d:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    #office3dNav { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; gap: 8px; align-items: flex-end; justify-content: space-between; pointer-events: none; }
+    #office3dNav > div { display: flex; gap: 2px; padding: 4px; border-radius: 12px; background: rgba(10,14,24,.66); border: 1px solid rgba(255,255,255,.16); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: auto; }
+    #office3dNav .views { flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+    #office3dNav .tools { flex: none; }
+    #office3dNav button { min-height: 32px; min-width: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #E9EDF5; font: 600 11.5px var(--f-ui); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 5px; flex: none; }
+    #office3dNav button:hover { background: rgba(255,255,255,.13); }
+    #office3dNav button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+    #office3dNav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    #office3dNav .tools button { padding: 0; width: 32px; }
+    #office3dNav svg { width: 16px; height: 16px; }
+    #office3dHelp { position: absolute; right: 12px; bottom: 60px; width: min(300px, calc(100% - 24px)); padding: 12px 14px; border-radius: 12px; background: rgba(10,14,24,.9); color: #E9EDF5; font: 500 12px/1.6 var(--f-ui); display: none; pointer-events: auto; box-shadow: 0 12px 30px -12px rgba(0,0,0,.6); }
+    #office3dHelp.on { display: block; }
+    #office3dHelp b { display: block; margin-bottom: 4px; font-size: 12.5px; }
+    #office3dHelp kbd { font: 600 10.5px var(--f-mono); padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.15); }
+    #office3dDesk { position: absolute; left: 12px; top: 56px; width: min(320px, calc(100% - 24px)); max-height: calc(100% - 124px); overflow-y: auto; padding: 12px 14px 14px; border-radius: 14px; background: var(--solid); color: var(--ink); border: 1px solid var(--line2); box-shadow: 0 18px 40px -18px rgba(0,0,0,.6); font: 500 12px/1.5 var(--f-ui); display: none; pointer-events: auto; z-index: 3; }
+    #office3dDesk.on { display: block; }
+    #office3dDesk header { display: flex; align-items: center; gap: 9px; }
+    #office3dDesk header i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+    #office3dDesk header b { display: block; font-size: 14px; line-height: 1.2; }
+    #office3dDesk header small { display: block; color: var(--dim); font-size: 11px; }
+    #office3dDesk .state { margin-left: auto; font: 600 10px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; background: var(--lot); color: var(--dim); white-space: nowrap; }
+    #office3dDesk .state.working { background: var(--ok-bg); color: var(--ok); }
+    #office3dDesk .x { flex: none; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--dim); font-size: 18px; cursor: pointer; }
+    #office3dDesk .x:hover { background: var(--hover); color: var(--ink); }
+    #office3dDesk h6 { margin: 11px 0 2px; font: 600 10px var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+    #office3dDesk p { margin: 0; }
+    #office3dDesk ul { margin: 2px 0 0; padding-left: 16px; }
+    #office3dDesk .card { margin-top: 3px; padding: 6px 9px; border-radius: 8px; background: var(--lot); border: 1px solid var(--line); }
+    #office3dDesk .card small { display: block; color: var(--dim); font-size: 11px; }
+    #office3dDesk .none { color: var(--dim); }
+    #office3dDesk .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    #office3dDesk .acts button { min-height: 32px; padding: 4px 11px; border-radius: 8px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font: 600 11.5px var(--f-ui); cursor: pointer; }
+    #office3dDesk .acts button:hover { background: var(--hover); }
+    #office3dDesk .acts button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .find-list { display: flex; flex-direction: column; gap: 8px; }
+    .find { border: 1px solid var(--line); border-left: 4px solid var(--line2); border-radius: 10px; padding: 9px 12px; background: var(--lot); font-size: 12.5px; }
+    .find.high { border-left-color: var(--bad); } .find.medium { border-left-color: var(--warn, #F5A524); } .find.low { border-left-color: var(--dim); }
+    .find header { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+    .find code { font: 500 11px var(--f-mono); }
+    .find pre { margin: 6px 0 0; padding: 6px 8px; border-radius: 6px; background: var(--solid); font: 500 11px var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .find .acts { display: flex; gap: 6px; margin-top: 8px; }
+    .find.dismissed { opacity: .45; } .find.accepted { box-shadow: inset 0 0 0 1px var(--accent); }
+    .sev { font: 700 10px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; padding: 1px 7px; border-radius: 999px; background: var(--lot2); }
+    .sev.high { color: var(--bad); background: var(--bad-bg); } .sev.medium { color: #B87300; background: rgba(245,165,36,.15); }
+    .teach { margin: 10px 0; padding: 10px 12px; border: 1px dashed var(--line2); border-radius: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+    .teach .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .teach textarea { width: 100%; min-height: 54px; resize: vertical; background: var(--lot2); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 7px 9px; font: 500 12.5px var(--f-ui); }
+    #tourCard { position: fixed; z-index: 4000; width: min(360px, calc(100vw - 32px)); padding: 16px 18px 14px; border-radius: 16px; background: var(--solid); color: var(--ink); border: 1px solid var(--accent); box-shadow: 0 24px 60px -20px rgba(0,0,0,.7); font: 500 13px/1.55 var(--f-ui); display: none; }
+    #tourCard.on { display: block; }
+    #tourCard h4 { margin: 0 0 6px; font: 700 15px var(--f-display, var(--f-ui)); }
+    #tourCard p { margin: 0; color: var(--ink); }
+    #tourCard .tour-foot { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+    #tourCard .tour-foot span { margin-right: auto; font: 600 11px var(--f-mono); color: var(--dim); }
+    .tour-hl { outline: 3px solid var(--accent) !important; outline-offset: 3px; border-radius: 10px; position: relative; z-index: 3999; }
+    .export-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); }
+    .export-links a { display: inline-flex; align-items: center; min-height: 28px; padding: 3px 10px; border-radius: 8px; border: 1px solid var(--line2); color: var(--ink); font-weight: 600; text-decoration: none; }
+    .export-links a:hover { background: var(--hover); }
+    @media (max-width: 768px) { #office3dNav button { min-height: 38px; min-width: 38px; } #office3dNav .tools button { width: 38px; } #office3dHint { display: none; } }
     .company-title { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 18px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
     .token-badge { font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; color: var(--accent); padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--lot); }
     .data-mode-badge { font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: 0; color: var(--ok); padding: 3px 8px; border-radius: 6px; background: var(--ok-bg); }
@@ -169,9 +242,63 @@
     .btn-send { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 
     /* Dialogs */
+    /* v0.5 Workshop: board, plan, new app, DevOps, setup */
+    .ws-box { max-width: 1080px !important; width: 96% !important; height: 86vh; max-height: 86vh !important; display: flex; flex-direction: column; gap: 10px; }
+    .ws-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; flex-shrink: 0; }
+    .ws-tab { font: 600 12.5px var(--f-ui); padding: 9px 12px; min-height: 40px; border: 0; background: none; color: var(--dim); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+    .ws-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+    .ws-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: none; }
+    .ws-tab .dot.on { display: inline-block; }
+    .ws-pane { flex: 1; min-height: 0; overflow-y: auto; display: none; flex-direction: column; gap: 12px; padding-top: 2px; }
+    .ws-pane.on { display: flex; }
+    .ws-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .ws-row > .chat-input, .ws-row > textarea { flex: 1 1 220px; }
+    .ws-pane textarea { font: 13px/1.5 var(--f-ui); padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); color: var(--ink); resize: vertical; min-height: 70px; }
+    .ws-pane select { font: 500 12.5px var(--f-ui); padding: 7px 8px; min-height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--lot); color: var(--ink); }
+    .ws-help { font-size: 12px; color: var(--dim); line-height: 1.5; margin: 0; }
+    .ws-msg { font-size: 12px; min-height: 18px; color: var(--dim); }
+    .ws-msg.bad { color: var(--bad); } .ws-msg.ok { color: var(--ok); }
+    .ws-board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 10px; overflow-x: auto; flex: 1; min-height: 260px; padding-bottom: 4px; }
+    .ws-col { background: var(--lot); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; }
+    .ws-col h4 { margin: 0; font: 700 12px var(--f-ui); text-transform: uppercase; letter-spacing: .05em; color: var(--dim); display: flex; justify-content: space-between; }
+    .ws-card { background: var(--solid); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+    .ws-card b { font-weight: 600; overflow-wrap: anywhere; }
+    .ws-card .meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11px; color: var(--dim); }
+    .ws-chip { font: 600 10.5px var(--f-ui); padding: 2px 7px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
+    .ws-card .acts { display: flex; gap: 4px; flex-wrap: wrap; }
+    .ws-card .acts button, .ws-mini { font: 600 11px var(--f-ui); min-height: 30px; padding: 4px 8px; border-radius: 7px; border: 1px solid var(--line2); background: var(--lot); color: var(--ink); cursor: pointer; }
+    .ws-card .acts button:hover, .ws-mini:hover { border-color: var(--accent); color: var(--accent); }
+    .ws-card .acts button.go { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+    .ws-list { display: flex; flex-direction: column; gap: 6px; }
+    .ws-task { display: grid; grid-template-columns: 1fr 150px auto; gap: 6px; align-items: center; }
+    .ws-section { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--lot); display: flex; flex-direction: column; gap: 8px; }
+    .ws-section h5 { margin: 0; font: 700 12.5px var(--f-ui); }
+    .ws-section ul { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.55; }
+    .ws-pane pre { font: 11px/1.5 var(--f-mono); background: var(--solid); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; max-height: 260px; margin: 6px 0 0; }
+    .ws-file { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--solid); font-size: 12.5px; }
+    .ws-file summary { cursor: pointer; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ws-check { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--solid); font-size: 12.5px; }
+    .ws-check .ic { font-weight: 800; } .ws-check .ic.ok { color: var(--ok); } .ws-check .ic.no { color: var(--bad); } .ws-check .ic.opt { color: var(--faint); }
+    .ws-check small { display: block; color: var(--dim); margin-top: 2px; line-height: 1.45; }
+    .ws-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .ws-table th, .ws-table td { text-align: left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+    .ws-table th { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    @media (max-width: 640px) { .ws-board { grid-template-columns: repeat(4, 78vw); } .ws-task { grid-template-columns: 1fr; } .ws-box { height: 92vh; max-height: 92vh !important; padding: 14px !important; } }
     .modal-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; background: color-mix(in srgb, var(--bg) 62%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
     .retro-modal-box { width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 16px; border: 1px solid var(--line2); background: var(--solid); box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
     .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    /* In a panel's columns, children keep their full height (otherwise a scrolling child such as a code block
+       shrinks to one line and hides its content). Scroll areas keep a usable height, and the panel itself scrolls. */
+    .retro-modal-box > *, .retro-modal-box div[style*="flex-direction:column"] > *, .retro-modal-box div[style*="flex-direction: column"] > * { flex-shrink: 0; }
+    .retro-modal-box > [style*="flex:1"][style*="overflow-y:auto"] { min-height: min(240px, 45vh); }
+    .ws-pane > :not(.ws-board) { flex-shrink: 0; }
+    .retro-modal-box.ws-box > .ws-pane { flex-shrink: 1; min-height: 0; }
+    @media (max-width: 640px) {
+      .review-split { flex-direction: column; overflow: visible !important; min-height: 0 !important; }
+      .review-split > * { flex: none !important; }
+      .review-split > .review-list { width: auto !important; max-height: 220px; }
+      .review-split > #reviewTaskDetail { min-height: 320px; }
+    }
     .modal-head h3 { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
     .modal-head h3 .i { width: 19px; height: 19px; color: var(--accent); }
     .relay-stages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -188,6 +315,7 @@
     .gen-file pre { margin: 6px 0 2px; max-height: 240px; overflow: auto; padding: 8px 10px; font: 11px/1.5 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
     .gen-note { margin-top: 8px; font-size: 11px; line-height: 1.45; color: var(--dim); }
 
+    @media (max-width: 1440px) and (min-width: 769px) { .viewport-topbar .tb-group:last-child { gap: 5px; } .viewport-topbar .tb-group:last-child .action-pill-btn { padding: 6px 8px; } }
     @media (max-width: 1160px) { #chat-panel { width: 280px; } #sidebar { width: 54px; } .nav-text { display: none; } .nav-item { justify-content: center; padding: 10px 0; } .token-badge { display: none; } }
     @media (max-width: 768px) {
       body { display: block; }
@@ -197,6 +325,7 @@
       #main-viewport { height: 54vh; } .mobile-menu-btn, .mobile-chat-toggle { display: inline-flex; min-height: 40px; min-width: 40px; }
       .viewport-topbar { padding: 6px 10px; gap: 6px; } .room-dropdown, .data-mode-badge { display: none; }
       .tb-group { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+      .viewport-topbar .tb-group:last-child { flex-wrap: nowrap; justify-content: flex-start; width: 100%; scrollbar-width: none; } .viewport-topbar .tb-group:last-child > * { flex-shrink: 0; }
       .action-pill-btn { min-height: 38px; padding: 6px 10px; font-size: 11px; }
       .office-canvas-frame { padding: 6px; }
       #chat-panel { position: fixed; left: 0; right: 0; bottom: 0; width: auto; height: 46vh; border-left: 0; border-top: 1px solid var(--line2); z-index: 30; } #chat-panel.collapsed { display: none; }
@@ -299,24 +428,42 @@
       <div class="tb-group">
         <button class="mobile-chat-toggle" onclick="toggleMobileChat()"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>Chat</button>
         <div class="room-dropdown" id="roomSelector" onclick="toggleFloorSelector()" role="button" tabindex="0" title="Call everyone to the War Room or send them back">Work floor</div>
-        <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>The Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
+        <button class="action-pill-btn primary" onclick="openWorkshop('board')" title="Task board, plan then build, new app, DevOps desk and setup"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Workshop <span id="setupBtnDot" title="Setup needs attention" style="display:none;width:7px;height:7px;border-radius:50%;background:var(--warn);"></span></button>
+        <button class="action-pill-btn" onclick="openReviewDesk()"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Review Desk <span id="reviewCountBadge" style="display:none;background:var(--accent);color:var(--accent-ink);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px;">0</span></button>
         <button class="action-pill-btn" onclick="openFilesModal()"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg>Files</button>
-        <button class="action-pill-btn" onclick="openBlastRadiusModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Blast Radius</button>
-        <button class="action-pill-btn" onclick="openBugSwarmModal()"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg>Bug Swarm</button>
-        <button class="action-pill-btn" onclick="openArtifactsModal()"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg>ADRs</button>
-        <button class="action-pill-btn" onclick="openMCPHubModal()"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>MCP Hub</button>
-        <button class="action-pill-btn" onclick="openRoadmapModal()"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Roadmap</button>
-        <button class="action-pill-btn" onclick="openFlakyChamberModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Flaky Tests</button>
-        <button class="action-pill-btn" onclick="openVisualQAModal()"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg>Visual QA</button>
-        <button class="action-pill-btn" onclick="openAIDiscoveryModal()"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>AI Discovery</button>
-        <button class="action-pill-btn" onclick="openFlightRecorderModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Flight Recorder</button>
-        <button class="action-pill-btn" onclick="openBisectModal()"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Git Bisect</button>
-        <button class="action-pill-btn" onclick="openMergeArenaModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Merge Arena</button>
-        <button class="action-pill-btn" onclick="openChaosLabModal()"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>Chaos Lab</button>
-        <button class="action-pill-btn" onclick="openSecurityVaultModal()"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Vault</button>
-        <button class="action-pill-btn" onclick="openTerminalSidecar('apex')"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg>CRT</button>
-        <button class="action-pill-btn" onclick="openModelRouterModal()"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg>Local AI</button>
-        <button class="action-pill-btn" onclick="openReplayModal()"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Replay</button>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-build" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-build">Build<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-build" role="menu" aria-labelledby="menuBtn-build" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openRoadmapModal"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span><b>Roadmap</b><small>Break a PRD into a task graph</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBlastRadiusModal"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span><b>Blast Radius</b><small>What a change could affect, from the imports</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBugSwarmModal"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg><span><b>Bug Swarm</b><small>Turn an issue into a failing test</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openMergeArenaModal"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg><span><b>Merge Arena</b><small>Find and settle merge conflicts</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openArtifactsModal"><svg class="i" aria-hidden="true"><use href="#i-printer"/></svg><span><b>ADRs</b><small>Architecture decision records</small></span></button>
+          </div>
+        </div>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-quality" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-quality">Quality<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-quality" role="menu" aria-labelledby="menuBtn-quality" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openCodeReviewModal"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Code review</b><small>Gamma reviews a change against the guides</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openFlakyChamberModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Flaky Tests</b><small>Rerun a test to catch flakiness</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openBisectModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Git Bisect</b><small>Find the commit that broke a test</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openVisualQAModal"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Visual QA</b><small>Accessibility and layout checks on your pages</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openSecurityVaultModal"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Vault</b><small>Secret leaks and vulnerable code</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openChaosLabModal"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><span><b>Chaos Lab</b><small>Simulated CI outages and healing</small></span></button>
+          </div>
+        </div>
+        <div class="tb-menu">
+          <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-tools" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-tools">Tools<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="tb-menu-panel" id="menu-tools" role="menu" aria-labelledby="menuBtn-tools" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="startTour"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Take the tour</b><small>A two-minute walk through the studio</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openFlightRecorderModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Flight Recorder</b><small>Step through what each run did</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openReplayModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Replay</b><small>Replay a past agent session</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openTerminalSidecar" data-arg="apex"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg><span><b>Terminal</b><small>The agents' command line</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openModelRouterModal"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg><span><b>Local AI</b><small>Models running on this computer</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openAIDiscoveryModal"><svg class="i" aria-hidden="true"><use href="#i-cpu"/></svg><span><b>AI Discovery</b><small>AI tools installed here</small></span></button>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openMCPHubModal"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg><span><b>MCP Hub</b><small>Tools the agents can call</small></span></button>
+          </div>
+        </div>
         <button class="action-pill-btn primary" onclick="openRelayModal()"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Run a relay</button>
       </div>
     </div>
@@ -479,9 +626,9 @@
       <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">
         Review quarantined multi-agent patches, auto-healing test results, and diffs before applying to your workspace.
       </div>
-      <div style="display:flex;gap:12px;flex:1;min-height:360px;overflow:hidden;">
+      <div class="review-split" style="display:flex;gap:12px;flex:1;min-height:360px;overflow:hidden;">
         <!-- Left: Task list -->
-        <div style="width:260px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--lot);display:flex;flex-direction:column;overflow:hidden;">
+        <div class="review-list" style="width:260px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--lot);display:flex;flex-direction:column;overflow:hidden;">
           <div style="padding:8px 10px;font-weight:600;font-size:11px;border-bottom:1px solid var(--line);background:var(--lot2);display:flex;justify-content:space-between;align-items:center;">
             <span>STAGED RUNS (<span id="reviewTaskListCount">0</span>)</span>
             <button class="term-toggle-btn" onclick="loadReviewTasks()" style="font-size:10px;padding:2px 6px;">Refresh</button>
@@ -559,9 +706,127 @@
       </label>
       <div id="filesStatus" role="status" style="font-size:11.5px;min-height:18px;margin:6px 0;color:var(--dim);"></div>
       <div id="filesList" style="overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
-      <p style="font-size:11px;color:var(--faint);margin:10px 0 0;line-height:1.5;">Agents read the contents of text files, such as .md, .txt, .csv, .json and code. For PDFs and images they only see the file name for now.</p>
+      <p style="font-size:11px;color:var(--faint);margin:10px 0 0;line-height:1.5;">Agents read text files and the text inside PDFs. Images are described by a local vision model such as llava when one is installed (see Setup); otherwise agents see the name only. Scanned PDFs are pictures of text, so they can't be read yet.</p>
     </div>
   </div>
+
+  <!-- v0.5 Workshop: task board, plan then build, new app, DevOps desk, setup -->
+  <div class="modal-overlay" id="workshopModal" role="dialog" aria-modal="true" aria-labelledby="workshopTitle">
+    <div class="retro-modal-box ws-box">
+      <div class="modal-head">
+        <h3 id="workshopTitle"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Workshop</h3>
+        <button class="term-toggle-btn" onclick="closeWorkshop()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="ws-tabs" role="tablist">
+        <button class="ws-tab" role="tab" data-tab="board" onclick="wsTab('board')">Task board</button>
+        <button class="ws-tab" role="tab" data-tab="plan" onclick="wsTab('plan')">Plan, then build</button>
+        <button class="ws-tab" role="tab" data-tab="app" onclick="wsTab('app')">New app</button>
+        <button class="ws-tab" role="tab" data-tab="devops" onclick="wsTab('devops')">DevOps desk</button>
+        <button class="ws-tab" role="tab" data-tab="research" onclick="wsTab('research')">Research desk</button>
+        <button class="ws-tab" role="tab" data-tab="know" onclick="wsTab('know')">Know-how</button>
+        <button class="ws-tab" role="tab" data-tab="setup" onclick="wsTab('setup')">Setup <span class="dot" id="wsSetupDot"></span></button>
+      </div>
+
+      <div class="ws-pane" id="ws-board" role="tabpanel">
+        <form class="ws-row" onsubmit="event.preventDefault(); wsAddCard();">
+          <input class="chat-input" id="wsCardTitle" maxlength="140" placeholder="Add a card, for example: Let users reset their password" aria-label="New card title">
+          <select id="wsCardOwner" aria-label="Owner"></select>
+          <button class="action-pill-btn primary" type="submit">Add card</button>
+          <button class="action-pill-btn" type="button" onclick="wsSync()" title="Adds open GitHub issues as cards. Never closes or edits issues.">Sync GitHub issues</button>
+        </form>
+        <div class="ws-msg" id="wsBoardMsg" role="status"></div>
+        <div class="ws-board" id="wsBoard"></div>
+        <p class="ws-help">Cards are Markdown files in <code>.devsquad/tasks/</code>, so the board is versioned with your code. <b>Assign to squad</b> runs the agents on a card and moves it to the Review Desk when they're done.</p>
+      </div>
+
+      <div class="ws-pane" id="ws-plan" role="tabpanel">
+        <p class="ws-help">Describe what you want. Apex proposes a plan you can edit. Nothing is built until you approve it, and approving only adds cards to the board.</p>
+        <div class="ws-row">
+          <textarea id="wsGoal" maxlength="400" placeholder="For example: Add team invites by email, with roles for admin and member" aria-label="What should the team build?"></textarea>
+        </div>
+        <div class="ws-row">
+          <button class="action-pill-btn primary" id="wsPlanBtn" onclick="wsPropose()">Propose a plan</button>
+          <span class="ws-help" id="wsPlanFiles"></span>
+        </div>
+        <div class="ws-msg" id="wsPlanMsg" role="status"></div>
+        <div id="wsPlan"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-app" role="tabpanel">
+        <p class="ws-help">One sentence becomes a working app: FastAPI and SQLite, sign-up and login, a page to add and delete records, tests, a README and a first ADR. The AI only decides what the app stores; the code comes from tested templates, so it runs every time.</p>
+        <div class="ws-row">
+          <textarea id="wsAppPrompt" maxlength="500" placeholder="For example: Build me an inventory app with login" aria-label="Describe the app"></textarea>
+        </div>
+        <div class="ws-row"><button class="action-pill-btn primary" id="wsAppBtn" onclick="wsGenerateApp()">Generate the app</button></div>
+        <div class="ws-msg" id="wsAppMsg" role="status"></div>
+        <div id="wsApp"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-devops" role="tabpanel">
+        <p class="ws-help">Delta reads this project (dependencies, start command, test runner, every <code>os.getenv</code> and <code>process.env</code>) and drafts a Dockerfile, docker-compose, GitHub Actions CI, Cloud Run and Kubernetes files, and <code>.env.example</code>. Drafts wait in <code>.devsquad/devops/</code> until you add them.</p>
+        <div class="ws-row"><button class="action-pill-btn primary" id="wsDevopsBtn" onclick="wsDevops()">Scan this project</button></div>
+        <div class="ws-msg" id="wsDevopsMsg" role="status"></div>
+        <div id="wsDevops"></div>
+      </div>
+
+      <div class="ws-pane" id="ws-research" role="tabpanel">
+        <p class="ws-help">Ask what you want to learn from your users. Apex and Zeta pick the right method from the Research guide and write a study you can run: who to talk to, how many, the script, and how to make sense of the results.</p>
+        <form class="ws-row" onsubmit="event.preventDefault(); wsResearch();">
+          <input class="chat-input" id="wsResearchQ" maxlength="300" placeholder="For example: Why do people drop off at checkout?" aria-label="Research question">
+          <button class="action-pill-btn primary" type="submit" id="wsResearchBtn">Plan the study</button>
+        </form>
+        <div class="ws-msg" id="wsResearchMsg" role="status"></div>
+        <div id="wsResearch" class="ws-list"></div>
+      </div>
+      <div class="ws-pane" id="ws-know" role="tabpanel">
+        <p class="ws-help">Each teammate keeps field guides with fundamentals and decision rules. When a task is assigned, they look up what fits and decide from it, naming the guide. Add your own guides as Markdown files in <code>.devsquad/knowledge/</code>.</p>
+        <form class="ws-row" onsubmit="event.preventDefault(); wsKnowBrief();">
+          <select id="wsKnowAgent" aria-label="Teammate"></select>
+          <input class="chat-input" id="wsKnowGoal" maxlength="400" placeholder="Try a task, for example: Add login with password reset" aria-label="Task to look up">
+          <button class="action-pill-btn primary" type="submit">What would they draw on?</button>
+        </form>
+        <div id="wsKnowBrief"></div>
+        <div id="wsKnow" class="ws-list"></div>
+      </div>
+      <div class="ws-pane" id="ws-setup" role="tabpanel">
+        <div class="ws-msg" id="wsSetupMsg" role="status"></div>
+        <div id="wsSetup" class="ws-list"></div>
+        <p class="ws-help">Everything runs on this computer with free models. DevSquad never uses paid AI.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code review agent -->
+  <div class="modal-overlay" id="codeReviewModal">
+    <div class="retro-modal-box" style="max-width:860px;width:95%;max-height:88vh;display:flex;flex-direction:column;gap:10px;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Code review</h3>
+        <button class="term-toggle-btn" onclick="closeCodeReviewModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ws-help" style="margin:0;">Gamma reads only the lines a change adds and checks them against the Security, Testing, Backend, Frontend, DevOps and Docs guides. Every finding names the guide it comes from.</p>
+      <form class="ws-row" onsubmit="event.preventDefault(); runCodeReview();">
+        <select id="crKind" aria-label="What to review" onchange="document.getElementById('crTarget').placeholder = {working:'(nothing needed)', branch:'Branch name, for example feat/invites', pr:'Pull request number, for example 42', staged:'Run id, for example task-1a2b3c4d'}[this.value]">
+          <option value="working">My uncommitted changes</option><option value="branch">A branch</option><option value="pr">A pull request</option><option value="staged">A run on the Review Desk</option>
+        </select>
+        <input class="chat-input" id="crTarget" placeholder="(nothing needed)" aria-label="Branch, pull request or run">
+        <button class="action-pill-btn primary" type="submit" id="crBtn">Review</button>
+      </form>
+      <div class="ws-msg" id="crMsg" role="status"></div>
+      <div id="crFindings" class="find-list" style="overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Ship from the Review Desk -->
+  <div class="modal-overlay" id="shipModal">
+    <div class="retro-modal-box" style="max-width:720px;width:95%;max-height:88vh;display:flex;flex-direction:column;gap:10px;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>Ship this change</h3>
+        <button class="term-toggle-btn" onclick="closeShipModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div id="shipBody" style="overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+  <div id="tourCard" role="dialog" aria-live="polite" aria-label="Studio tour"></div>
 
   <!-- Multi-Tool Memory Lake Modal -->
   <div class="modal-overlay" id="memoryModal">
@@ -797,18 +1062,19 @@ def fetch_user_profile(user_id: str, db_pool=None):
   <div class="modal-overlay" id="flakyChamberModal">
     <div class="retro-modal-box" style="max-width:760px;width:95%;max-height:85vh;display:flex;flex-direction:column;">
       <div class="modal-head">
-        <h3><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Hazard Chamber · Flaky Test & Race Condition Pinpointer</h3>
+        <h3><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg>Flaky tests</h3>
         <button class="term-toggle-btn" onclick="closeFlakyChamberModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </div>
       <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
-        Stress-tests non-deterministic tests under synthetic concurrency jitter to trap unawaited promises, time drift, or shared mutable state.
+        Runs your real test command again and again in this project, each time with a different hash seed, and reports which runs failed and what the output said. Causes are only suggested when the output has a clear clue.
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="flakyTestInput" class="chat-input" placeholder="Test Identifier (e.g. tests/test_auth.py::test_async_rotation)" value="test_async_token_rotation" style="flex:1;min-width:240px;">
-        <button class="action-pill-btn primary" onclick="runFlakyStressTest()" style="font-size:11px;padding:6px 14px;">⚡ Stress-Test (10x Runs)</button>
+        <input type="text" id="flakyTestInput" class="chat-input" placeholder="Test command, e.g. python3 -m pytest tests/test_auth.py::test_login" value="python3 -m unittest discover tests" aria-label="Test command" style="flex:1;min-width:240px;">
+        <select id="flakyRuns" aria-label="How many runs" style="min-height:32px;border-radius:8px;border:1px solid var(--line);background:var(--lot);color:var(--ink);"><option>5</option><option selected>10</option><option>20</option><option>50</option></select>
+        <button class="action-pill-btn primary" onclick="runFlakyStressTest()" style="font-size:11px;padding:6px 14px;">Run it repeatedly</button>
       </div>
       <div style="flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:8px;background:var(--solid);padding:12px;display:flex;flex-direction:column;gap:10px;" id="flakyResultBox">
-        <div style="color:var(--dim);font-size:11px;text-align:center;padding:20px;">Enter a test identifier and run the stress chamber.</div>
+        <div style="color:var(--dim);font-size:11px;text-align:center;padding:20px;">Enter the command you use to run the test.</div>
       </div>
     </div>
   </div>
@@ -823,7 +1089,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
         Audits frontend viewports for WCAG 2.1 AA tap targets (&lt;44px), mobile layout overflow risks (375px), and Cumulative Layout Shifts (CLS).
       </div>
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
         <span style="font-size:11px;font-weight:600;">Status:</span>
         <span id="visualScoreBadge" style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:var(--ok-bg);color:var(--ok);">100 / 100 WCAG AA</span>
         <span id="visualViewportStatus" style="font-size:11px;color:var(--dim);">PASS_MOBILE_AND_DESKTOP</span>
@@ -877,12 +1143,17 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <button class="term-toggle-btn" onclick="closeFlightRecorderModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </div>
       <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
-        Immutable session timeline. Scrub backward in time to inspect file states or auto-generate a 5 Whys Root Cause Analysis (RCA).
+        Every step of a relay run, as it was recorded. Scrub through it, then write a post-mortem from the record and save it.
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+        <label for="frRunSelect" style="font-size:11px;color:var(--dim);">Run</label>
+        <select id="frRunSelect" onchange="loadFlightRun(this.value)" style="flex:1;min-width:0;background:var(--lot);border:1px solid var(--line);color:var(--ink);padding:6px 10px;border-radius:6px;font-size:11.5px;"><option value="">Loading runs…</option></select>
+        <span id="frExport" class="export-links"></span>
       </div>
       <div style="background:var(--solid);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <span style="font-size:11px;font-weight:700;color:var(--ink);">TIME MACHINE SCRUBBER: <span id="frCurrentStepLabel" style="color:var(--accent);">Step 3 of 4</span></span>
-          <button class="action-pill-btn primary" onclick="generatePostMortemReport()" style="font-size:11px;padding:4px 10px;">🚨 Generate 5 Whys RCA</button>
+          <button class="action-pill-btn primary" onclick="generatePostMortemReport()" style="font-size:11px;padding:4px 10px;">Write post-mortem</button>
         </div>
         <input type="range" id="frStepSlider" min="1" max="4" value="3" oninput="onScrubStepChange(this.value)" style="width:100%;cursor:pointer;">
       </div>
@@ -928,7 +1199,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <div style="background:var(--lot);padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:9px;">
           <div><b>Your team</b><div style="font-size:11px;color:var(--dim);">Name your team and each teammate. Leave a box empty to keep the default.</div></div>
           <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--dim);">Team name<input id="teamNameInput" maxlength="24" placeholder="DevSquad Studio" autocomplete="off"></label>
-          <div class="name-grid"><label>Tech lead<input id="name_apex" maxlength="16" placeholder="Apex" autocomplete="off"></label><label>Backend<input id="name_alpha_be" maxlength="16" placeholder="Alpha BE" autocomplete="off"></label><label>Frontend<input id="name_beta_fe" maxlength="16" placeholder="Beta FE" autocomplete="off"></label><label>QA<input id="name_gamma_qa" maxlength="16" placeholder="Gamma QA" autocomplete="off"></label><label>Docs<input id="name_zeta_docs" maxlength="16" placeholder="Zeta" autocomplete="off"></label><label>DevOps<input id="name_delta_devops" maxlength="16" placeholder="Delta" autocomplete="off"></label></div>
+          <div class="name-grid"><label>Tech lead<input id="name_apex" maxlength="16" placeholder="Apex" autocomplete="off"></label><label>Backend<input id="name_alpha_be" maxlength="16" placeholder="Alpha BE" autocomplete="off"></label><label>Frontend<input id="name_beta_fe" maxlength="16" placeholder="Beta FE" autocomplete="off"></label><label>QA<input id="name_gamma_qa" maxlength="16" placeholder="Gamma QA" autocomplete="off"></label><label>Docs<input id="name_zeta_docs" maxlength="16" placeholder="Zeta" autocomplete="off"></label><label>DevOps<input id="name_delta_devops" maxlength="16" placeholder="Delta" autocomplete="off"></label><label>Your look in the 3D office<select id="youLookSelect" onchange="setYouLook(this.value)" style="background:var(--lot2);border:1px solid var(--line);color:var(--ink);padding:7px 9px;border-radius:7px;font:500 12.5px var(--f-ui);"><option value="a">Red henley and jeans</option><option value="b">Brown leather jacket</option></select></label></div>
           <div style="display:flex;gap:8px;align-items:center;">
             <button class="action-pill-btn primary" type="button" onclick="saveTeam()">Save names</button>
             <button class="action-pill-btn" type="button" onclick="resetTeam()">Reset to defaults</button>
@@ -996,6 +1267,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <div><b>Total Tokens:</b> <span id="replayTotalTokens" style="color:var(--accent);">-</span></div>
         <div><b>Actual Cost:</b> <span id="replayActualCost" style="color:var(--ok);font-weight:700;">$0.00</span></div>
       </div>
+
+      <div id="replayExport" class="export-links" hidden></div>
 
       <!-- Scrubber & Controls -->
       <div style="background:var(--lot);padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:8px;">
@@ -1094,6 +1367,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
         if (typeof closeRoadmapModal === "function") closeRoadmapModal();
         if (typeof closeFlakyChamberModal === "function") closeFlakyChamberModal();
         if (typeof closeVisualQAModal === "function") closeVisualQAModal();
+        // Any other open panel (Workshop, AI Discovery, Flight Recorder, Git Bisect and future ones)
+        document.querySelectorAll(".modal-overlay").forEach(m => { if (m.style.display && m.style.display !== "none") m.style.display = "none"; });
       }
     });
 
@@ -2153,7 +2428,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       list.innerHTML = files.map(f => {
         const n = escHtml(f.name), url = "/api/files/" + encodeURIComponent(f.name);
         return `<div class="file-row"><input type="checkbox" aria-label="Attach ${n} to the next task" data-name="${n}" ${attachedFiles.has(f.name) ? "checked" : ""}>
-          <div class="fname">${n}<small>${fileSize(f.size)} · ${f.readable ? "agents can read this" : "agents see the name only"}</small></div>
+          <div class="fname">${n}<small>${fileSize(f.size)} · ${f.readable ? "agents can read this" : f.image ? "read by a vision model, if installed" : "agents see the name only"}</small></div>
           <a href="${url}" download="${n}">Download</a><button type="button" class="del" data-del="${n}">Delete</button></div>`;
       }).join("");
       list.querySelectorAll("input[type=checkbox]").forEach(cb => cb.onchange = () => { cb.checked ? attachedFiles.add(cb.dataset.name) : attachedFiles.delete(cb.dataset.name); showAttachedCount(); });
@@ -2461,9 +2736,11 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (cp) cp.classList.toggle("collapsed");
     }
 
+    function setYouLook(v) { try { localStorage.setItem("devsquad_you_look", v === "b" ? "b" : "a"); } catch (e) {} if (window.__office3dDressYou) window.__office3dDressYou(); }
     function openSettingsModal() {
       const modal = document.getElementById("settingsModal");
       if (modal) modal.style.display = "flex";
+      try { const look = document.getElementById("youLookSelect"); if (look) look.value = localStorage.getItem("devsquad_you_look") === "b" ? "b" : "a"; } catch (e) {}
       const savedMode = localStorage.getItem("devcity_data_mode") || "real";
       const anonymize = localStorage.getItem("devcity_anonymize") === "true";
       const autoSafety = localStorage.getItem("devcity_auto_safety") === "true";
@@ -2902,20 +3179,28 @@ def fetch_user_profile(user_id: str, db_pool=None):
         }).join("") || '<div style="color:var(--dim);font-size:11px;">No file modifications.</div>';
 
         detailEl.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="flex:1 1 260px;min-width:0;">
               <div style="font-size:14px;font-weight:700;color:var(--ink);">${escHtml(t.goal)}</div>
               <div style="font-size:11px;color:var(--dim);margin-top:2px;">
                 Task ID: <code>${escHtml(t.task_id)}</code> · Branch: <code>${escHtml(t.git_branch)}</code> · Status: <b>${escHtml(t.status)}</b>
               </div>
             </div>
-            <div style="display:flex;gap:6px;">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
               <button class="action-pill-btn" onclick="openBlastRadiusModal('${t.task_id}')" style="font-size:11px;"><svg class="i" style="width:12px;height:12px;" aria-hidden="true"><use href="#i-grid"/></svg>Blast Radius</button>
+              <button class="action-pill-btn" onclick="openCodeReviewModal('staged:${t.task_id}')" style="font-size:11px;">Review code</button>
+              <button class="action-pill-btn" onclick="openShipModal('${t.task_id}')" style="font-size:11px;">Ship…</button>
               <button class="action-pill-btn" onclick="rollbackTask('${t.task_id}')" style="font-size:11px;">Rollback</button>
               <button class="action-pill-btn primary" onclick="applyTask('${t.task_id}')" style="font-size:11px;">Apply to Workspace</button>
             </div>
           </div>
           ${testBanner}
+          <div class="teach">
+            <b>Teach the team</b>
+            <div class="row"><label><input type="radio" name="lessonVerdict" value="keep"> Keep doing this</label><label><input type="radio" name="lessonVerdict" value="avoid"> Don't do this again</label><label><input type="checkbox" id="lessonReject"> Also reject this change</label></div>
+            <textarea id="lessonReason" maxlength="400" placeholder="Why? For example: Never log the reset token, even in debug." aria-label="Why"></textarea>
+            <div class="row"><button class="action-pill-btn primary" onclick="saveLesson('${t.task_id}')" style="font-size:11px;">Save as a lesson</button><span class="ws-msg" id="lessonMsg" role="status"></span></div>
+          </div>
           <div style="font-size:11.5px;font-weight:700;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);">
             Quarantined Diffs (${(t.diffs || []).length} files)
           </div>
@@ -3845,35 +4130,29 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     async function runFlakyStressTest() {
-      const testName = document.getElementById("flakyTestInput").value.trim() || "test_async_token_rotation";
+      const command = document.getElementById("flakyTestInput").value.trim();
+      const runs = +document.getElementById("flakyRuns").value;
       const box = document.getElementById("flakyResultBox");
-      box.innerHTML = `<div style="color:var(--accent);font-size:11px;text-align:center;padding:14px;">Gamma QA running 10x concurrent stress iterations with jitter…</div>`;
-
+      if (!command) { box.innerHTML = `<div style="color:var(--bad);font-size:12px;">Enter the test command first.</div>`; return; }
+      box.innerHTML = `<div style="color:var(--dim);font-size:12px;text-align:center;padding:14px;">Running ${escHtml(command)} ${runs} times. This takes as long as ${runs} runs of the test…</div>`;
       try {
-        const res = await fetch("/api/v1/flaky/stress-test", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ test_name: testName, iterations: 10 })
-        });
-        const data = res.ok ? await res.json() : null;
-
-        if (data) {
-          box.innerHTML = `
-            <div style="background:var(--bad-bg);border:1px solid var(--bad);border-radius:8px;padding:12px;margin-bottom:8px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <b style="color:var(--bad);font-size:12px;">⚠️ Non-Deterministic Failure Trapped!</b>
-                <span style="font-size:11px;font-weight:700;color:var(--bad);">${data.flakiness_percentage}% Flaky (${data.failed_runs}/${data.total_runs} failed)</span>
-              </div>
-              <div style="font-size:11.5px;color:var(--ink);">${escHtml(data.root_cause_diagnosis)}</div>
-            </div>
-            <div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:4px;">Auto-Synthesized Deterministic Hardening Patch:</div>
-            <pre style="font-family:var(--f-mono);font-size:10.5px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;">${escHtml(data.hardening_patch)}</pre>
-            <div style="font-size:10.5px;color:var(--ok);margin-top:6px;font-weight:600;">✅ Gamma QA verified 10/10 consecutive passes after applying synchronization barrier.</div>
-          `;
-          appendTermLog(`[Hazard Chamber] Trapped race condition in ${testName} and generated deterministic patch!`, "ok");
-        }
+        const res = await fetch("/api/v5/flaky", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ command, runs }) });
+        const d = await res.json();
+        if (!res.ok) { box.innerHTML = `<div style="color:var(--bad);font-size:12px;">${escHtml(d.error || "The runs couldn't start.")}</div>`; return; }
+        const color = d.status === "stable" ? "var(--ok)" : d.status === "flaky" ? "var(--warn)" : "var(--bad)";
+        const strip = d.runs.map(r => `<span title="Run ${r.run}: ${r.passed ? "passed" : "failed"} in ${r.seconds}s, seed ${r.seed}" style="display:inline-block;width:14px;height:22px;border-radius:3px;background:${r.passed ? "var(--ok)" : "var(--bad)"};"></span>`).join("");
+        box.innerHTML = `
+          <div style="border:1px solid ${color};border-radius:8px;padding:12px;">
+            <b style="color:${color};font-size:13px;">${escHtml(d.summary)}</b>
+            <div style="display:flex;gap:3px;flex-wrap:wrap;margin:10px 0 6px;" aria-label="${d.passed_runs} passed, ${d.failed_runs} failed">${strip}</div>
+            <div style="font-size:11.5px;color:var(--dim);">${d.passed_runs} passed, ${d.failed_runs} failed. Runs took ${d.fastest_run_seconds}s to ${d.slowest_run_seconds}s, ${d.seconds}s in all.</div>
+          </div>
+          ${d.clues.length ? `<div style="font-size:12px;"><b>What the output suggests</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55;">${d.clues.map(c => `<li>Likely: ${escHtml(c.likely_cause)} ${escHtml(c.usual_fix)}</li>`).join("")}</ul></div>` : ""}
+          ${d.replay ? `<div style="font-size:12px;"><b>Replay the first failure</b><pre style="font-family:var(--f-mono);font-size:11px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;margin:6px 0 0;">${escHtml(d.replay)}</pre></div>` : ""}
+          ${d.first_failure ? `<div style="font-size:12px;"><b>Output of run ${d.first_failure.run}</b><pre style="font-family:var(--f-mono);font-size:10.5px;background:var(--lot);padding:8px;border-radius:6px;overflow-x:auto;margin:6px 0 0;max-height:220px;">${escHtml(d.first_failure.output)}</pre></div>` : ""}`;
+        appendTermLog(`[Flaky tests] ${d.summary}`, d.status === "stable" ? "ok" : "warn");
       } catch (e) {
-        box.innerHTML = `<div style="color:var(--bad);font-size:11px;">Error running stress test: ${escHtml(e.message)}</div>`;
+        box.innerHTML = `<div style="color:var(--bad);font-size:12px;">The studio server isn't answering: ${escHtml(e.message)}</div>`;
       }
     }
 
@@ -4039,25 +4318,39 @@ def fetch_user_profile(user_id: str, db_pool=None):
       document.getElementById("flightRecorderModal").style.display = "none";
     }
 
+    let currentFlightRun = "";
     async function loadFlightTimeline() {
-      try {
-        const res = await fetch("/api/v1/flight-recorder/timeline?session_id=default");
-        const data = res.ok ? await res.json() : null;
-        if (data && data.timeline && data.timeline.length > 0) {
-          currentFlightTimeline = data.timeline;
-          setupFlightScrubber(currentFlightTimeline.length);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback mock timeline
-      currentFlightTimeline = [
-        { step: 1, agent: "apex", action: "parse_prd_dag", file_path: "devsquad/core/roadmap.py", status: "ok", diff: "+++ b/devsquad/core/roadmap.py\n+class RoadmapProjector:\n+    def parse(self): pass" },
-        { step: 2, agent: "alpha_be", action: "implement_route", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+@app.get('/api/roadmap')\n+def get_roadmap(): return {}" },
-        { step: 3, agent: "gamma_qa", action: "run_test_suite", file_path: "tests/test_features.py", status: "error", diff: "--- a/tests/test_features.py\n+++ b/tests/test_features.py\n-assert res.status == 200\n+assert res.status == 500" },
-        { step: 4, agent: "zeta_sec", action: "quarantine_patch", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+# Quarantined revert applied" }
-      ];
-      setupFlightScrubber(currentFlightTimeline.length);
+      const select = document.getElementById("frRunSelect");
+      let runs = [];
+      try { const r = await fetch("/api/sessions"); if (r.ok) runs = (await r.json()).sessions || []; } catch (e) {}
+      select.innerHTML = runs.length ? runs.map(s => `<option value="${escHtml(s.session_id)}">${escHtml(s.session_id)} (${s.step_count} steps)</option>`).join("") : '<option value="">No runs recorded yet</option>';
+      if (!runs.length) {
+        currentFlightRun = ""; currentFlightTimeline = [];
+        document.getElementById("frExport").innerHTML = "";
+        document.getElementById("frCurrentStepLabel").textContent = "No runs yet";
+        document.getElementById("frActiveFilesBox").innerHTML = '<div style="font-size:12px;color:var(--dim);">No runs recorded yet. Run a relay and every step it takes shows up here.</div>';
+        document.getElementById("frDiffPreviewBox").innerHTML = "";
+        return;
+      }
+      loadFlightRun(currentFlightRun && runs.some(s => s.session_id === currentFlightRun) ? currentFlightRun : runs[0].session_id);
+    }
+    async function loadFlightRun(id) {
+      if (!id) return;
+      currentFlightRun = id; document.getElementById("frRunSelect").value = id;
+      const rid = encodeURIComponent(id);
+      document.getElementById("frExport").innerHTML = `<a href="/api/v5/export/postmortem/${rid}.md" download>Post-mortem (Markdown)</a><a href="/api/v5/export/postmortem/${rid}.pdf" download>Post-mortem (PDF)</a>`;
+      let timeline = [];
+      try { const r = await fetch(`/api/v1/flight-recorder/timeline?session_id=${rid}`); if (r.ok) timeline = (await r.json()).timeline || []; } catch (e) {}
+      if (!timeline.length) {
+        // Older runs have no recording, only their log: rebuild the steps from the replay
+        try {
+          const r = await fetch(`/api/replay?session_id=${rid}`);
+          if (r.ok) timeline = ((await r.json()).steps || []).map(st => ({ step: st.step_index, agent: st.agent_name, action: st.tool_name.split(":")[0], status: st.status === "failed" ? "error" : "ok", file_path: null, diff: "", payload: { message: st.tool_name } }));
+        } catch (e) {}
+      }
+      currentFlightTimeline = timeline;
+      if (timeline.length) setupFlightScrubber(timeline.length);
+      else { document.getElementById("frActiveFilesBox").innerHTML = '<div style="font-size:12px;color:var(--dim);">This run has no recorded steps.</div>'; document.getElementById("frDiffPreviewBox").innerHTML = ""; }
     }
 
     function setupFlightScrubber(totalSteps) {
@@ -4082,6 +4375,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       activeFilesBox.innerHTML = `
         <div style="font-weight:700;font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;">Workspace State at Step ${step}</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
+          ${Object.keys(activeFiles).length ? "" : `<div style="font-size:11.5px;color:var(--dim);">No file changes were recorded up to this step.${visibleEvents.length ? ` Latest: ${escHtml(visibleEvents[visibleEvents.length - 1].agent)}, ${escHtml(((visibleEvents[visibleEvents.length - 1].payload || {}).message) || visibleEvents[visibleEvents.length - 1].action)}` : ""}</div>`}
           ${Object.values(activeFiles).map(e => `
             <div style="background:var(--lot);padding:6px 10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
               <div>
@@ -4102,31 +4396,23 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     async function generatePostMortemReport() {
-      const diffPreviewBox = document.getElementById("frDiffPreviewBox");
-      diffPreviewBox.innerHTML = '<div style="color:var(--accent);font-size:11px;text-align:center;padding:16px;">Flight Recorder synthesizing 5 Whys Root Cause Analysis…</div>';
-
+      const box = document.getElementById("frDiffPreviewBox");
+      if (!currentFlightRun) { box.innerHTML = '<div style="font-size:12px;color:var(--dim);">Pick a run first. There are no recorded runs yet.</div>'; return; }
+      box.innerHTML = '<div style="color:var(--accent);font-size:11px;text-align:center;padding:16px;">Writing the post-mortem from the record…</div>';
       try {
-        const res = await fetch("/api/v1/flight-recorder/post-mortem", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: "default", failure_step: 3, summary: "AssertionError: Expected 200 got 500 in payment webhook" })
-        });
-        const data = res.ok ? await res.json() : null;
-        if (data && data.markdown_report) {
-          renderPostMortemMarkdown(data.markdown_report);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback post-mortem
-      renderPostMortemMarkdown(`# 🚨 Incident Post-Mortem & Flight Recorder RCA\n**Incident ID:** INC-893012\n**Trigger Step:** Step 3 | **Responsible Desk:** gamma_qa\n\n## 1. Executive Summary\nAssertionError: Expected 200 got 500 in payment webhook.\n\n## 2. 5 Whys Root Cause Analysis\n1. Why did the build fail? -> AssertionError in payment webhook.\n2. Why did the error trigger? -> Execution failed during step 3 by gamma_qa.\n3. Why was devsquad/server/server.py affected? -> Unvalidated AST parameter mapping.\n4. Why was this not caught earlier? -> Concurrency race bypassed test runner.\n5. Why is the architecture vulnerable? -> Missing invariant gate prior to desk merge.\n\n## 3. Remediation & Action Items\n- [ ] Auto-revert offending diff at step 3.\n- [ ] Add regression test fixture to tests/.\n- [ ] Update .devsquad/memory.json known pitfalls.`);
+        const res = await fetch(`/api/v5/export/postmortem/${encodeURIComponent(currentFlightRun)}.md`);
+        if (res.ok) { renderPostMortemMarkdown(await res.text()); return; }
+        box.innerHTML = `<div style="font-size:12px;color:var(--bad);">Couldn't write the post-mortem: ${escHtml((await res.json().catch(() => ({}))).error || res.status)}</div>`;
+      } catch (e) {
+        box.innerHTML = '<div style="font-size:12px;color:var(--bad);">The studio server isn\'t answering. Is it still running?</div>';
+      }
     }
 
     function renderPostMortemMarkdown(md) {
       const diffPreviewBox = document.getElementById("frDiffPreviewBox");
       diffPreviewBox.innerHTML = `
-        <div style="font-weight:700;font-size:11px;color:var(--ok);text-transform:uppercase;margin-bottom:8px;">✅ Generated Blameless Post-Mortem</div>
-        <pre style="font-family:var(--f-mono);font-size:9.5px;color:var(--ink);background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;max-height:240px;overflow-y:auto;line-height:1.4;">${escHtml(md)}</pre>
+        <div style="font-weight:700;font-size:11px;color:var(--ok);text-transform:uppercase;margin-bottom:8px;">Post-mortem, from the record</div>
+        <pre style="font-family:var(--f-mono);font-size:10.5px;color:var(--ink);background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;max-height:320px;overflow-y:auto;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;">${escHtml(md)}</pre>
       `;
     }
 
@@ -4369,6 +4655,11 @@ def fetch_user_profile(user_id: str, db_pool=None):
         return;
       }
 
+      // Runs recorded by the relay can be saved as Markdown or PDF
+      const exp = document.getElementById("replayExport"), rid = encodeURIComponent(sessionId);
+      exp.hidden = currentReplayData.source !== "DevSquad relay run";
+      exp.innerHTML = exp.hidden ? "" : `Save this run: <a href="/api/v5/export/replay/${rid}.md" download>Replay (Markdown)</a><a href="/api/v5/export/replay/${rid}.pdf" download>Replay (PDF)</a><a href="/api/v5/export/postmortem/${rid}.md" download>Post-mortem (Markdown)</a><a href="/api/v5/export/postmortem/${rid}.pdf" download>Post-mortem (PDF)</a>`;
+
       // Update Meta
       document.getElementById("replaySource").textContent = currentReplayData.source || "unknown";
       document.getElementById("replayTotalSteps").textContent = (currentReplayData.steps || []).length;
@@ -4528,17 +4819,424 @@ def fetch_user_profile(user_id: str, db_pool=None):
     render();
   </script>
   <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+  <script>
+    // ---- v0.5 Workshop ----
+    const WS_OWNERS = ["", "apex", "alpha_be", "beta_fe", "gamma_qa", "delta_devops", "zeta_docs"];
+    const wsName = id => id ? ((typeof AGENTS !== "undefined" && AGENTS[id]) ? AGENTS[id].name : id) : "Unassigned";
+    const wsEsc = t => (typeof escHtml === "function" ? escHtml(String(t ?? "")) : String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
+    let wsCurrentPlan = null, wsDevopsData = null, wsAppData = null;
+
+    async function v5(path, method = "GET", body) {
+      try {
+        const res = await fetch("/api/v5/" + path, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      } catch (e) {
+        return { ok: false, status: 0, data: { error: "The studio server isn't answering. Is it still running?" } };
+      }
+    }
+    function wsSay(id, text, kind = "") { const el = document.getElementById(id); el.textContent = text || ""; el.className = "ws-msg " + kind; }
+    function wsBusy(btn, busy, label) { if (!btn) return; if (busy) { btn.dataset.label = btn.textContent; btn.textContent = label; btn.disabled = true; } else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; } }
+    function wsOwnerOptions(selected) { return WS_OWNERS.map(o => `<option value="${o}" ${o === selected ? "selected" : ""}>${wsEsc(wsName(o))}</option>`).join(""); }
+
+    function openWorkshop(tab = "board") { document.getElementById("workshopModal").style.display = "flex"; wsTab(tab); }
+    function closeWorkshop() { document.getElementById("workshopModal").style.display = "none"; }
+    function wsTab(tab) {
+      document.querySelectorAll(".ws-tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+      document.querySelectorAll(".ws-pane").forEach(p => p.classList.toggle("on", p.id === "ws-" + tab));
+      if (tab === "board") { document.getElementById("wsCardOwner").innerHTML = wsOwnerOptions(""); wsLoadBoard(); }
+      if (tab === "plan") { const n = typeof attachedFiles !== "undefined" ? attachedFiles.size : 0; document.getElementById("wsPlanFiles").textContent = n ? `Apex will read ${n} attached file${n > 1 ? "s" : ""}.` : "Tip: attach briefs, PDFs or mockups in Files first, and Apex will read them."; }
+      if (tab === "setup") wsLoadSetup();
+      if (tab === "know") wsLoadKnow();
+    }
+
+    // Board
+    const WS_NEXT = { backlog: "in_progress", in_progress: "review", review: "merged" };
+    const WS_PREV = { in_progress: "backlog", review: "in_progress", merged: "review" };
+    async function wsLoadBoard() {
+      const r = await v5("board");
+      if (!r.ok) { wsSay("wsBoardMsg", r.data.error || "Couldn't load the board.", "bad"); return; }
+      wsBoardCards = r.data.columns.flatMap(c => c.cards);
+      window.dispatchEvent(new Event("devsquad:board"));
+      document.getElementById("wsBoard").innerHTML = r.data.columns.map(col => `
+        <section class="ws-col" aria-label="${wsEsc(col.title)}">
+          <h4>${wsEsc(col.title)}<span>${col.cards.length}</span></h4>
+          ${col.cards.length ? col.cards.map(c => `
+            <article class="ws-card">
+              <b>${wsEsc(c.title)}</b>
+              <div class="meta"><span class="ws-chip">${wsEsc(wsName(c.owner))}</span>
+                ${c.issue_url && /^https:\/\/github\.com\//.test(c.issue_url) ? `<a href="${wsEsc(c.issue_url)}" target="_blank" rel="noopener">Issue #${wsEsc(c.issue)}</a>` : ""}
+                ${c.task_id ? `<span>Run ${wsEsc(c.task_id)}</span>` : ""}</div>
+              <div class="acts">
+                ${col.id === "backlog" ? `<button class="go" onclick="wsAssign('${c.id}', this)">Assign to squad</button>` : ""}
+                ${col.id === "review" && c.task_id ? `<button onclick="closeWorkshop(); openReviewDesk();">Review</button>` : ""}
+                ${WS_PREV[col.id] ? `<button onclick="wsMove('${c.id}','${WS_PREV[col.id]}')" aria-label="Move back">&larr;</button>` : ""}
+                ${WS_NEXT[col.id] ? `<button onclick="wsMove('${c.id}','${WS_NEXT[col.id]}')" aria-label="Move forward">&rarr;</button>` : ""}
+                <button onclick="wsDelete('${c.id}')" aria-label="Delete card">Delete</button>
+              </div>
+            </article>`).join("") : `<div class="ws-help" style="padding:6px 2px;">Nothing here.</div>`}
+        </section>`).join("");
+    }
+    async function wsAddCard() {
+      const title = document.getElementById("wsCardTitle").value.trim();
+      if (!title) { wsSay("wsBoardMsg", "Give the card a title.", "bad"); return; }
+      const r = await v5("board", "POST", { title, owner: document.getElementById("wsCardOwner").value });
+      if (!r.ok) { wsSay("wsBoardMsg", r.data.error, "bad"); return; }
+      document.getElementById("wsCardTitle").value = ""; wsSay("wsBoardMsg", "Added to the backlog.", "ok"); wsLoadBoard();
+    }
+    async function wsMove(id, status) { const r = await v5(`board/${id}/move`, "POST", { status }); if (!r.ok) wsSay("wsBoardMsg", r.data.error, "bad"); wsLoadBoard(); }
+    async function wsDelete(id) { if (!confirm("Delete this card? Its file in .devsquad/tasks is removed.")) return; await v5(`board/${id}`, "DELETE"); wsLoadBoard(); }
+    let wsBoardCards = [];
+    async function wsAssign(id, btn) {
+      const card = wsBoardCards.find(c => c.id === id) || {};
+      window.dispatchEvent(new CustomEvent("devsquad:assign", { detail: { id, owner: card.owner, title: card.title } }));
+      wsBusy(btn, true, "Squad working…"); wsSay("wsBoardMsg", "The squad is working on this card. It moves to the Review Desk when they're done.");
+      const files = typeof attachedFiles !== "undefined" ? [...attachedFiles] : [];
+      const r = await v5(`board/${id}/assign`, "POST", { files });
+      wsBusy(btn, false);
+      wsSay("wsBoardMsg", r.ok ? "Done. The changes are waiting on the Review Desk." : r.data.error, r.ok ? "ok" : "bad");
+      if (r.ok && typeof loadReviewTasks === "function") loadReviewTasks();
+      wsLoadBoard();
+    }
+    async function wsSync() {
+      wsSay("wsBoardMsg", "Reading open issues from GitHub…");
+      const r = await v5("board/sync", "POST", {});
+      wsSay("wsBoardMsg", r.ok ? `Added ${r.data.imported} issue${r.data.imported === 1 ? "" : "s"}. ${r.data.already_on_board} already on the board.` : r.data.error, r.ok ? "ok" : "bad");
+      wsLoadBoard();
+    }
+
+    // Research desk
+    async function wsResearch() {
+      const q = document.getElementById("wsResearchQ").value.trim(), btn = document.getElementById("wsResearchBtn"), box = document.getElementById("wsResearch");
+      if (!q) { wsSay("wsResearchMsg", "Write the question you want answered first.", "bad"); return; }
+      wsBusy(btn, true, "Planning…"); wsSay("wsResearchMsg", "");
+      const r = await v5("research", "POST", { question: q });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsResearchMsg", r.data.error, "bad"); box.innerHTML = ""; return; }
+      const p = r.data, li = items => `<ul>${items.map(x => `<li>${wsEsc(x)}</li>`).join("")}</ul>`;
+      box.innerHTML = `
+        <div class="ws-section"><h5>${wsEsc(p.method_name)}: ${wsEsc(p.sample)}, ${wsEsc(p.timeline)}</h5><p class="ws-help" style="margin:0;">${wsEsc(p.why)}</p></div>
+        <div class="ws-section"><h5>Who to recruit</h5>${li(p.participants)}</div>
+        ${p.script.map(part => `<div class="ws-section"><h5>${wsEsc(part.part)}</h5>${li(part.items)}</div>`).join("")}
+        ${p.tailored && p.tailored.length ? `<div class="ws-section"><h5>Questions tailored to this study</h5>${li(p.tailored)}</div>` : ""}
+        <div class="ws-section"><h5>Making sense of it</h5>${li(p.synthesis)}<p class="ws-help" style="margin:0;">${wsEsc(p.success_metric)}</p></div>
+        <div class="ws-row"><span class="export-links">Save the study: <a href="/api/v5/export/research/${wsEsc(p.id)}.md" download>Markdown</a><a href="/api/v5/export/research/${wsEsc(p.id)}.pdf" download>PDF</a></span></div>`;
+    }
+
+    // Code review agent
+    function openCodeReviewModal(target) {
+      document.getElementById("codeReviewModal").style.display = "flex";
+      if (typeof target === "string" && target.startsWith("staged:")) { document.getElementById("crKind").value = "staged"; document.getElementById("crTarget").value = target.slice(7); runCodeReview(); }
+    }
+    function closeCodeReviewModal() { document.getElementById("codeReviewModal").style.display = "none"; }
+    async function runCodeReview() {
+      const kind = document.getElementById("crKind").value, val = document.getElementById("crTarget").value.trim(), btn = document.getElementById("crBtn");
+      const target = kind === "working" ? "working" : kind === "pr" ? "pr:" + val.replace(/\D/g, "") : kind === "staged" ? "staged:" + val : val;
+      if (kind !== "working" && !val) { wsSay("crMsg", "Fill in which one to review.", "bad"); return; }
+      wsBusy(btn, true, "Gamma is reviewing…"); wsSay("crMsg", "");
+      const r = await v5("code-review", "POST", { target });
+      wsBusy(btn, false);
+      const box = document.getElementById("crFindings");
+      if (!r.ok) { wsSay("crMsg", r.data.error, "bad"); box.innerHTML = ""; return; }
+      wsSay("crMsg", r.data.summary, r.data.counts.high ? "bad" : "ok");
+      box.innerHTML = r.data.findings.map(f => `
+        <article class="find ${f.severity}" data-id="${wsEsc(f.id)}">
+          <header><span class="sev ${f.severity}">${wsEsc(f.severity)}</span><code>${wsEsc(f.file)}${f.line ? ":" + f.line : ""}</code><span class="ws-help">${wsEsc(f.source)}</span></header>
+          <div style="margin-top:4px;">${wsEsc(f.message)}</div>
+          ${f.snippet ? `<pre>${wsEsc(f.snippet)}</pre>` : ""}
+          <div class="acts"><button class="ws-mini" onclick="this.closest('.find').classList.add('accepted'); this.closest('.find').classList.remove('dismissed'); this.textContent='To fix';">Accept</button><button class="ws-mini" onclick="this.closest('.find').classList.add('dismissed'); this.closest('.find').classList.remove('accepted');">Dismiss</button></div>
+        </article>`).join("") || '<div class="ws-help">Nothing to flag in the added lines.</div>';
+    }
+
+    // Ship from the Review Desk: preview first, then commit on a new branch, push and open a PR
+    function closeShipModal() { document.getElementById("shipModal").style.display = "none"; }
+    async function openShipModal(taskId) {
+      const body = document.getElementById("shipBody");
+      document.getElementById("shipModal").style.display = "flex";
+      body.innerHTML = '<div class="ws-help">Checking git and GitHub…</div>';
+      const r = await v5(`ship/${encodeURIComponent(taskId)}`);
+      if (!r.ok) { body.innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error)}</div>`; return; }
+      const p = r.data;
+      body.innerHTML = `
+        <p class="ws-help" style="margin:0;">This commits the change on a new branch in a separate worktree, pushes it to <code>${wsEsc(p.remote || "origin")}</code> and opens a pull request. Your working copy, current branch and uncommitted work are not touched.</p>
+        <div class="ws-section"><h5>Branch <code>${wsEsc(p.branch)}</code></h5><div class="ws-help">Commit: ${wsEsc(p.commit_message)}</div><ul>${p.files.map(f => `<li><code>${wsEsc(f.path)}</code> +${f.additions} / -${f.deletions}</li>`).join("")}</ul></div>
+        ${p.tests_passed ? "" : '<div class="ws-msg bad">Its tests did not pass. Ship only if you have checked it yourself.</div>'}
+        <div class="ws-section"><h5>Pull request: ${wsEsc(p.pr_title)}</h5><pre style="white-space:pre-wrap;font:500 11px var(--f-mono);margin:0;max-height:180px;overflow:auto;">${wsEsc(p.pr_body)}</pre></div>
+        ${p.problems.map(x => `<div class="ws-msg bad">${wsEsc(x)}</div>`).join("")}
+        <div class="ws-row"><button class="action-pill-btn primary" id="shipGo" ${p.ready ? "" : "disabled"} onclick="shipNow('${wsEsc(taskId)}', this)">${p.can_open_pr ? "Push and open the pull request" : "Push the branch"}</button><button class="action-pill-btn" onclick="closeShipModal()">Cancel</button></div>
+        <div class="ws-msg" id="shipMsg" role="status"></div>`;
+    }
+    async function shipNow(taskId, btn) {
+      wsBusy(btn, true, "Shipping…");
+      const r = await v5(`ship/${encodeURIComponent(taskId)}`, "POST", { confirm: true });
+      wsBusy(btn, false);
+      const msg = document.getElementById("shipMsg");
+      if (!r.ok) { msg.className = "ws-msg bad"; msg.textContent = r.data.error; return; }
+      btn.disabled = true;
+      msg.className = "ws-msg ok";
+      msg.innerHTML = r.data.pr_url ? `Pushed ${wsEsc(r.data.branch)} (${wsEsc(r.data.commit)}) and opened <a href="${wsEsc(r.data.pr_url)}" target="_blank" rel="noopener">the pull request</a>.` : `Pushed ${wsEsc(r.data.branch)} (${wsEsc(r.data.commit)}). ${wsEsc(r.data.note)}`;
+    }
+
+    // Teach the team: a review verdict and its reason become a rule in the field guides
+    async function saveLesson(taskId) {
+      const verdict = document.querySelector('input[name="lessonVerdict"]:checked')?.value, reason = document.getElementById("lessonReason").value.trim();
+      const reject = document.getElementById("lessonReject").checked, msg = document.getElementById("lessonMsg");
+      if (!verdict) { msg.className = "ws-msg bad"; msg.textContent = "Choose keep or avoid."; return; }
+      const r = await v5(`review/${encodeURIComponent(taskId)}/lesson`, "POST", { verdict, reason, reject });
+      msg.className = "ws-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? `Saved to the ${r.data.lesson.field} guide (${r.data.lesson.file}). ${r.data.lesson.owners.map(o => wsName(o)).join(", ")} will use it from now on.${r.data.status === "rejected" ? " The change is marked rejected." : ""}` : r.data.error;
+      if (r.ok) { document.getElementById("lessonReason").value = ""; if (r.data.status === "rejected" && typeof loadReviewTasks === "function") loadReviewTasks(); }
+    }
+
+    // Guided first-run tour
+    const TOUR = [
+      { title: "Welcome to DevSquad Studio", text: "This is your AI team's office. Everything runs on your computer with free local models. Let's take two minutes to look around.", view: "overview" },
+      { title: "Meet the team", text: "Six teammates sit at these desks. Click a desk or a person any time to see what they're working on, their next card, last run and blockers.", view: "desks" },
+      { title: "The task board", text: "Your Workshop board is on this wall. When a card moves to In progress, its owner walks over to pick it up.", view: "board" },
+      { title: "Plan, then build", text: "Open the Workshop to plan a feature, research your users, or see the field guides the team decides from.", el: "[onclick*=\"openWorkshop\"]" },
+      { title: "You decide what ships", text: "Every change waits on the Review Desk. Apply it, teach the team why you kept or rejected it, run a code review, or ship it as a pull request.", el: "[onclick*=\"openReviewDesk\"]" },
+      { title: "Run a relay", text: "Give the squad a task here. Apex plans, Alpha codes, Gamma tests and Delta prepares the branch.", el: "[onclick*=\"openRelayModal\"]" },
+      { title: "Take a break", text: "The meeting room, the lounge and the reef tank are there when you need them. Click the tank for a closer look.", view: "lounge" },
+      { title: "That's it", text: "Find this tour again under Tools. Settings is where you rename the team and pick your own look.", view: "overview" },
+    ];
+    let tourStep = -1, tourHl = null;
+    function startTour() { tourStep = 0; showTourStep(); }
+    function endTour() {
+      tourStep = -1; document.getElementById("tourCard").classList.remove("on");
+      if (tourHl) tourHl.classList.remove("tour-hl"); tourHl = null;
+      try { localStorage.setItem("devsquad_toured", "1"); } catch (e) {}
+    }
+    function showTourStep() {
+      const st = TOUR[tourStep], card = document.getElementById("tourCard");
+      if (!st) { endTour(); return; }
+      if (tourHl) tourHl.classList.remove("tour-hl"); tourHl = null;
+      if (st.view) document.querySelector(`#office3d [data-view="${st.view}"]`)?.click();
+      const el = st.el ? [...document.querySelectorAll(st.el)].find(x => x.offsetParent) : null;
+      if (el) { el.classList.add("tour-hl"); tourHl = el; }
+      card.innerHTML = `<h4>${escHtml(st.title)}</h4><p>${escHtml(st.text)}</p><div class="tour-foot"><span>${tourStep + 1} of ${TOUR.length}</span><button class="action-pill-btn" onclick="endTour()">Skip</button>${tourStep ? '<button class="action-pill-btn" onclick="tourStep--; showTourStep();">Back</button>' : ""}<button class="action-pill-btn primary" onclick="tourStep++; showTourStep();">${tourStep === TOUR.length - 1 ? "Done" : "Next"}</button></div>`;
+      card.classList.add("on");
+      const r = el ? el.getBoundingClientRect() : null, w = card.offsetWidth, h = card.offsetHeight;
+      const left = r ? Math.min(Math.max(16, r.left), innerWidth - w - 16) : Math.max(16, (innerWidth - w) / 2);
+      const top = r ? (r.bottom + 12 + h < innerHeight ? r.bottom + 12 : Math.max(16, r.top - h - 12)) : innerHeight - h - 110;
+      card.style.left = left + "px"; card.style.top = Math.max(16, top) + "px";
+      card.querySelector(".primary").focus({ preventScroll: true });
+    }
+    document.addEventListener("keydown", e => { if (tourStep >= 0 && e.key === "Escape") endTour(); });
+    window.addEventListener("load", () => { let seen = true; try { seen = localStorage.getItem("devsquad_toured") === "1"; } catch (e) {} if (!seen) setTimeout(() => { if (tourStep < 0 && document.getElementById("office3d")) startTour(); }, 3500); });
+
+    // Know-how: the field guides each teammate refers to
+    async function wsLoadKnow() {
+      const sel = document.getElementById("wsKnowAgent");
+      if (!sel.options.length) sel.innerHTML = WS_OWNERS.filter(Boolean).map(o => `<option value="${o}">${wsEsc(wsName(o))}</option>`).join("");
+      const r = await v5("knowledge");
+      if (!r.ok) { document.getElementById("wsKnow").innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error || "Couldn't load the field guides.")}</div>`; return; }
+      document.getElementById("wsKnow").innerHTML = r.data.fields.map(f => `
+        <details class="ws-section"><summary><b>${wsEsc(f.field)}</b> <span class="ws-help">${f.entries.length} entries · used by ${f.agents.map(a => wsEsc(wsName(a))).join(", ") || "nobody yet"}</span></summary>
+          <ul>${f.entries.map(e => `<li><b>${wsEsc(e.title)}</b>${e.source === "project" ? ' <span class="ws-chip">yours</span>' : ""}: ${wsEsc(e.decide)}</li>`).join("")}</ul></details>`).join("");
+    }
+    async function wsKnowBrief() {
+      const agent = document.getElementById("wsKnowAgent").value, goal = document.getElementById("wsKnowGoal").value.trim(), box = document.getElementById("wsKnowBrief");
+      if (!goal) { box.innerHTML = '<div class="ws-msg bad">Type a task first.</div>'; return; }
+      const r = await v5("knowledge/brief", "POST", { agent, goal });
+      if (!r.ok) { box.innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error)}</div>`; return; }
+      box.innerHTML = `<div class="ws-section"><h5>${wsEsc(wsName(agent))} would decide (fields: ${r.data.fields.map(wsEsc).join(", ")})</h5>${r.data.decisions.length ? `<ul>${r.data.decisions.map(d => `<li>${wsEsc(d.decision)} <span class="ws-help">(${wsEsc(d.source)})</span></li>`).join("")}</ul>` : '<p class="ws-help">Nothing in their guides fits this task. Add a guide in .devsquad/knowledge/ to teach them.</p>'}</div>`;
+    }
+
+    // Plan, then build
+    async function wsPropose() {
+      const goal = document.getElementById("wsGoal").value.trim();
+      if (!goal) { wsSay("wsPlanMsg", "Describe what you want built first.", "bad"); return; }
+      const btn = document.getElementById("wsPlanBtn"); wsBusy(btn, true, "Apex is planning…"); wsSay("wsPlanMsg", "");
+      const r = await v5("plan", "POST", { goal, files: typeof attachedFiles !== "undefined" ? [...attachedFiles] : [] });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsPlanMsg", r.data.error, "bad"); return; }
+      wsCurrentPlan = r.data; wsRenderPlan();
+    }
+    function wsRenderPlan() {
+      const p = wsCurrentPlan, box = document.getElementById("wsPlan");
+      const list = (title, items) => items && items.length ? `<div class="ws-section"><h5>${title}</h5><ul>${items.map(x => `<li>${wsEsc(x)}</li>`).join("")}</ul></div>` : "";
+      box.innerHTML = `
+        ${p.note ? `<div class="ws-msg" style="color:var(--warn);">${wsEsc(p.note)}</div>` : ""}
+        <div class="ws-section"><h5>${wsEsc(p.summary)}</h5>
+          <div class="ws-list" id="wsPlanTasks">${p.tasks.map((t, i) => `
+            <div class="ws-task"><input class="chat-input" data-i="${i}" data-k="title" value="${wsEsc(t.title)}" aria-label="Task ${i + 1}">
+              <select data-i="${i}" data-k="owner" aria-label="Owner of task ${i + 1}">${wsOwnerOptions(t.owner)}</select>
+              <button class="ws-mini" onclick="wsCurrentPlan.tasks.splice(${i},1); wsRenderPlan();" aria-label="Remove task ${i + 1}">Remove</button></div>`).join("")}
+          </div>
+          <div class="ws-row"><button class="ws-mini" onclick="wsCurrentPlan.tasks.push({title:'', owner:'alpha_be', detail:''}); wsRenderPlan();">Add a task</button></div>
+        </div>
+        ${p.decisions && p.decisions.length ? `<div class="ws-section"><h5>Decisions the team took from their field guides</h5><ul>${p.decisions.map(d => `<li><b>${wsEsc(wsName(d.owner))}</b>: ${wsEsc(d.decision)} <span class="ws-help">(${wsEsc(d.source)})</span></li>`).join("")}</ul></div>` : ""}
+        ${list("Risks", p.risks)}${list("Questions to answer before building", p.questions)}
+        <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApprove(this)">Approve and add ${p.tasks.length} card${p.tasks.length === 1 ? "" : "s"} to the board</button>
+          <span class="ws-help">Source: ${wsEsc(p.source)}</span></div>
+        <div class="ws-row"><span class="export-links">Save the plan as proposed: <a href="/api/v5/export/plan/${wsEsc(p.id)}.md" download>Markdown</a><a href="/api/v5/export/plan/${wsEsc(p.id)}.pdf" download>PDF</a></span></div>`;
+      box.querySelectorAll("[data-i]").forEach(el => el.oninput = el.onchange = () => { wsCurrentPlan.tasks[+el.dataset.i][el.dataset.k] = el.value; });
+    }
+    async function wsApprove(btn) {
+      wsBusy(btn, true, "Adding…");
+      const r = await v5(`plan/${wsCurrentPlan.id}/approve`, "POST", { tasks: wsCurrentPlan.tasks });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsPlanMsg", r.data.error, "bad"); return; }
+      document.getElementById("wsPlan").innerHTML = ""; document.getElementById("wsGoal").value = ""; wsCurrentPlan = null;
+      wsTab("board"); wsSay("wsBoardMsg", `Approved. ${r.data.cards.length} cards added to the backlog.`, "ok");
+    }
+
+    // New app
+    async function wsGenerateApp() {
+      const prompt = document.getElementById("wsAppPrompt").value.trim();
+      if (!prompt) { wsSay("wsAppMsg", "Describe the app first.", "bad"); return; }
+      const btn = document.getElementById("wsAppBtn"); wsBusy(btn, true, "Generating…"); wsSay("wsAppMsg", "");
+      const r = await v5("greenfield", "POST", { prompt });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsAppMsg", r.data.error, "bad"); return; }
+      wsAppData = r.data; const sp = r.data.spec;
+      document.getElementById("wsApp").innerHTML = `
+        <div class="ws-section"><h5>${wsEsc(sp.app_name)}</h5>
+          <div class="ws-help">Each user keeps their own <b>${wsEsc(sp.plural)}</b>. Fields: ${sp.fields.map(f => `<code>${wsEsc(f.name)}</code> (${wsEsc(f.type)})`).join(", ")}. Designed by ${sp.source === "keywords" ? "keyword match (template mode)" : wsEsc(sp.source)}.</div>
+          <div class="ws-help">${r.data.files.length} files staged in <code>${wsEsc(r.data.staged_at)}</code>: ${r.data.files.map(f => `<code>${wsEsc(f)}</code>`).join(" ")}</div>
+        </div>
+        <div class="ws-section"><h5>Create the app folder</h5>
+          <div class="ws-help">Choose a new or empty folder. A relative name goes next to this project. Nothing is overwritten.</div>
+          <div class="ws-row"><input class="chat-input" id="wsAppTarget" value="${wsEsc(r.data.slug)}" aria-label="Folder for the new app">
+            <button class="action-pill-btn primary" onclick="wsApplyApp(this)">Create it</button></div>
+          <div class="ws-help">Then run it: <code>${wsEsc(r.data.run)}</code><br>Test it: <code>${wsEsc(r.data.test)}</code></div>
+        </div>`;
+    }
+    async function wsApplyApp(btn) {
+      wsBusy(btn, true, "Creating…");
+      const r = await v5("greenfield/apply", "POST", { slug: wsAppData.slug, target: document.getElementById("wsAppTarget").value.trim() });
+      wsBusy(btn, false);
+      wsSay("wsAppMsg", r.ok ? `Created ${r.data.files.length} files in ${r.data.path}` : r.data.error, r.ok ? "ok" : "bad");
+    }
+
+    // DevOps desk
+    async function wsDevops() {
+      const btn = document.getElementById("wsDevopsBtn"); wsBusy(btn, true, "Delta is reading the project…");
+      const r = await v5("devops/generate", "POST", {});
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsDevopsMsg", r.data.error, "bad"); return; }
+      wsDevopsData = r.data; const a = r.data.analysis;
+      wsSay("wsDevopsMsg", r.data.note || "", r.data.note ? "bad" : "");
+      const facts = [["Language", a.language + (a.language === "python" ? " " + a.python_version : "")], ["Framework", a.framework || "none found"],
+        ["Start command", a.start_command || "none found"], ["Tests", a.test_command || "none found"], ["Port", a.port]];
+      document.getElementById("wsDevops").innerHTML = `
+        <div class="ws-section"><h5>What Delta found</h5>
+          <table class="ws-table"><tbody>${facts.map(([k, v]) => `<tr><th scope="row">${k}</th><td><code>${wsEsc(v)}</code></td></tr>`).join("")}</tbody></table></div>
+        <div class="ws-section"><h5>Environment variables (${a.env_vars.length})</h5>
+          ${a.env_vars.length ? `<table class="ws-table"><thead><tr><th>Name</th><th>Default</th><th>Used in</th></tr></thead><tbody>${a.env_vars.map(v => `
+            <tr><td><code>${wsEsc(v.name)}</code>${v.secret ? ' <span class="ws-chip">secret</span>' : ""}</td><td>${v.secret ? "<i>left blank</i>" : wsEsc(v.default ?? "")}</td><td>${v.files.map(wsEsc).join(", ")}</td></tr>`).join("")}</tbody></table>` : `<div class="ws-help">None found.</div>`}</div>
+        <div class="ws-section"><h5>Files to add</h5>
+          <div class="ws-list">${r.data.files.map((f, i) => `
+            <details class="ws-file"><summary><input type="checkbox" data-path="${wsEsc(f.path)}" ${f.exists ? "" : "checked"} aria-label="Add ${wsEsc(f.path)}" onclick="event.stopPropagation()">
+              <code>${wsEsc(f.path)}</code>${f.exists ? '<span class="ws-chip">already exists</span>' : ""}<span class="ws-help">Preview</span></summary>
+              <pre>${wsEsc(f.content)}</pre></details>`).join("")}</div>
+          <label class="ws-help" style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="wsOverwrite"> Replace files that already exist</label>
+          <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApplyDevops(this)">Add the ticked files to the project</button></div>
+        </div>`;
+    }
+    async function wsApplyDevops(btn) {
+      const paths = [...document.querySelectorAll("#wsDevops input[data-path]:checked")].map(x => x.dataset.path);
+      if (!paths.length) { wsSay("wsDevopsMsg", "Tick at least one file.", "bad"); return; }
+      wsBusy(btn, true, "Adding…");
+      const r = await v5("devops/apply", "POST", { paths, overwrite: document.getElementById("wsOverwrite").checked });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsDevopsMsg", r.data.error, "bad"); return; }
+      wsSay("wsDevopsMsg", `Added: ${r.data.written.join(", ") || "nothing"}.${r.data.skipped.length ? " Kept as they were: " + r.data.skipped.join(", ") + "." : ""}`, "ok");
+    }
+
+    // Setup
+    async function wsLoadSetup() {
+      wsSay("wsSetupMsg", "Checking this computer…");
+      const r = await v5("setup");
+      if (!r.ok) { wsSay("wsSetupMsg", r.data.error || "Couldn't check setup.", "bad"); return; }
+      const s = r.data;
+      document.getElementById("wsSetupDot").classList.toggle("on", !s.ready);
+      wsSay("wsSetupMsg", `${s.ready ? "Ready" : "Not ready yet"}: ${s.mode}. ${s.next_step}`, s.ready ? "ok" : "");
+      document.getElementById("wsSetup").innerHTML = s.checks.map(c => `
+        <div class="ws-check"><span class="ic ${c.ok ? "ok" : c.optional ? "opt" : "no"}" aria-label="${c.ok ? "Done" : "Not done"}">${c.ok ? "&#10003;" : c.optional ? "&ndash;" : "&#10007;"}</span>
+          <div><b>${wsEsc(c.title)}</b>${c.ok ? "" : `<small>${wsEsc(c.fix)}</small>`}</div>
+          ${!c.ok && c.pull && s.models !== null && s.checks.find(x => x.id === "ollama_running").ok ? `<button class="ws-mini" onclick="wsPull('${wsEsc(c.pull)}', this)">Download ${wsEsc(c.pull)}</button>` : "<span></span>"}
+        </div>`).join("");
+    }
+    async function wsPull(model, btn) {
+      wsBusy(btn, true, "Downloading… this can take a while");
+      const r = await v5("setup/pull", "POST", { model });
+      wsBusy(btn, false);
+      wsSay("wsSetupMsg", r.ok ? `${model} is downloaded.` : r.data.error, r.ok ? "ok" : "bad");
+      if (r.ok) wsLoadSetup();
+    }
+    // Show a dot on Setup when something needed is missing
+    setTimeout(async () => {
+      const r = await v5("setup");
+      if (r.ok && !r.data.ready) { document.getElementById("wsSetupDot").classList.add("on"); const b = document.getElementById("setupBtnDot"); if (b) b.style.display = "inline-block"; }
+    }, 1500);
+  </script>
+  <script>
+    // ---- Toolbar menus ----
+    (function () {
+      let open = null;
+      const items = panel => [...panel.querySelectorAll('[role="menuitem"]')];
+      function place(btn, panel) {
+        const r = btn.getBoundingClientRect(), w = panel.offsetWidth, h = panel.offsetHeight;
+        let left = Math.min(r.right - w, window.innerWidth - w - 8); left = Math.max(8, left);
+        let top = r.bottom + 6; if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+        panel.style.left = left + "px"; panel.style.top = top + "px";
+      }
+      function close(focusButton) {
+        if (!open) return;
+        const { btn, panel } = open; open = null;
+        panel.hidden = true; btn.setAttribute("aria-expanded", "false");
+        if (focusButton) btn.focus();
+      }
+      function show(btn, focusIndex) {
+        const panel = document.getElementById(btn.getAttribute("aria-controls"));
+        close(false);
+        panel.hidden = false; btn.setAttribute("aria-expanded", "true"); place(btn, panel);
+        open = { btn, panel };
+        if (focusIndex != null) { const list = items(panel); list[(focusIndex + list.length) % list.length].focus(); }
+      }
+      document.querySelectorAll(".tb-menu-btn").forEach(btn => {
+        btn.addEventListener("click", e => { e.stopPropagation(); open && open.btn === btn ? close(false) : show(btn, null); });
+        btn.addEventListener("keydown", e => {
+          if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") { e.preventDefault(); show(btn, 0); }
+          if (e.key === "ArrowUp") { e.preventDefault(); show(btn, -1); }
+        });
+      });
+      document.querySelectorAll(".tb-menu-panel").forEach(panel => {
+        panel.addEventListener("click", e => {
+          const item = e.target.closest('[role="menuitem"]'); if (!item) return;
+          e.stopPropagation(); close(false);
+          const fn = window[item.dataset.fn];
+          if (typeof fn === "function") item.dataset.arg ? fn(item.dataset.arg) : fn();
+        });
+        panel.addEventListener("keydown", e => {
+          const list = items(panel), i = list.indexOf(document.activeElement);
+          if (e.key === "ArrowDown") { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
+          else if (e.key === "Home") { e.preventDefault(); list[0].focus(); }
+          else if (e.key === "End") { e.preventDefault(); list[list.length - 1].focus(); }
+          else if (e.key === "Escape") { e.preventDefault(); close(true); }
+          else if (e.key === "Tab") { close(false); }
+        });
+      });
+      document.addEventListener("click", e => { if (open && !open.panel.contains(e.target)) close(false); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape" && open) close(true); });
+      window.addEventListener("resize", () => close(false));
+      document.addEventListener("scroll", () => { if (open) place(open.btn, open.panel); }, true);
+    })();
+  </script>
   <script type="module">
     // 3D office. Replaces the pixel canvas when Three.js loads; if it can't load (offline), the 2D office stays.
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
     import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
     const frame = document.querySelector(".office-canvas-frame");
     const host = document.createElement("div");
     host.id = "office3d";
-    host.innerHTML = '<div id="office3dLabels"></div><button type="button" id="office3dTime" aria-label="Day or night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span>Night</span></button><div id="office3dHint">Drag to look around · scroll to zoom · click a person</div>';
+    host.innerHTML = '<div id="office3dLabels"></div><button type="button" id="office3dTime" aria-label="Day or night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span>Night</span></button><div id="office3dHint">Drag to look · right-drag to move · scroll to zoom · double-click to go there</div><div id="office3dNav"><div class="views" role="group" aria-label="Go to a part of the office"><button type="button" data-view="overview" aria-pressed="true" title="Whole office (1 or R)">Overview</button><button type="button" data-view="desks" aria-pressed="false" title="The team at their desks (2)">Desks</button><button type="button" data-view="meeting" aria-pressed="false" title="Meeting room (3)">Meeting room</button><button type="button" data-view="lounge" aria-pressed="false" title="Lounge (4)">Lounge</button><button type="button" data-view="window" aria-pressed="false" title="The view from the window (5)">Window</button><button type="button" data-view="walk" aria-pressed="false" title="Stand in the office at eye level (6)">Walk in</button><button type="button" data-view="board" aria-pressed="false" title="The task board on the wall (7)">Board</button></div><div class="tools" role="group" aria-label="Camera"><button type="button" data-act="left" aria-label="Turn left" title="Turn left (Q)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button type="button" data-act="right" aria-label="Turn right" title="Turn right (E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button><button type="button" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" data-act="out" aria-label="Zoom out" title="Zoom out (-)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button type="button" data-act="help" aria-label="How to move around" aria-expanded="false" aria-controls="office3dHelp" title="How to move around (?)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4"/><path d="M12 17h.01"/></svg></button></div></div><div id="office3dHelp" role="note"><b>Moving around the office</b>Drag to look around. Right-drag, or Shift and drag, to move.<br>Scroll or pinch to zoom toward the pointer.<br>Click a desk or a person to see what they&rsquo;re working on. Double-click a spot to go there, or a person to face them.<br>Click the office first, then: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk, <kbd>Q</kbd><kbd>E</kbd> to turn, <kbd>+</kbd><kbd>-</kbd> to zoom, <kbd>1</kbd>-<kbd>7</kbd> for the views, <kbd>R</kbd> for the whole office.</div><div id="office3dDesk" role="dialog" aria-label="Desk status"></div>';
     frame.appendChild(host);
     const labelsEl = host.querySelector("#office3dLabels");
 
@@ -4564,11 +5262,14 @@ def fetch_user_profile(user_id: str, db_pool=None):
     camera.position.set(-2.2, 6.8, 21.5);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 2.1, 0);
-    controls.enablePan = false;
-    controls.enableDamping = true;
-    controls.minDistance = 8; controls.maxDistance = 140;   // far enough to look down at the streets
-    controls.minPolarAngle = 0.45; controls.maxPolarAngle = 1.48;
-    controls.minAzimuthAngle = -0.85; controls.maxAzimuthAngle = 0.75;
+    // Move on the floor with right-drag, zoom toward the pointer, and turn all the way round
+    controls.enablePan = true; controls.screenSpacePanning = false; controls.panSpeed = 0.9;
+    controls.zoomToCursor = true;
+    controls.enableDamping = true; controls.dampingFactor = 0.08;
+    controls.minDistance = 1.6; controls.maxDistance = 140;   // close enough to stand by a desk, far enough to see the streets
+    controls.minPolarAngle = 0.2; controls.maxPolarAngle = 1.56;
+    host.tabIndex = 0;
+    host.setAttribute("aria-label", "3D office. Click it, then use W A S D or the arrow keys to walk, Q and E to turn, plus and minus to zoom, and 1 to 6 for views.");
 
     // Day or night follows the app theme until the person picks one with the button
     const TIME_KEY = "devsquad-office-time";
@@ -4849,16 +5550,53 @@ def fetch_user_profile(user_id: str, db_pool=None):
     for (let z = Z0; z <= Z1 + 0.01; z += 4) box(RW, 0.09, 0.07, M.black, 0, WH + 0.02, z, { cast: false, receive: false });
     box(RW, 0.14, 0.14, M.black, 0, WH + 0.02, Z1, { cast: false, receive: false });
 
-    // Whiteboard (opens Blast Radius)
-    const wbTex = canvasTex(512, 256, (g, w, h) => {
-      g.fillStyle = "#FDFDFB"; g.fillRect(0, 0, w, h);
-      g.lineWidth = 4; g.lineCap = "round";
-      [["#2563C8", 40, 60, 190, 60], ["#2563C8", 40, 96, 150, 96], ["#E5484D", 40, 132, 230, 132], ["#0E8A5C", 300, 70, 300, 190], ["#0E8A5C", 300, 190, 460, 190], ["#B4580A", 320, 170, 360, 120], ["#B4580A", 360, 120, 400, 140], ["#B4580A", 400, 140, 450, 80]].forEach(s => { g.strokeStyle = s[0]; g.beginPath(); g.moveTo(s[1], s[2]); g.lineTo(s[3], s[4]); g.stroke(); });
-      g.fillStyle = "#1D1F27"; g.font = "600 22px sans-serif"; g.fillText("Blast radius", 40, 200);
-    });
-    const whiteboard = box(0.06, 1.5, 3, M.metal, X0 + 0.19, 1.75, -4.4, { cast: false });
-    whiteboard.material = [new THREE.MeshStandardMaterial({ map: wbTex, roughness: 0.3 }), M.metal, M.metal, M.metal, M.metal, M.metal];
-    whiteboard.userData.action = "whiteboard"; pickables.push(whiteboard);
+    // The task board on the wall: the Workshop's real board, as sticky notes on a whiteboard (opens the board)
+    const kanbanC = document.createElement("canvas"); kanbanC.width = 1700; kanbanC.height = 800;
+    const kanbanTex = new THREE.CanvasTexture(kanbanC); kanbanTex.colorSpace = THREE.SRGBColorSpace; kanbanTex.anisotropy = 8;
+    const whiteboard = box(0.06, 1.6, 3.4, M.metal, X0 + 0.19, 1.72, -4.45, { cast: false });
+    whiteboard.material = [new THREE.MeshStandardMaterial({ map: kanbanTex, roughness: 0.35 }), M.metal, M.metal, M.metal, M.metal, M.metal];
+    whiteboard.userData.action = "board"; pickables.push(whiteboard);
+    box(0.08, 0.05, 3.2, M.metal, X0 + 0.24, 0.9, -4.45, { cast: false });
+    const KANBAN_COLS = [["backlog", "Backlog", "#2563C8"], ["in_progress", "In progress", "#B4580A"], ["review", "Review Desk", "#7C3AED"], ["merged", "Merged", "#0E8A5C"]];
+    const pastel = hex => { const n = parseInt(String(hex || "#999999").slice(1), 16); return `rgb(${[16, 8, 0].map(b => Math.round(((n >> b) & 255) * 0.45 + 255 * 0.55)).join(",")})`; };
+    function wrapText(g, text, maxW, lines) {
+      const out = []; let line = "";
+      for (const word of String(text).split(/\s+/)) {
+        const trial = line ? line + " " + word : word;
+        if (g.measureText(trial).width > maxW && line) { out.push(line); line = word; } else line = trial;
+        if (out.length === lines) break;
+      }
+      if (out.length < lines && line) out.push(line);
+      if (out.length === lines && g.measureText(out[lines - 1]).width > maxW - 20) out[lines - 1] = out[lines - 1].replace(/\s*\S*$/, "") + "…";
+      return out;
+    }
+    function drawKanban(cols, note) {
+      const g = kanbanC.getContext("2d"), W = 1700, H = 800, colW = (W - 80) / 4;
+      g.fillStyle = "#FBFBF8"; g.fillRect(0, 0, W, H);
+      g.fillStyle = "#1D2333"; g.font = "700 50px 'Bricolage Grotesque', Arial, sans-serif"; g.textBaseline = "alphabetic"; g.fillText("Task board", 40, 72);
+      const total = cols.reduce((n, c) => n + c.cards.length, 0);
+      if (note || !total) { g.fillStyle = "#596173"; g.font = "500 30px Arial, sans-serif"; g.fillText(note || "No cards yet. Plan some work in the Workshop.", 330, 70); }
+      KANBAN_COLS.forEach(([id, title, ink], i) => {
+        const col = cols.find(c => c.id === id) || { cards: [] }, x = 40 + i * colW;
+        if (i) { g.fillStyle = "#D9DCE2"; g.fillRect(x - 12, 120, 3, H - 150); }
+        g.fillStyle = ink; g.font = "700 32px Arial, sans-serif"; g.fillText(`${title}  ${col.cards.length}`, x + 8, 158);
+        g.fillRect(x + 8, 170, colW - 40, 4);
+        col.cards.slice(0, 4).forEach((c, j) => {
+          const owner = AGENTS[c.owner], y = 192 + j * 146, w = colW - 46, h = 132;
+          let spin = 0; for (const ch of c.id) spin = (spin * 31 + ch.charCodeAt(0)) % 997;
+          g.save(); g.translate(x + 10 + w / 2, y + h / 2); g.rotate(((spin % 7) - 3) * 0.006);
+          g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(-w / 2 + 4, -h / 2 + 6, w, h);
+          g.fillStyle = pastel(owner ? owner.shirtColor : "#B9BEC9"); g.fillRect(-w / 2, -h / 2, w, h);
+          g.fillStyle = "#1D1F27"; g.font = "600 27px Arial, sans-serif";
+          wrapText(g, c.title, w - 28, 3).forEach((l, k) => g.fillText(l, -w / 2 + 14, -h / 2 + 36 + k * 30));
+          g.fillStyle = "#3B4254"; g.font = "500 22px Arial, sans-serif"; g.fillText(owner ? owner.name : "Unassigned", -w / 2 + 14, h / 2 - 12);
+          g.restore();
+        });
+        if (col.cards.length > 4) { g.fillStyle = "#596173"; g.font = "600 24px Arial, sans-serif"; g.fillText(`+ ${col.cards.length - 4} more`, x + 12, H - 18); }
+      });
+      kanbanTex.needsUpdate = true;
+    }
+    drawKanban([], "Loading the board…");
 
     // Neon sign
     const signC = document.createElement("canvas"); signC.width = 1024; signC.height = 200;
@@ -4866,14 +5604,20 @@ def fetch_user_profile(user_id: str, db_pool=None):
     function drawSign() {
       const g = signC.getContext("2d"), text = String(window.teamName && window.teamName !== "DevSquad Studio" ? window.teamName : "DEVSQUAD").toUpperCase();
       g.clearRect(0, 0, 1024, 200); g.textAlign = "center"; g.textBaseline = "middle";
-      let size = 150; do { g.font = `800 ${size}px 'Bricolage Grotesque', 'Arial Black', sans-serif`; size -= 6; } while (g.measureText(text).width > 960 && size > 40);
-      g.shadowColor = "#FF9A3D"; g.shadowBlur = 30; g.fillStyle = "#FFB45E"; g.fillText(text, 512, 108);
+      let size = 132; do { g.font = `800 ${size}px 'Bricolage Grotesque', 'Arial Black', sans-serif`; size -= 6; } while (g.measureText(text).width > 900 && size > 40);
+      // A soft halo inside the panel, then sharp letters with a dark edge so they read on any background
+      g.shadowColor = "rgba(255, 196, 120, 0.55)"; g.shadowBlur = 22; g.fillStyle = "#FFF4E2"; g.fillText(text, 512, 104);
+      g.shadowBlur = 0; g.lineWidth = 3; g.strokeStyle = "rgba(20, 16, 12, 0.55)"; g.strokeText(text, 512, 104);
+      g.fillStyle = "#FFF7EA"; g.fillText(text, 512, 104);
       signTex.needsUpdate = true;
     }
     drawSign();
+    // Dark backing panel with a thin warm edge light, so the name stands out from the wood in daylight and at night
+    const signPanel = box(0.05, 1.0, 4.5, new THREE.MeshStandardMaterial({ color: "#16181E", roughness: 0.55, metalness: 0.2 }), X0 + 0.115, 2.45, 0.6, { r: 0.02, cast: false });
+    box(0.012, 0.02, 4.42, new THREE.MeshBasicMaterial({ color: "#FFC98A", toneMapped: false }), X0 + 0.146, 1.97, 0.6, { cast: false, receive: false });
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.82), new THREE.MeshBasicMaterial({ map: signTex, transparent: true, toneMapped: false }));
-    sign.rotation.y = Math.PI / 2; sign.position.set(X0 + 0.14, 2.45, 0.6); world.add(sign);
-    const signLight = new THREE.PointLight("#FF9A3D", 6, 7, 2); signLight.position.set(X0 + 0.8, 2.4, 0.6); world.add(signLight);
+    sign.rotation.y = Math.PI / 2; sign.position.set(X0 + 0.148, 2.45, 0.6); world.add(sign);
+    const signLight = new THREE.PointLight("#FFE2BD", 2, 3.2, 2); signLight.position.set(X0 + 0.7, 2.45, 0.6); world.add(signLight);
 
     // Shelving with books
     for (let s = 0; s < 3; s++) {
@@ -4988,6 +5732,112 @@ def fetch_user_profile(user_id: str, db_pool=None):
     const rackLeds = [];
     for (let i = 0; i < 9; i++) { box(0.72, 0.012, 0.012, M.darkMetal, 11.2, 0.3 + i * 0.2, 0.745, { cast: false }); const l = box(0.04, 0.04, 0.01, new THREE.MeshBasicMaterial({ color: "#3DDC97" }), 10.92, 0.36 + i * 0.2, 0.748, { cast: false }); rackLeds.push(l); }
 
+    // ---------- Reef tank beside the rack: a pair of clownfish at their anemone and two blue tangs ----------
+    const TANK = { x: 11.5, z: -0.25, len: 1.3, depth: 0.5, base: 0.74, h: 0.58 };
+    const tankG = new THREE.Group(); tankG.position.set(TANK.x, 0, TANK.z); world.add(tankG);
+    const cabinet = box(TANK.depth + 0.04, TANK.base, TANK.len + 0.04, new THREE.MeshStandardMaterial({ color: "#2B2420", roughness: 0.55 }), 0, TANK.base / 2, 0, { parent: tankG, r: 0.015 });
+    cabinet.userData.action = "tank"; pickables.push(cabinet);
+    box(0.005, TANK.base - 0.12, 0.004, M.darkMetal, -TANK.depth / 2 - 0.022, TANK.base / 2, 0, { parent: tankG, cast: false });
+    const W0 = TANK.base, W1 = TANK.base + TANK.h, inner = { x: TANK.depth / 2 - 0.02, z: TANK.len / 2 - 0.02 };
+    const glassMat = new THREE.MeshPhysicalMaterial({ color: "#DDF3FF", roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(TANK.depth, TANK.h, TANK.len), glassMat); glass.position.y = W0 + TANK.h / 2; glass.renderOrder = 3; tankG.add(glass);
+    glass.userData.action = "tank"; pickables.push(glass);
+    const water = new THREE.Mesh(new THREE.BoxGeometry(TANK.depth - 0.02, TANK.h - 0.08, TANK.len - 0.02), new THREE.MeshStandardMaterial({ color: "#1E7FC8", transparent: true, opacity: 0.28, depthWrite: false, roughness: 0.1 }));
+    water.position.y = W0 + (TANK.h - 0.08) / 2 + 0.005; water.renderOrder = 2; tankG.add(water);
+    [[0, W0 + 0.004], [0, W1 - 0.004]].forEach(([, y]) => box(TANK.depth + 0.012, 0.012, TANK.len + 0.012, M.black, 0, y, 0, { parent: tankG, cast: false }));
+    // Deep-blue back panel, like a real reef tank, so the water reads as water
+    const backTex = canvasTex(64, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#1F6FB8"); gr.addColorStop(0.55, "#0D3F7A"); gr.addColorStop(1, "#06213F"); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(TANK.len - 0.02, TANK.h - 0.02), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false }));
+    back.rotation.y = -Math.PI / 2; back.position.set(TANK.depth / 2 - 0.012, W0 + TANK.h / 2, 0); tankG.add(back);
+    // Hood with the reef light
+    box(TANK.depth + 0.03, 0.06, TANK.len + 0.03, M.black, 0, W1 + 0.03, 0, { parent: tankG });
+    box(TANK.depth - 0.06, 0.008, TANK.len - 0.1, new THREE.MeshBasicMaterial({ color: "#CFE6FF", toneMapped: false }), 0, W1 - 0.002, 0, { parent: tankG, cast: false, receive: false });
+    const reefLight = new THREE.PointLight("#9CCBFF", 2.2, 1.6, 2); reefLight.position.set(0, W1 - 0.05, 0); tankG.add(reefLight);
+    // Sand, live rock, corals and the anemone the clownfish live in
+    const sandTex = canvasTex(256, 256, (g, w, h) => { g.fillStyle = "#C9B994"; g.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++) { g.fillStyle = ["#B8A782", "#DCCFAF", "#A8976F", "#E6DCC2"][i % 4]; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); } }, [2, 4]);
+    box(TANK.depth - 0.02, 0.05, TANK.len - 0.02, new THREE.MeshStandardMaterial({ map: sandTex, roughness: 1 }), 0, W0 + 0.025, 0, { parent: tankG, cast: false });
+    const rockMat = new THREE.MeshStandardMaterial({ color: "#8E7A86", roughness: 0.95, flatShading: true });
+    [[0.05, -0.38, 0.13, 0.09], [-0.02, -0.22, 0.1, 0.07], [0.07, 0.3, 0.12, 0.08], [0.0, 0.46, 0.08, 0.06], [-0.08, 0.05, 0.07, 0.05]].forEach(([x, z, r, hgt]) => {
+      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), rockMat); m.position.set(x, W0 + 0.05 + hgt * 0.5, z); m.scale.y = hgt / r; m.rotation.set(rnd() * 3, rnd() * 3, 0); tankG.add(m);
+    });
+    const coral = (x, z, color, n, len) => {
+      const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, emissive: color, emissiveIntensity: 0.12 });
+      for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, b = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.011, len * (0.7 + rnd() * 0.5), 6), mat); b.position.set(x + Math.sin(a) * 0.02, W0 + 0.1 + len * 0.3, z + Math.cos(a) * 0.02); b.rotation.set(Math.cos(a) * 0.5, 0, Math.sin(a) * 0.5); tankG.add(b); }
+    };
+    coral(0.06, -0.38, "#FF6F91", 7, 0.12); coral(0.07, 0.3, "#FFB347", 6, 0.1); coral(-0.04, 0.5, "#B388FF", 5, 0.09);
+    const anemone = new THREE.Group(); anemone.position.set(0.02, W0 + 0.1, -0.14); tankG.add(anemone);
+    const tentMat = new THREE.MeshStandardMaterial({ color: "#E8D9A0", roughness: 0.6, emissive: "#B8A060", emissiveIntensity: 0.15 });
+    const tentacles = [];
+    for (let i = 0; i < 46; i++) {
+      const a = i * 2.4, r = 0.012 + (i % 7) * 0.008, t = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.005, 0.07, 5), tentMat);
+      t.geometry.translate(0, 0.035, 0); t.position.set(Math.sin(a) * r, 0, Math.cos(a) * r); t.rotation.set(Math.cos(a) * 0.5 * (r / 0.06), 0, -Math.sin(a) * 0.5 * (r / 0.06)); anemone.add(t); tentacles.push(t);
+    }
+    // Fish: patterned bodies along their length, with fins and eyes
+    function fishTex(paint) { return canvasTex(256, 128, paint); }
+    const clownTex = fishTex((g, w, h) => {
+      g.fillStyle = "#FF6A13"; g.fillRect(0, 0, w, h);
+      // Three white bands edged in black (nose at the left of the texture, tail at the right)
+      [[0.28, 0.07], [0.52, 0.09], [0.82, 0.05]].forEach(([at, wid]) => { g.fillStyle = "#151515"; g.fillRect((at - wid / 2 - 0.018) * w, 0, (wid + 0.036) * w, h); g.fillStyle = "#FFFFFF"; g.fillRect((at - wid / 2) * w, 0, wid * w, h); });
+    });
+    const tangTex = fishTex((g, w, h) => {
+      g.fillStyle = "#1E4FE0"; g.fillRect(0, 0, w, h);
+      // The black "palette" on each side, with the blue showing through its middle
+      [h * 0.25, h * 0.75].forEach(cy => {
+        g.fillStyle = "#0B0F1E"; g.beginPath(); g.ellipse(w * 0.55, cy - h * 0.06, w * 0.34, h * 0.12, -0.08, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "#2A62F2"; g.beginPath(); g.ellipse(w * 0.5, cy - h * 0.04, w * 0.14, h * 0.045, -0.08, 0, Math.PI * 2); g.fill();
+      });
+      g.fillStyle = "#F6C41A"; g.fillRect(w * 0.9, 0, w * 0.1, h);
+    });
+    function makeFish(kind) {
+      const clown = kind === "clown", L = clown ? 0.085 : 0.13, tall = clown ? 0.42 : 0.62, thick = clown ? 0.3 : 0.18;
+      const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
+      const geo = new THREE.SphereGeometry(0.5, 24, 16); geo.rotateZ(-Math.PI / 2);   // poles at nose (+x) and tail (-x): the texture runs nose to tail
+      const mat = new THREE.MeshStandardMaterial({ map: clown ? clownTex : tangTex, roughness: 0.45, metalness: 0.05 });
+      const torso = new THREE.Mesh(geo, mat); torso.scale.set(L, L * tall, L * thick); body.add(torso);
+      const finMat = new THREE.MeshStandardMaterial({ color: clown ? "#FF7A1F" : "#F6C41A", roughness: 0.6, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+      const edgeMat = new THREE.MeshStandardMaterial({ color: clown ? "#111" : "#0B0F1E", side: THREE.DoubleSide });
+      const tri = (pts, m) => { const s2 = new THREE.Shape(); s2.moveTo(...pts[0]); pts.slice(1).forEach(q => s2.lineTo(...q)); return new THREE.Mesh(new THREE.ShapeGeometry(s2), m); };
+      const tail = new THREE.Group(); tail.position.x = -L * 0.48; body.add(tail);
+      tail.add(tri([[0, 0], [-L * 0.42, L * 0.26], [-L * 0.34, 0], [-L * 0.42, -L * 0.26]], finMat));
+      if (clown) { const rim = tri([[-L * 0.36, L * 0.24], [-L * 0.42, L * 0.26], [-L * 0.36, 0], [-L * 0.42, -L * 0.26], [-L * 0.36, -L * 0.24], [-L * 0.31, 0]], edgeMat); rim.position.z = 0.0005; tail.add(rim); }
+      const dorsal = tri([[L * 0.25, L * tall * 0.42], [-L * 0.05, L * tall * 0.78], [-L * 0.4, L * tall * 0.3]], clown ? finMat : edgeMat); body.add(dorsal);
+      const belly = tri([[L * 0.05, -L * tall * 0.42], [-L * 0.18, -L * tall * 0.62], [-L * 0.36, -L * tall * 0.28]], clown ? finMat : edgeMat); body.add(belly);
+      const pecs = [1, -1].map(side => { const f = tri([[0, 0], [-L * 0.2, L * 0.1], [-L * 0.16, -L * 0.06]], finMat); f.position.set(L * 0.18, -L * 0.05, side * L * thick * 0.48); f.rotation.y = side * 0.5; body.add(f); return f; });
+      const eyeMat = new THREE.MeshStandardMaterial({ color: "#050505", roughness: 0.2 }), ringMat = new THREE.MeshStandardMaterial({ color: clown ? "#F5F0E0" : "#1E4FE0" });
+      [1, -1].forEach(side => { const e = new THREE.Mesh(new THREE.SphereGeometry(L * 0.075, 10, 8), eyeMat); e.position.set(L * 0.33, L * tall * 0.1, side * L * thick * 0.4); body.add(e); const r2 = new THREE.Mesh(new THREE.SphereGeometry(L * 0.095, 10, 8), ringMat); r2.position.copy(e.position); r2.position.z -= side * 0.002; body.add(r2); });
+      tankG.add(g);
+      return { g, body, tail, pecs, L, kind, phase: rnd() * 10, pos: new THREE.Vector3(), vel: new THREE.Vector3(1, 0, 0) };
+    }
+    // Clownfish stay close to their anemone; the tangs cruise the length of the tank
+    const fishes = [makeFish("clown"), makeFish("clown"), makeFish("tang"), makeFish("tang")];
+    const fishAt = (f, t) => {
+      const lo = { y: W0 + 0.1, x: -inner.x + 0.06, z: -inner.z + 0.1 }, hi = { y: W1 - 0.12, x: inner.x - 0.06, z: inner.z - 0.1 };
+      if (f.kind === "clown") {
+        const c = anemone.position, k = t * 0.55 + f.phase;
+        return new THREE.Vector3(c.x + Math.sin(k * 1.3) * 0.07, c.y + 0.1 + Math.sin(k * 0.9) * 0.04 + (f.phase > 5 ? 0.04 : 0), c.z + Math.cos(k) * 0.13);
+      }
+      const k = t * 0.16 + f.phase;
+      return new THREE.Vector3(THREE.MathUtils.lerp(lo.x, hi.x, 0.5 + 0.45 * Math.sin(k * 1.7)), THREE.MathUtils.lerp(lo.y, hi.y, 0.5 + 0.42 * Math.sin(k * 1.1 + 1)), THREE.MathUtils.lerp(lo.z, hi.z, 0.5 + 0.48 * Math.sin(k)));
+    };
+    let tankClock = 0;
+    const ahead = new THREE.Vector3();
+    function updateTank(dt) {
+      tankClock += dt;
+      fishes.forEach(f => {
+        const now = fishAt(f, tankClock), next = fishAt(f, tankClock + 0.25);
+        f.g.position.copy(now);
+        ahead.subVectors(next, now); const speed = ahead.length() / 0.25;
+        if (speed > 1e-4) { ahead.normalize(); const yaw = Math.atan2(-ahead.z, ahead.x), pitch = Math.asin(THREE.MathUtils.clamp(ahead.y, -0.5, 0.5)); f.yaw = f.yaw === undefined ? yaw : f.yaw + Math.atan2(Math.sin(yaw - f.yaw), Math.cos(yaw - f.yaw)) * Math.min(1, dt * 4); f.g.rotation.set(0, f.yaw, pitch * 0.6, "YZX"); }
+        const beat = tankClock * (f.kind === "clown" ? 14 : 9) + f.phase;
+        f.tail.rotation.y = Math.sin(beat) * (0.35 + speed * 2);
+        f.body.rotation.y = Math.sin(beat - 1) * 0.06;
+        f.pecs.forEach((pc, i) => { pc.rotation.x = Math.sin(beat * 1.3 + i) * 0.5; });
+      });
+      tentacles.forEach((t, i) => { t.rotation.x += Math.sin(tankClock * 1.6 + i) * 0.0025; t.rotation.z += Math.cos(tankClock * 1.3 + i * 0.7) * 0.0025; });
+      reefLight.intensity = 2.0 + Math.sin(tankClock * 0.7) * 0.25;
+    }
+    updateTank(0);
+
     // Coffee counter (opens the watercooler)
     const counter = box(0.75, 0.92, 2.6, M.white, X0 + 0.55, 0.46, 6.4, { r: 0.02 });
     counter.userData.action = "coffee"; pickables.push(counter);
@@ -5065,7 +5915,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       sun.intensity = night ? 0.5 : 2.7; sun.color.set(night ? "#9DB2FF" : "#FFF1DC");
       fill.intensity = night ? 0.9 : 0.45; fill.color.set(night ? "#FFD9A8" : "#DDE8FF");
       M.led.emissiveIntensity = night ? 3.2 : 1.4;
-      signLight.intensity = night ? 9 : 2; floorLamp.intensity = night ? 9 : 2;
+      signLight.intensity = night ? 2.4 : 0.4; floorLamp.intensity = night ? 9 : 2;
       const btn = document.getElementById("office3dTime");
       if (btn) { btn.setAttribute("aria-pressed", String(night)); btn.querySelector("span").textContent = night ? "Night" : "Day"; btn.title = night ? "Switch to day" : "Switch to night"; btn.querySelector("svg").innerHTML = night ? '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.500 10.500z"/>' : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/>'; }
     }
@@ -5079,62 +5929,189 @@ def fetch_user_profile(user_id: str, db_pool=None):
 
     // ---------- people ----------
     function makePerson(a) {
-      const skin = new THREE.MeshStandardMaterial({ color: a.skin, roughness: 0.65 });
-      const shirt = new THREE.MeshStandardMaterial({ color: a.shirtColor, roughness: 0.85 });
-      const pants = new THREE.MeshStandardMaterial({ color: a.pants, roughness: 0.9 });
-      const hair = new THREE.MeshStandardMaterial({ color: a.hair, roughness: 0.9 });
-      const shoe = new THREE.MeshStandardMaterial({ color: "#1B1C20", roughness: 0.6 });
+      // Proportions follow an adult about 1.75 m tall; the joints stay where the sitting and walking poses expect them
+      const tint = (c, to, k) => new THREE.Color(c).lerp(new THREE.Color(to), k);
+      const skin = new THREE.MeshPhysicalMaterial({ color: a.skin, roughness: 0.52, sheen: 0.4, sheenRoughness: 0.55, sheenColor: tint(a.skin, "#FF8F7A", 0.4), clearcoat: 0.04 });
+      const lip = new THREE.MeshStandardMaterial({ color: tint(a.skin, "#9C4A44", 0.55), roughness: 0.5 });
+      const fabric = c => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.9, sheen: 0.7, sheenRoughness: 0.8, sheenColor: tint(c, "#FFFFFF", 0.3) });
+      const shirt = fabric(a.shirtColor), pants = fabric(a.pants), trim = fabric(tint(a.shirtColor, "#000000", 0.25));
+      const hair = new THREE.MeshPhysicalMaterial({ color: a.hair, roughness: 0.5, sheen: 1, sheenRoughness: 0.35, sheenColor: tint(a.hair, "#FFFFFF", 0.35) });
+      const shoe = new THREE.MeshStandardMaterial({ color: a.isUser || a.style === "long" || a.lanyard ? "#F2F0EA" : "#1B1C20", roughness: 0.5 });
+      const sole = new THREE.MeshStandardMaterial({ color: a.isUser || a.style === "long" || a.lanyard ? "#C9C5BC" : "#2A2B30", roughness: 0.8 });
+      const white = new THREE.MeshStandardMaterial({ color: "#F7F7F5", roughness: 0.25 });
+      const iris = new THREE.MeshStandardMaterial({ color: "#2B1C12", roughness: 0.15 });
+      const frame = new THREE.MeshStandardMaterial({ color: "#15171C", roughness: 0.3, metalness: 0.4 });
       const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
-      const part = (geo, mat, x, y, z, parent) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
-      const cap = (r, len) => new THREE.CapsuleGeometry(r, len, 6, 12);
-      // Torso, neck, head
-      const torso = part(cap(0.165, 0.3), shirt, 0, 1.17, 0, body); torso.scale.set(1.12, 1, 0.74);
-      part(cap(0.15, 0.06), pants, 0, 0.93, 0, body).scale.set(1.12, 1, 0.78);
-      part(new THREE.CylinderGeometry(0.05, 0.055, 0.1, 12), skin, 0, 1.47, 0, body);
-      const head = new THREE.Group(); head.position.set(0, 1.62, 0); body.add(head);
-      part(new THREE.SphereGeometry(0.125, 24, 18), skin, 0, 0, 0, head).scale.set(0.92, 1.08, 1);
-      part(new THREE.SphereGeometry(0.022, 8, 8), skin, 0, -0.02, 0.122, head);
-      [-0.045, 0.045].forEach(ex => part(new THREE.SphereGeometry(0.013, 8, 8), new THREE.MeshStandardMaterial({ color: "#1A1512", roughness: 0.3 }), ex, 0.02, 0.112, head));
-      [-0.118, 0.118].forEach(ex => part(new THREE.SphereGeometry(0.028, 8, 8), skin, ex, 0, 0, head));
-      // Hair and extras by style
-      const hairCap = (mat, sy = 1) => { const h = part(new THREE.SphereGeometry(0.134, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), mat, 0, 0.015, -0.012, head); h.scale.set(0.96, 1.1 * sy, 1.04); return h; };
-      if (a.style === "beanie") { hairCap(new THREE.MeshStandardMaterial({ color: a.accent, roughness: 1 }), 1.12); part(new THREE.TorusGeometry(0.122, 0.022, 8, 24), new THREE.MeshStandardMaterial({ color: a.accent, roughness: 1 }), 0, 0.03, -0.01, head).rotation.x = Math.PI / 2; }
-      else if (a.style === "cap") { const cm = new THREE.MeshStandardMaterial({ color: a.accent, roughness: 0.8 }); hairCap(cm); part(new THREE.CylinderGeometry(0.1, 0.1, 0.012, 20, 1, false, -0.9, 1.8), cm, 0, 0.055, 0.1, head); }
-      else {
-        hairCap(hair, a.style === "curly" ? 1.18 : 1);
-        if (a.style === "long") part(cap(0.1, 0.16), hair, 0, -0.1, -0.06, head).scale.set(1.15, 1, 0.6);
-        if (a.style === "bun") part(new THREE.SphereGeometry(0.06, 12, 10), hair, 0, 0.14, -0.06, head);
-        if (a.style === "curly") for (let i = 0; i < 10; i++) { const an = i / 10 * Math.PI * 2; part(new THREE.SphereGeometry(0.045, 8, 8), hair, Math.sin(an) * 0.1, 0.07 + (i % 2) * 0.03, Math.cos(an) * 0.1 - 0.01, head); }
-        if (a.style === "beard") part(new THREE.SphereGeometry(0.1, 16, 12, 0, Math.PI * 2, Math.PI * 0.55, Math.PI * 0.45), hair, 0, -0.01, 0.022, head).scale.set(0.95, 1.15, 1);
+      const part = (geo, mat, x, y, z, parent, shadow = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = shadow; parent.add(m); return m; };
+      const cap = (r, len) => new THREE.CapsuleGeometry(r, len, 8, 16);
+      const lathe = (pts, segs = 32) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), segs);
+      const longSleeves = a.hoodie || a.style === "beanie" || a.tie;
+
+      // Torso: chest, waist and shoulders, a little flatter front to back
+      const torso = part(lathe([[0.001, 0], [0.139, 0], [0.133, 0.05], [0.124, 0.12], [0.129, 0.22], [0.146, 0.32], [0.153, 0.4], [0.149, 0.46], [0.13, 0.505], [0.095, 0.54], [0.05, 0.56], [0.001, 0.565]]), shirt, 0, 0.88, 0, body);
+      torso.scale.set(1.25, 1, 0.7);
+      const hips = part(lathe([[0.001, 0], [0.12, 0], [0.14, 0.05], [0.142, 0.12], [0.133, 0.17], [0.001, 0.17]]), pants, 0, 0.78, 0, body);
+      hips.scale.set(1.18, 1, 0.78);
+      part(new THREE.CylinderGeometry(0.046, 0.05, 0.11, 16), skin, 0, 1.48, 0, body);
+      const collar = part(new THREE.TorusGeometry(0.056, a.hoodie ? 0.012 : 0.008, 8, 28), a.hoodie ? shirt : trim, 0, 1.44, 0.004, body, false);
+      collar.rotation.x = Math.PI / 2; collar.scale.set(1.12, 0.92, 0.6);
+      if (a.hoodie) {
+        part(new THREE.TorusGeometry(0.075, 0.032, 10, 24), shirt, 0, 1.455, -0.06, body).rotation.x = Math.PI / 2.4;
+        [-0.03, 0.03].forEach(x => part(new THREE.CylinderGeometry(0.004, 0.004, 0.13, 6), white, x, 1.37, 0.105, body, false));
       }
-      if (a.glasses) { const gm = new THREE.MeshStandardMaterial({ color: "#15171C", roughness: 0.3 }); [-0.047, 0.047].forEach(ex => part(new THREE.TorusGeometry(0.03, 0.006, 6, 18), gm, ex, 0.02, 0.118, head)); part(new THREE.BoxGeometry(0.03, 0.006, 0.006), gm, 0, 0.022, 0.122, head); }
-      if (a.headphones) { const hm = new THREE.MeshStandardMaterial({ color: "#22252B", roughness: 0.4 }); part(new THREE.TorusGeometry(0.135, 0.013, 8, 24, Math.PI), hm, 0, 0.02, 0, head); [-0.13, 0.13].forEach(ex => part(new THREE.CylinderGeometry(0.045, 0.045, 0.035, 14), hm, ex, 0, 0, head).rotation.z = Math.PI / 2); }
-      if (a.tie) part(new THREE.BoxGeometry(0.045, 0.3, 0.012), new THREE.MeshStandardMaterial({ color: a.tie, roughness: 0.6 }), 0, 1.22, 0.125, body);
-      if (a.vest) part(cap(0.172, 0.22), new THREE.MeshStandardMaterial({ color: a.accent, roughness: 0.9 }), 0, 1.15, 0, body).scale.set(1.14, 1, 0.78);
-      // Limbs hang from pivots so they can swing
-      const limb = (x, y, upperMat, lowerMat, upLen, lowLen, r, end) => {
+      if (a.tie) {
+        const tm = new THREE.MeshStandardMaterial({ color: a.tie, roughness: 0.45 });
+        part(new THREE.BoxGeometry(0.03, 0.025, 0.02), tm, 0, 1.425, 0.1, body, false);
+        const blade = part(new THREE.CylinderGeometry(0.024, 0.008, 0.3, 4), tm, 0, 1.26, 0.107, body, false); blade.rotation.y = Math.PI / 4; blade.scale.set(1, 1, 0.25);
+      }
+      if (a.vest) { const v = part(lathe([[0.001, 0.12], [0.135, 0.12], [0.14, 0.22], [0.155, 0.32], [0.161, 0.4], [0.156, 0.46], [0.137, 0.5], [0.001, 0.5]]), fabric(a.accent), 0, 0.88, 0, body); v.scale.set(1.26, 1, 0.74); }
+      if (a.lanyard) {
+        const lm = new THREE.MeshStandardMaterial({ color: "#2F6FB0", roughness: 0.6 });
+        const strap = part(new THREE.TorusGeometry(0.1, 0.005, 6, 24, Math.PI), lm, 0, 1.38, 0.08, body, false); strap.rotation.z = Math.PI; strap.scale.set(0.85, 1, 1);
+        part(new THREE.BoxGeometry(0.06, 0.08, 0.006), white, 0, 1.26, 0.108, body, false);
+      }
+
+      // Head: one smooth shape, broad at the cranium and narrower at the chin, so there is no seam at the jaw
+      const head = new THREE.Group(); head.position.set(0, 1.6, 0); body.add(head);
+      const PROFILE = [[0, -0.12], [0.03, -0.119], [0.055, -0.108], [0.072, -0.088], [0.083, -0.06], [0.092, -0.025], [0.099, 0.01], [0.102, 0.04], [0.099, 0.07], [0.088, 0.098], [0.066, 0.12], [0.036, 0.134], [0, 0.138]];
+      const HY = 0.9, HX = 0.82, HZ = 0.98;
+      const radiusAt = y => { y /= HY; for (let i = 1; i < PROFILE.length; i++) { const [r0, y0] = PROFILE[i - 1], [r1, y1] = PROFILE[i]; if (y <= y1) return r0 + (r1 - r0) * ((y - y0) / (y1 - y0)); } return 0; };
+      const surfaceZ = (x, y) => { const r = radiusAt(y); const k = 1 - (x / (r * HX)) ** 2; return k > 0 ? r * HZ * Math.sqrt(k) : 0; };
+      const shell = (pts, mat, extra = 0, phiStart = 0, phiLength = Math.PI * 2) => {
+        const m = part(new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r ? r + extra : 0, y * HY)), 40, phiStart, phiLength), mat, 0, 0, 0, head);
+        m.scale.set(HX, 1, HZ); return m;
+      };
+      shell(PROFILE, skin);
+      const eyeZ = surfaceZ(0.033, 0.012) - 0.007;
+      const eyes = [-0.033, 0.033].map(x => {
+        const e = new THREE.Group(); e.position.set(x, 0.012, eyeZ); head.add(e);
+        part(new THREE.SphereGeometry(0.0135, 16, 12), white, 0, 0, 0, e, false);
+        part(new THREE.SphereGeometry(0.0078, 14, 10), iris, 0, 0, 0.0092, e, false);
+        part(new THREE.SphereGeometry(0.0026, 8, 6), new THREE.MeshBasicMaterial({ color: "#FFFFFF" }), 0.0028, 0.0028, 0.0158, e, false);   // catchlight
+        part(new THREE.SphereGeometry(0.0148, 18, 8, 0, Math.PI * 2, 0, Math.PI * 0.38), skin, 0, 0, 0, e, false).rotation.x = 0.26;          // upper lid
+        part(new THREE.SphereGeometry(0.0144, 18, 6, 0, Math.PI * 2, Math.PI * 0.74, Math.PI * 0.26), skin, 0, 0, 0, e, false).rotation.x = -0.25;  // lower lid
+        return e;
+      });
+      [-0.034, 0.034].forEach(x => { const br = part(new THREE.BoxGeometry(0.032, 0.0055, 0.006), hair, x, 0.04, surfaceZ(x, 0.04) + 0.001, head, false); br.rotation.z = x < 0 ? 0.1 : -0.1; br.rotation.y = x < 0 ? -0.3 : 0.3; });
+      const noseZ = surfaceZ(0, -0.012);
+      const nose = part(cap(0.0102, 0.017), skin, 0, -0.013, noseZ + 0.005, head, false); nose.rotation.x = 0.55;
+      [-0.008, 0.008].forEach(x => part(new THREE.SphereGeometry(0.0085, 10, 8), skin, x, -0.027, surfaceZ(x, -0.027) + 0.003, head, false));
+      const mouth = part(new THREE.TorusGeometry(0.016, 0.003, 6, 14, Math.PI), lip, 0, -0.05, surfaceZ(0, -0.05) + 0.001, head, false); mouth.rotation.z = Math.PI; mouth.scale.set(1, 0.5, 0.6);
+      [-1, 1].forEach(sx => part(new THREE.SphereGeometry(0.022, 12, 10), skin, sx * radiusAt(0.0) * HX, 0.0, -0.008, head).scale.set(0.4, 1, 0.7));
+
+      // Hair is its own surface: it starts at a real hairline (high at the forehead, lower at the temples and nape)
+      // and thickens toward the crown, so the edge is clean instead of cutting into the skin
+      const TOPY = 0.138 * HY;
+      function hairShell(line, extraTop, mat, extraEdge = 0.0018, segs = 72, rows = 20) {
+        const pos = [], idx = [];
+        for (let i = 0; i <= segs; i++) {
+          const phi = Math.PI + (i / segs) * Math.PI * 2, y0 = line(phi);
+          for (let j = 0; j <= rows; j++) {
+            const t = j / rows, y = y0 + (TOPY - y0) * t, ex = extraEdge + (extraTop - extraEdge) * Math.min(1, t * 3);
+            const k = 1 + ex / 0.1, r = j === rows ? 0 : radiusAt(y);
+            pos.push(Math.sin(phi) * r * HX * k, (j === rows ? TOPY : y) * k, Math.cos(phi) * r * HZ * k);
+          }
+        }
+        for (let i = 0; i < segs; i++) for (let j = 0; j < rows; j++) {
+          const a0 = i * (rows + 1) + j, b0 = (i + 1) * (rows + 1) + j;
+          idx.push(a0, b0, a0 + 1, b0, b0 + 1, a0 + 1);
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+        return part(g, mat, 0, 0, 0, head);
+      }
+      // front, sides and back heights of the hairline; phi 0 is the face
+      const line = (front, side, back) => phi => { const c = Math.cos(phi); return c >= 0 ? side + (front - side) * c * c : side + (back - side) * c * c; };
+      hair.side = THREE.DoubleSide;
+      if (a.style === "beanie") {
+        const knit = new THREE.MeshPhysicalMaterial({ color: a.accent, roughness: 1, sheen: 1, sheenRoughness: 0.9, sheenColor: tint(a.accent, "#FFFFFF", 0.3), side: THREE.DoubleSide });
+        hairShell(line(0.04, -0.01, -0.065), 0.006, hair);
+        hairShell(phi => 0.03 + 0.024 * Math.cos(phi), 0.03, knit, 0.016);
+        const cuff = part(new THREE.TorusGeometry(radiusAt(0.03) * 1.17, 0.013, 10, 40), knit, 0, 0.034, 0, head); cuff.rotation.x = Math.PI / 2 - 0.23; cuff.scale.set(HX, HZ, 1);
+      } else if (a.style === "cap") {
+        const cm = fabric(a.accent); cm.side = THREE.DoubleSide;
+        hairShell(line(0.05, -0.005, -0.06), 0.006, hair);
+        hairShell(phi => 0.038 + 0.018 * Math.cos(phi), 0.016, cm, 0.012);
+        const brim = part(new THREE.CylinderGeometry(0.08, 0.08, 0.008, 28, 1, false, -1.05, 2.1), cm, 0, 0.052, 0.058, head); brim.scale.set(1, 1, 1.2); brim.rotation.x = 0.14;
+      } else if (a.style === "long") {
+        hairShell(line(0.052, -0.07, -0.11), 0.012, hair, 0.003);
+        const back = part(new THREE.SphereGeometry(0.095, 28, 18), hair, 0, -0.14, -0.045, head); back.scale.set(1.02, 1.8, 0.4);
+      } else if (a.style === "curly") {
+        hairShell(line(0.06, 0.005, -0.055), 0.026, hair, 0.006);
+        for (let i = 0; i < 26; i++) {
+          const an = i / 26 * Math.PI * 2, ring = i % 3, rr = radiusAt(0.06 + ring * 0.022) + 0.018;
+          part(new THREE.SphereGeometry(0.022 + (i % 2) * 0.006, 10, 8), hair, Math.sin(an) * rr * HX, 0.06 + ring * 0.022, Math.cos(an) * rr * HZ, head, false);
+        }
+      } else {
+        // neat, beard and bun: short hair
+        hairShell(line(a.style === "neat" ? 0.058 : 0.05, 0.0, -0.06), a.style === "neat" ? 0.009 : 0.008, hair);
+        if (a.style === "bun") part(new THREE.SphereGeometry(0.044, 18, 14), hair, 0, 0.098, -0.092, head);
+        if (a.style === "beard") {
+          // Short beard along the jaw and chin, open around the mouth
+          // A band that follows the jaw: from under the chin up to the sideburns, lower in front so the lips show
+          const pos = [], idx = [], segs = 48, rows = 10;
+          for (let i = 0; i <= segs; i++) {
+            const phi = -Math.PI * 0.56 + (i / segs) * Math.PI * 1.12, c = Math.max(0, Math.cos(phi));
+            const yTop = -0.004 - 0.056 * c * c, yLow = -0.118 * HY + 0.004;
+            for (let j = 0; j <= rows; j++) {
+              const t = j / rows, y = yLow + (yTop - yLow) * t, r = radiusAt(y) + 0.0045 - 0.0028 * t * t;
+              pos.push(Math.sin(phi) * r * HX, y, Math.cos(phi) * r * HZ);
+            }
+          }
+          for (let i = 0; i < segs; i++) for (let j = 0; j < rows; j++) { const a0 = i * (rows + 1) + j, b0 = (i + 1) * (rows + 1) + j; idx.push(a0, b0, a0 + 1, b0, b0 + 1, a0 + 1); }
+          const bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); bg.setIndex(idx); bg.computeVertexNormals();
+          part(bg, hair, 0, 0, 0, head, false);
+          part(cap(0.006, 0.03), hair, 0, -0.038, surfaceZ(0, -0.038) + 0.005, head, false).rotation.z = Math.PI / 2;
+          mouth.position.z += 0.005;
+        }
+      }
+      if (a.glasses) {
+        const gz = eyeZ + 0.022;
+        [-0.033, 0.033].forEach(x => part(new THREE.TorusGeometry(0.02, 0.0026, 6, 22), frame, x, 0.012, gz, head, false));
+        part(new THREE.BoxGeometry(0.024, 0.003, 0.003), frame, 0, 0.015, gz + 0.002, head, false);
+        [-1, 1].forEach(sx => part(new THREE.BoxGeometry(0.003, 0.003, 0.1), frame, sx * 0.054, 0.015, gz - 0.05, head, false));
+      }
+      if (a.headphones) {
+        const hm = new THREE.MeshStandardMaterial({ color: "#22252B", roughness: 0.35, metalness: 0.2 });
+        part(new THREE.TorusGeometry(radiusAt(0.03) * HX + 0.014, 0.009, 8, 28, Math.PI), hm, 0, 0.02, -0.004, head, false).scale.set(1, 1.45, 1);
+        [-1, 1].forEach(sx => part(new THREE.CylinderGeometry(0.033, 0.033, 0.026, 18), hm, sx * (radiusAt(0) * HX + 0.012), 0.0, -0.006, head, false).rotation.z = Math.PI / 2);
+      }
+
+      // Arms and legs hang from joints so the poses can swing them
+      const limb = (x, y, upMat, lowMat, upLen, lowLen, rUp, rLow, end) => {
         const up = new THREE.Group(); up.position.set(x, y, 0); body.add(up);
-        part(cap(r, upLen - r), upperMat, 0, -upLen / 2, 0, up);
+        part(cap(rUp, upLen - rUp), upMat, 0, -upLen / 2, 0, up);
         const low = new THREE.Group(); low.position.set(0, -upLen, 0); up.add(low);
-        part(cap(r * 0.9, lowLen - r), lowerMat, 0, -lowLen / 2, 0, low);
-        end(low, lowLen);
+        part(cap(rLow, lowLen - rLow), lowMat, 0, -lowLen / 2, 0, low);
+        end(low, lowLen, up);
         return { up, low };
       };
-      const sleeve = a.hoodie || a.style === "beanie" ? shirt : skin;
-      const armL = limb(-0.225, 1.38, shirt, sleeve, 0.29, 0.26, 0.052, (low, len) => part(new THREE.SphereGeometry(0.048, 10, 10), skin, 0, -len - 0.02, 0, low));
-      const armR = limb(0.225, 1.38, shirt, sleeve, 0.29, 0.26, 0.052, (low, len) => part(new THREE.SphereGeometry(0.048, 10, 10), skin, 0, -len - 0.02, 0, low));
-      const foot = (low, len) => part(new THREE.BoxGeometry(0.1, 0.07, 0.24), shoe, 0, -len - 0.02, 0.05, low);
-      const legL = limb(-0.095, 0.9, pants, pants, 0.43, 0.42, 0.075, foot);
-      const legR = limb(0.095, 0.9, pants, pants, 0.43, 0.42, 0.075, foot);
+      const hand = (side) => (low, len, up) => {
+        part(new THREE.SphereGeometry(0.054, 16, 12), shirt, side * -0.012, -0.004, 0, up).scale.set(1, 0.78, 0.86);   // shoulder
+        if (!longSleeves) { part(new THREE.CylinderGeometry(0.058, 0.053, 0.14, 16), shirt, 0, -0.065, 0, up); }
+        else part(new THREE.CylinderGeometry(0.044, 0.046, 0.04, 14), trim, 0, -len + 0.02, 0, low, false);   // cuff
+        const palm = part(new RoundedBoxGeometry(0.07, 0.085, 0.03, 2, 0.012), skin, 0, -len - 0.04, 0.004, low);
+        palm.rotation.y = side * 0.2;
+        part(cap(0.011, 0.026), skin, -side * 0.032, -len - 0.025, 0.018, low, false).rotation.z = side * 0.6;
+      };
+      const armUp = longSleeves ? shirt : skin, armLow = longSleeves ? shirt : skin;
+      const armL = limb(-0.225, 1.38, armUp, armLow, 0.29, 0.26, 0.047, 0.04, hand(-1));
+      const armR = limb(0.225, 1.38, armUp, armLow, 0.29, 0.26, 0.047, 0.04, hand(1));
+      const foot = (low, len) => {
+        part(new RoundedBoxGeometry(0.095, 0.07, 0.25, 2, 0.03), shoe, 0, -len - 0.025, 0.045, low);
+        part(new THREE.BoxGeometry(0.098, 0.02, 0.252), sole, 0, -len - 0.06, 0.045, low, false);
+      };
+      const legL = limb(-0.095, 0.9, pants, pants, 0.43, 0.42, 0.072, 0.058, foot);
+      const legR = limb(0.095, 0.9, pants, pants, 0.43, 0.42, 0.072, 0.058, foot);
       // Status ring on the floor: green while on a real task
       const ring = new THREE.Mesh(new THREE.RingGeometry(0.36, 0.43, 40), new THREE.MeshBasicMaterial({ color: "#3DDC97", transparent: true, opacity: 0, depthWrite: false }));
       ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03; root.add(ring);
       const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 1.8, 8), new THREE.MeshBasicMaterial({ visible: false })); hit.position.y = 0.9; hit.userData.agentId = a.id; root.add(hit); pickables.push(hit);
       world.add(root);
-      return { root, body, head, torso, armL, armR, legL, legR, ring };
+      return { root, body, head, torso, armL, armR, legL, legR, ring, eyes };
     }
 
-    const HALL_X = 3.9, LEFT_X = -9.6;
+    const HALL_X = 3.9, LEFT_X = -9.6, DOOR_X = MR.x0 + 2.15;
     const aisleFor = z => (z < 0 ? -1.15 : 3.85);
     const SPOTS = [
       { name: "coffee", x: X0 + 1.5, z: 6.4, rot: -Math.PI / 2, say: "Coffee first.", secs: [5, 9] },
@@ -5146,12 +6123,12 @@ def fetch_user_profile(user_id: str, db_pool=None):
       // Walk along the aisles and the hall, never through desks or glass
       const pts = [], aF = aisleFor(from.z), aT = to.aisle ?? aisleFor(to.z);
       const push = (x, z) => { const l = pts[pts.length - 1] || from; if (Math.hypot(l.x - x, l.z - z) > 0.05) pts.push({ x, z }); };
-      if (from.zone === "room") { push(6.15, -3.0); push(6.15, -0.4); push(HALL_X, -0.4); }
+      if (from.zone === "room") { push(DOOR_X, -3.0); push(DOOR_X, -0.4); push(HALL_X, -0.4); }
       else if (from.zone === "lounge") { push(6.2, from.z < 6 ? from.z : 5.6); push(HALL_X, 3.85); }
       else if (from.zone === "left") push(LEFT_X, from.z);
       else { push(from.x + 0.95, from.z); push(from.x + 0.95, aF); }
       const last = () => pts[pts.length - 1] || from;
-      if (to.zone === "room") { push(HALL_X, last().z); push(HALL_X, -0.4); push(6.15, -0.4); push(6.15, -3.0); if (to.z < -5) { push(to.x < 8.5 ? 6.0 : 10.9, -3.0); push(to.x < 8.5 ? 6.0 : 10.9, -6.6); push(to.x, -6.6); } else push(to.x, -3.0); }
+      if (to.zone === "room") { push(HALL_X, last().z); push(HALL_X, -0.4); push(DOOR_X, -0.4); push(DOOR_X, -3.0); if (to.z < -5) { push(to.x < 8.5 ? 6.0 : 10.9, -3.0); push(to.x < 8.5 ? 6.0 : 10.9, -6.6); push(to.x, -6.6); } else push(to.x, -3.0); }
       else if (to.zone === "lounge") { push(HALL_X, last().z); push(HALL_X, 3.85); push(6.2, 3.85); push(6.2, 5.6); push(to.x, 5.6); }
       else if (to.zone === "left") { push(LEFT_X, last().z); push(LEFT_X, to.z); }
       else { const viaHall = from.zone === "room" || from.zone === "lounge"; if (!viaHall && aF !== aT) { push(LEFT_X, last().z); push(LEFT_X, aT); } else if (viaHall) push(HALL_X, aT); push(to.x + 0.95, aT); push(to.x + 0.95, to.z); }
@@ -5160,6 +6137,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     const between = (a, b) => a + Math.random() * (b - a);
+    const pickOne = list => list[Math.floor(Math.random() * list.length)];
+    const spotGoal = s => ({ x: s.x + (s.sit ? between(-1, 1) : 0), z: s.z, rot: s.rot, zone: s.name === "sofa" ? "lounge" : s.name === "window" ? "desk" : "left", aisle: s.name === "window" ? -1.15 : undefined });
     let clock = 0;
     team.forEach((a, i) => {
       a.p3 = makePerson(a);
@@ -5168,8 +6147,123 @@ def fetch_user_profile(user_id: str, db_pool=None):
       a.pos = { x: a.home.x, z: a.home.z, rot: a.home.rot, zone: a.home.zone };
       a.pose = a.isUser ? "stand" : "sit"; a.route = null; a.goal = null;
       a.nextTrip = between(6, 30) + i * 3; a.phase = Math.random() * 10;
+      a.speed = 1.32 + (i % 4) * 0.07; a.offX = 0; a.offZ = 0; a.heading = null;
+      if (a.isUser) { a.trip = "home"; a.idleSay = "Catching up on messages."; a.tripUntil = between(3, 6); a.with = null; }
     });
+    // ---------- Real people: rigged Microsoft Rocketbox avatars (MIT) with recorded motion ----------
+    const LOOKS = { apex: "Male_Adult_08", alpha_be: "Male_Adult_04", beta_fe: "Female_Adult_08", gamma_qa: "Male_Adult_12", zeta_docs: "Female_Adult_14", delta_devops: "Male_Adult_05" };
+    const YOU_LOOKS = { a: "Male_Adult_06", b: "Female_Adult_04" };
+    const youLook = () => { try { return YOU_LOOKS[localStorage.getItem("devsquad_you_look")] || YOU_LOOKS.a; } catch (e) { return YOU_LOOKS.a; } };
+    const gltfLoader = new GLTFLoader(), clipSets = {};
+    const loadGlb = url => new Promise((res, rej) => gltfLoader.load(url, res, undefined, rej));
+    const clipsFor = look => { const g = look.startsWith("Female") ? "f" : "m"; return clipSets[g] || (clipSets[g] = loadGlb(`models/people/anim_${g}.glb`).then(r => Object.fromEntries(r.animations.map(c => [c.name, c])))); };
+    async function dressUp(a) {
+      const look = a.isUser ? youLook() : LOOKS[a.id];
+      if (!look || (a.rig && a.rig.look === look)) return;
+      const [g, clips] = await Promise.all([loadGlb(`models/people/${look}.glb`), clipsFor(look)]);
+      const model = g.scene;
+      model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+      if (a.rig) a.p3.root.remove(a.rig.model);
+      a.p3.body.visible = false;
+      a.p3.root.add(model);
+      const mixer = new THREE.AnimationMixer(model);
+      const actions = Object.fromEntries(Object.entries(clips).map(([n, c]) => [n, mixer.clipAction(c)]));
+      const bone = n => model.getObjectByName(n);
+      a.rig = { model, mixer, actions, look, current: null, speed: 0, hands: [bone("Bip01_L_Hand"), bone("Bip01_R_Hand")], head: bone("Bip01_Head") };
+    }
+    team.forEach(a => dressUp(a).catch(() => {}));
+    window.__office3dDressYou = () => { const y = team.find(t => t.isUser); if (y) dressUp(y).catch(() => {}); };
+    // Which recorded motion fits what someone is doing
+    function clipFor(a) {
+      if (a.pose === "walk") return "walk";
+      if (a.pose === "sit") return a.trip === "sofa" ? "sofa" : "sit";
+      return { coffee: "drink", board: "present", pickup: "present", checkin: "talk", watch: "listen", present: "present", home: a.isUser ? "phone" : "idle" }[a.trip] || "idle";
+    }
+    function rigPose(a, dt) {
+      const r = a.rig, want = clipFor(a);
+      if (r.current !== want && r.actions[want]) {
+        const next = r.actions[want];
+        next.reset(); next.time = (a.phase * 7.3) % next.getClip().duration; next.setEffectiveWeight(1); next.play();
+        if (r.current) r.actions[r.current].crossFadeTo(next, 0.45, false);
+        r.current = want;
+      }
+      // Walk at the pace they actually move, so feet don't slide
+      const px = r.lastX ?? a.pos.x, pz = r.lastZ ?? a.pos.z; r.lastX = a.pos.x; r.lastZ = a.pos.z;
+      r.speed += (Math.hypot(a.pos.x - px, a.pos.z - pz) / Math.max(dt, 1e-3) - r.speed) * Math.min(1, dt * 6);
+      if (r.actions.walk) r.actions.walk.setEffectiveTimeScale(THREE.MathUtils.clamp(r.speed / 1.35, 0.45, 1.25));
+      r.model.position.y = a.pose === "sit" && a.trip === "sofa" ? -0.07 : 0;
+      r.mixer.update(motionOn3d ? dt : 0);
+      // Typing: small quick hand movements on top of the sitting motion while on a real task
+      if (a.pose === "sit" && !a.trip && a.where !== "meeting" && busy(a)) {
+        const t = clock * 13 + a.phase;
+        r.hands.forEach((h, i) => { if (h) h.rotateZ(Math.sin(t + i * 1.9) * 0.09); });
+      }
+      const p = a.p3, k = Math.min(1, dt * 10), on = busy(a) ? 1 : 0;
+      p.root.position.set(a.pos.x + a.offX, 0, a.pos.z + a.offZ); p.root.rotation.y = a.pos.rot;
+      p.ring.material.opacity = ease(p.ring.material.opacity, on * (0.65 + 0.3 * Math.sin(clock * 4)), k);
+      if (a.screen) { const atDesk = a.pose === "sit" && !a.trip && a.where !== "meeting"; a.screen.material.emissiveIntensity = ease(a.screen.material.emissiveIntensity, on ? 1.5 : atDesk ? 0.6 : 0.12, k); a.lamp.intensity = ease(a.lamp.intensity, on ? 2.2 : 0, k); }
+    }
+    // ---------- You: the director walks the floor instead of standing in one spot ----------
+    const you = team.find(a => a.isUser);
+    const HEAD = { x: 11.0, z: TABLE.z, rot: -Math.PI / 2, zone: "room" };
+    const CHECKINS = [n => `How's it going, ${n}?`, n => `${n}, need anything from me?`, n => `Quick sync, ${n}?`, n => `Nice work on that, ${n}.`];
+    const YOU_AT = { coffee: "Grabbing a coffee.", board: "Sketching the roadmap.", window: "Taking in the view.", sofa: "Reviewing PRs on the sofa." };
+    // Stand behind a teammate's right shoulder, looking at their screen
+    function deskSide(w) {
+      const x = w.seat.x + 0.75, z = w.seat.z + 0.55;
+      return { x, z, zone: "desk", rot: Math.atan2(w.seat.x - x, w.seat.z - 1.06 - z) };
+    }
+    function updateYou(a) {
+      if (isMeetingMode && a.where !== "meeting") { a.where = "meeting"; a.trip = "present"; a.with = null; a.idleSay = "Let's go round the table."; a.tripUntil = Infinity; send(a, HEAD, "stand"); return; }
+      if (!isMeetingMode && a.where === "meeting") { a.where = null; a.trip = "home"; a.idleSay = "Catching up on messages."; a.tripUntil = clock + between(4, 8); send(a, a.home, "stand"); return; }
+      if (a.route || a.where === "meeting" || !motionOn3d) return;
+      const partner = a.with && AGENTS[a.with];
+      if (partner && (a.trip === "checkin" || a.trip === "watch") && (partner.trip || partner.where === "meeting" || partner.route || (a.trip === "watch" && !busy(partner)))) a.tripUntil = 0;
+      if (clock < a.tripUntil) return;
+      let plan = null;
+      const working = workers.filter(w => busy(w) && w.where !== "meeting");
+      if (working.length && Math.random() < 0.8) {
+        const w = working.find(x => x.id !== a.with) || working[0];
+        plan = { trip: "watch", with: w.id, goal: deskSide(w), say: `Watching ${w.name} ship it.`, secs: [10, 18] };
+      } else {
+        const roll = Math.random();
+        if (roll < 0.45) {
+          const w = pickOne(workers.filter(x => x.id !== a.with && !x.trip && !x.route && x.where !== "meeting"));
+          if (w) plan = { trip: "checkin", with: w.id, goal: deskSide(w), say: pickOne(CHECKINS)(w.name), secs: [7, 12] };
+        } else if (roll < 0.8) {
+          const s = pickOne(SPOTS.filter(x => !workers.some(w => w.trip === x.name) && x.name !== a.trip));
+          if (s) plan = { trip: s.name, goal: spotGoal(s), sit: s.sit, say: YOU_AT[s.name], secs: [8, 14] };
+        }
+      }
+      const taken = g => team.some(o => o !== a && o.pose !== "sit" && [o.pos, o.goal].some(q => q && Math.hypot(q.x - g.x, q.z - g.z) < 0.8));
+      if (plan && taken(plan.goal)) plan = null;
+      if (!plan) plan = a.trip === "home" ? { trip: "board", goal: spotGoal(SPOTS[1]), say: YOU_AT.board, secs: [8, 12] } : { trip: "home", goal: a.home, say: "Catching up on messages.", secs: [8, 15] };
+      a.trip = plan.trip; a.with = plan.with || null; a.idleSay = plan.say;
+      a.tripUntil = clock + between(...plan.secs) + 4;
+      send(a, plan.goal, plan.sit ? "sit" : "stand");
+    }
     const busy = a => a.state === "writing" || a.state === "reading";
+    // A card that moves into In progress sends its owner (Apex for unassigned cards) to the board, then back to their desk
+    const pickedCards = new Set();
+    function pickUp(ownerId, title, cardId) {
+      if (cardId) { if (pickedCards.has(cardId)) return; pickedCards.add(cardId); }
+      const a = AGENTS[ownerId] && !AGENTS[ownerId].isUser ? AGENTS[ownerId] : AGENTS.apex;
+      if (a && a.pos && a.where !== "meeting") a.pickup = String(title || "the card");
+    }
+    let wallSeen = null, wallSig = "";
+    async function refreshWallBoard() {
+      let cols = null, note = "";
+      try { const r = await fetch("/api/v5/board"); if (r.ok) cols = (await r.json()).columns; } catch (e) {}
+      if (!Array.isArray(cols)) { cols = []; note = "Start DevSquad on your computer to see your board here."; }
+      const doing = cols.find(c => c.id === "in_progress");
+      if (doing) { if (wallSeen) doing.cards.filter(c => !wallSeen.has(c.id)).forEach(c => pickUp(c.owner, c.title, c.id)); wallSeen = new Set(doing.cards.map(c => c.id)); }
+      const sig = note + JSON.stringify(cols.map(c => c.cards.map(k => [k.id, k.title, k.owner])));
+      if (sig !== wallSig) { wallSig = sig; drawKanban(cols, note); }
+    }
+    window.addEventListener("devsquad:board", refreshWallBoard);
+    window.addEventListener("devsquad:assign", e => { const d = e.detail || {}; pickUp(d.owner, d.title, d.id); });
+    refreshWallBoard();
+    const pickupSpot = a => ({ x: X0 + 1.15, z: -5.6 + (workers.indexOf(a) % 3) * 1.1, rot: -Math.PI / 2, zone: "left" });
     function send(a, goal, pose, after) {
       a.route = pathBetween(a.pos, goal); a.goal = goal; a.goalPose = pose; a.after = after; a.pose = "walk";
     }
@@ -5178,33 +6272,69 @@ def fetch_user_profile(user_id: str, db_pool=None):
       team.forEach(a => {
         const wantsMeeting = (isMeetingMode || a.state === "meeting") && !a.isUser;
         const idx = workers.indexOf(a);
-        if (wantsMeeting && a.where !== "meeting") { a.where = "meeting"; a.trip = null; send(a, { x: MEET[idx][0], z: MEET[idx][1], rot: MEET[idx][2], zone: "room" }, "sit"); }
+        if (a.isUser) updateYou(a);
+        else if (wantsMeeting && a.where !== "meeting") { a.where = "meeting"; a.trip = null; send(a, { x: MEET[idx][0], z: MEET[idx][1], rot: MEET[idx][2], zone: "room" }, "sit"); }
         else if (!wantsMeeting && a.where === "meeting") { a.where = null; send(a, a.home, "sit"); }
+        else if (!a.isUser && a.pickup && !a.route && !a.where) {
+          a.trip = "pickup"; a.idleSay = `Picking up "${a.pickup.length > 40 ? a.pickup.slice(0, 38) + "…" : a.pickup}".`; a.pickup = null; a.tripUntil = Infinity;
+          send(a, pickupSpot(a), "stand", () => { a.tripUntil = clock + 3.2; });
+        }
         else if (!a.isUser && !a.route && !a.where) {
-          if (a.trip && (clock > a.tripUntil || busy(a))) { a.trip = null; a.idleSay = null; send(a, a.home, "sit"); a.nextTrip = clock + between(25, 70); }
-          else if (!a.trip && a.pose === "sit" && !busy(a) && motionOn3d && clock > a.nextTrip && away < 2) {
-            const options = SPOTS.filter(s => !workers.some(w => w.trip === s.name));
-            const s = options[Math.floor(Math.random() * options.length)];
-            if (s) { a.trip = s.name; a.idleSay = s.say; a.tripUntil = clock + 12 + between(...s.secs); send(a, { x: s.x + (s.sit ? between(-1, 1) : 0), z: s.z, rot: s.rot, zone: s.name === "sofa" ? "lounge" : s.name === "window" ? "desk" : "left", aisle: s.name === "window" ? -1.15 : undefined }, s.sit ? "sit" : "stand"); }
+          if (a.trip && (clock > a.tripUntil || (busy(a) && a.trip !== "pickup"))) { a.trip = null; a.idleSay = null; send(a, a.home, "sit"); a.nextTrip = clock + between(25, 70); }
+          else if (!a.trip && a.pose === "sit" && !busy(a) && motionOn3d && clock > a.nextTrip && away < 2 && !(you.with === a.id && (you.trip === "checkin" || you.trip === "watch"))) {
+            const options = SPOTS.filter(s => !workers.some(w => w.trip === s.name) && you.trip !== s.name);
+            const s = pickOne(options);
+            if (s) { a.trip = s.name; a.idleSay = s.say; a.tripUntil = clock + 12 + between(...s.secs); send(a, spotGoal(s), s.sit ? "sit" : "stand"); }
             else a.nextTrip = clock + 10;
           }
         }
-        // Move along the route
+        // Move along the route. Walkers keep to their right, so people coming the other way pass cleanly,
+        // and slow down behind anyone going the same way instead of walking through them.
         if (a.route) {
-          let step = 1.5 * dt;
+          let step = a.speed * dt;
+          const t0 = a.route[0], hx = t0.x - a.pos.x, hz = t0.z - a.pos.z, hl = Math.hypot(hx, hz) || 1;
+          const fx = hx / hl, fz = hz / hl;
+          for (const b of team) {
+            if (b === a) continue;
+            const bx = b.pos.x - a.pos.x, bz = b.pos.z - a.pos.z, ahead = bx * fx + bz * fz, side = Math.abs(bx * fz - bz * fx);
+            if (ahead <= 0 || ahead > 0.8 || side > 0.42) continue;
+            const sameWay = b.pose === "walk" && b.heading && b.heading[0] * fx + b.heading[1] * fz > 0.5;
+            if (sameWay) step *= 0.35;                        // follow at their pace
+            else if (b.pose !== "walk") step *= 0.6;          // ease past someone standing or sitting
+          }
+          a.heading = [fx, fz];
           while (a.route.length && step > 0) {
             const t = a.route[0], dx = t.x - a.pos.x, dz = t.z - a.pos.z, d = Math.hypot(dx, dz);
             if (d <= step) { a.pos.x = t.x; a.pos.z = t.z; a.route.shift(); step -= d; }
             else { a.pos.x += dx / d * step; a.pos.z += dz / d * step; a.targetRot = Math.atan2(dx, dz); step = 0; }
           }
-          if (!a.route.length) { a.route = null; a.pose = a.goalPose; a.targetRot = a.goal.rot; a.pos.zone = a.goal.zone; }
+          if (!a.route.length) { a.route = null; a.pose = a.goalPose; a.targetRot = a.goal.rot; a.pos.zone = a.goal.zone; a.heading = null; if (a.after) { const done = a.after; a.after = null; done(); } }
         }
+        const last = a.route && a.route[a.route.length - 1], left = last ? Math.hypot(last.x - a.pos.x, last.z - a.pos.z) : 0;
+        const lane = a.route && a.heading && left > 0.9 ? 0.27 : 0, rx = a.heading ? -a.heading[1] : 0, rz = a.heading ? a.heading[0] : 0;
+        a.offX = ease(a.offX, rx * lane, Math.min(1, dt * 3)); a.offZ = ease(a.offZ, rz * lane, Math.min(1, dt * 3));
         let dr = (a.targetRot ?? a.pos.rot) - a.pos.rot; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); a.pos.rot += dr * Math.min(1, dt * 9);
-        pose(a, dt);
       });
+      keepApart();
+      team.forEach(a => pose(a, dt));
+    }
+    // Two people standing still never share a spot: they ease apart along the line between them. Walkers are
+    // left alone (they keep right and slow down instead), so nobody ends up circling.
+    function keepApart() {
+      const SPACE = 0.5;
+      for (let i = 0; i < team.length; i++) for (let j = i + 1; j < team.length; j++) {
+        const a = team[i], b = team[j];
+        if (a.pose !== "stand" || b.pose !== "stand" || a.route || b.route) continue;
+        let dx = b.pos.x - a.pos.x, dz = b.pos.z - a.pos.z, d = Math.hypot(dx, dz);
+        if (d >= SPACE) continue;
+        if (d < 1e-3) { dx = 1; dz = 0; d = 1; } else { dx /= d; dz /= d; }
+        const push = Math.min(SPACE - d, 0.01);
+        a.pos.x -= dx * push; a.pos.z -= dz * push; b.pos.x += dx * push; b.pos.z += dz * push;
+      }
     }
     const ease = (cur, to, k) => cur + (to - cur) * k;
     function pose(a, dt) {
+      if (a.rig) { rigPose(a, dt); return; }
       const p = a.p3, k = Math.min(1, dt * 10), t = clock * 1 + a.phase;
       let bodyY = 0, thigh = [0, 0], knee = [0, 0], sh = [0.06, 0.06], el = [-0.12, -0.12], lean = 0, headX = 0, headY = 0;
       if (a.pose === "walk") {
@@ -5225,15 +6355,23 @@ def fetch_user_profile(user_id: str, db_pool=None):
       } else {
         const sway = Math.sin(t * 0.8) * 0.03; lean = sway;
         if (a.trip === "coffee") { sh = [0.05, -0.75]; el = [-0.1, -1.5 + Math.sin(t * 0.9) * 0.25]; }
-        else if (a.trip === "board") { sh = [0.05, -1.9 + Math.sin(t * 2.2) * 0.2]; el = [-0.1, -0.5]; }
-        else if (a.isUser) { sh = [-0.35, -0.35]; el = [-1.5, -1.5]; headY = Math.sin(t * 0.3) * 0.5; }
+        else if (a.trip === "board" || a.trip === "pickup") { sh = [0.05, -1.9 + Math.sin(t * 2.2) * 0.2]; el = [-0.1, -0.5]; }
+        else if (a.trip === "checkin") { lean = 0.1; headX = 0.22; sh = [0.05, -0.55 + Math.sin(t * 3) * 0.22]; el = [-0.1, -1.1 + Math.sin(t * 2.3) * 0.2]; }
+        else if (a.trip === "watch") { lean = 0.08; headX = 0.28; sh = [-0.35, -0.35]; el = [-1.5, -1.5]; headY = Math.sin(t * 0.35) * 0.1; }
+        else if (a.trip === "present") { sh = [-0.25 + Math.sin(t * 1.7) * 0.25, -0.95 + Math.sin(t * 2.4) * 0.35]; el = [-0.5, -0.8]; headY = Math.sin(t * 0.6) * 0.55; }
+        else if (a.isUser && a.trip !== "window") { sh = [0.05, -0.85]; el = [-0.1, -1.65]; headX = 0.38 + Math.sin(t * 0.5) * 0.04; headY = Math.sin(t * 0.2) * 0.08; }
         else headY = Math.sin(t * 0.4) * 0.3;
       }
-      p.root.position.set(a.pos.x, 0, a.pos.z); p.root.rotation.y = a.pos.rot;
+      p.root.position.set(a.pos.x + a.offX, 0, a.pos.z + a.offZ); p.root.rotation.y = a.pos.rot;
       p.body.position.y = ease(p.body.position.y, bodyY, k); p.body.rotation.x = ease(p.body.rotation.x, lean, k);
       [p.legL, p.legR].forEach((l, i) => { l.up.rotation.x = ease(l.up.rotation.x, thigh[i], k); l.low.rotation.x = ease(l.low.rotation.x, knee[i], k); });
       [p.armL, p.armR].forEach((l, i) => { l.up.rotation.x = ease(l.up.rotation.x, sh[i], k); l.low.rotation.x = ease(l.low.rotation.x, el[i], k); });
       p.head.rotation.x = ease(p.head.rotation.x, headX, k); p.head.rotation.y = ease(p.head.rotation.y, headY, k);
+      const blink = (clock + a.phase * 3) % (3.2 + (a.phase % 2)) < 0.12 ? 0.1 : 1;
+      p.eyes.forEach(e => { e.scale.y = blink; });
+      p.body.position.x = ease(p.body.position.x, a.pose === "stand" ? Math.sin(t * 0.55) * 0.014 : 0, k);
+      p.body.rotation.y = ease(p.body.rotation.y, a.pose === "walk" ? Math.sin(clock * 8.5 + a.phase) * 0.07 : 0, k);
+      p.body.rotation.z = ease(p.body.rotation.z, a.pose === "stand" ? Math.sin(t * 0.55) * 0.012 : 0, k);
       p.torso.scale.y = 1 + Math.sin(t * 1.6) * 0.012;
       // What's real: the green ring, a brighter screen and a desk glow only while on a real task
       const on = busy(a) ? 1 : 0;
@@ -5252,25 +6390,92 @@ def fetch_user_profile(user_id: str, db_pool=None):
     window.__office3dRefresh = () => { team.forEach(a => { tagEls[a.id].querySelector("span").textContent = a.name; }); drawSign(); };
     const v = new THREE.Vector3();
     function project(x, y, z) { v.set(x, y, z).project(camera); return { x: (v.x * 0.5 + 0.5) * host.clientWidth, y: (-v.y * 0.5 + 0.5) * host.clientHeight, ok: v.z < 1 }; }
+    const tagW = {};
+    let tagMeasured = -1;
     function updateLabels() {
+      if (tagMeasured !== slow) { tagMeasured = slow; team.forEach(a => { tagW[a.id] = tagEls[a.id].offsetWidth || 80; }); }
+      const items = team.map(a => { const top = a.pose === "sit" ? 1.42 : 1.86, s = project(a.pos.x + a.offX, top, a.pos.z + a.offZ); return { a, s, x: s.x, y: s.y - 6 }; });
+      // Nearest first; a tag that would cover another moves up above it
+      items.sort((p, q) => q.y - p.y);
+      const placed = [];
+      items.forEach(it => {
+        if (!it.s.ok) return;
+        for (let guard = 0; guard < 6; guard++) {
+          const hit = placed.find(p => Math.abs(it.x - p.x) < (tagW[it.a.id] + tagW[p.a.id]) / 2 + 4 && Math.abs(it.y - p.y) < 25);
+          if (!hit) break;
+          it.y = hit.y - 27;
+        }
+        placed.push(it);
+      });
       let shown = false;
-      team.forEach(a => {
-        const top = a.pose === "sit" ? 1.42 : 1.86, s = project(a.pos.x, top, a.pos.z), el = tagEls[a.id];
-        el.style.transform = `translate(-50%,-100%) translate(${s.x.toFixed(1)}px,${(s.y - 6).toFixed(1)}px)`;
+      items.forEach(({ a, s, x, y }) => {
+        const el = tagEls[a.id];
+        el.style.visibility = s.ok ? "" : "hidden";
+        el.style.transform = `translate(-50%,-100%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
         el.classList.toggle("sel", selectedAgentId === a.id); el.classList.toggle("on", busy(a));
-        const urgent = a.state === "awaiting_input", text = urgent || selectedAgentId === a.id ? (a.trip && !busy(a) && a.idleSay) || a.speech : null;
-        if (text && (!shown || urgent)) {
+        const urgent = a.state === "awaiting_input", text = urgent || selectedAgentId === a.id || a.trip === "pickup" ? (a.trip && (a.trip === "pickup" || !busy(a)) && a.idleSay) || a.speech : null;
+        if (text && s.ok && (!shown || urgent)) {
           shown = true; if (bubble.textContent !== text) bubble.textContent = text.length > 60 ? text.slice(0, 58) + "…" : text;
           bubble.classList.toggle("urgent", urgent); bubble.style.display = "block";
-          bubble.style.transform = `translate(-50%,-100%) translate(${s.x.toFixed(1)}px,${(s.y - 36).toFixed(1)}px)`;
+          bubble.style.transform = `translate(-50%,-100%) translate(${x.toFixed(1)}px,${(y - 30).toFixed(1)}px)`;
         }
       });
       if (!shown) bubble.style.display = "none";
     }
 
     // ---------- clicks ----------
-    const ACTIONS = { whiteboard: () => openBlastRadiusModal(), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
-    function pick(id) { selectAgent(id); if (id !== "you" && typeof openTerminalSidecar === "function") openTerminalSidecar(id); }
+    const ACTIONS = { tank: () => { flyTo(V(TANK.x - 1.55, 1.12, TANK.z + 0.35), V(TANK.x, TANK.base + 0.27, TANK.z), 1.1); markView(null); }, board: () => openWorkshop("board"), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
+    function pick(id) { selectAgent(id); openDesk(id); }
+    // ---------- desk card: what someone is working on, from the board and the recorded status ----------
+    const deskEl = host.querySelector("#office3dDesk");
+    let deskFor = null, deskReq = 0;
+    const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const ago = ts => { const m = Math.round((Date.now() / 1000 - ts) / 60); return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+    function closeDesk() { deskFor = null; deskEl.classList.remove("on"); }
+    function renderDesk(a, d, msg) {
+      const state = d ? d.state : a.isUser ? "" : busy(a) ? "working" : "";
+      const head = `<header><i style="background:${esc(a.shirtColor)}"></i><div><b>${esc(a.name)}</b><small>${esc(a.role)}</small></div>${state ? `<span class="state ${state === "working" ? "working" : ""}">${esc(state)}</span>` : ""}<button type="button" class="x" data-desk="close" aria-label="Close">&times;</button></header>`;
+      let body = msg ? `<p class="none" style="margin-top:10px;">${esc(msg)}</p>` : "";
+      if (d && a.isUser) {
+        body += `<h6>Waiting on you</h6>${d.decisions.length ? `<ul>${d.decisions.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">Nothing. The Review Desk is clear.</p>`}`;
+        body += `<h6>Blockers</h6>${d.blockers.length ? `<ul>${d.blockers.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">None.</p>`}`;
+      } else if (d) {
+        const c = d.cards;
+        body += `<h6>Right now</h6><p>${esc(d.working_on)}</p>`;
+        body += `<h6>Their card</h6>${c.current ? `<div class="card">${esc(c.current.title)}<small>In progress${c.current.task_id ? ` · run ${esc(c.current.task_id)}` : ""}</small></div>` : `<p class="none">No card in progress.</p>`}`;
+        if (c.next) body += `<div class="card">${esc(c.next.title)}<small>Next up${c.backlog > 1 ? ` · ${c.backlog - 1} more in the backlog` : ""}</small></div>`;
+        if (c.review) body += `<p class="none" style="margin-top:4px;">${c.review} card${c.review > 1 ? "s" : ""} waiting on the Review Desk.</p>`;
+        body += `<h6>Last run</h6>${d.last_run ? `<p>"${esc(d.last_run.goal)}": ${esc(d.last_run.outcome)}, ${esc(ago(d.last_run.when))}.</p>` : `<p class="none">No runs yet.</p>`}`;
+        body += `<h6>ETA</h6><p>${esc(d.eta)}</p>`;
+        if (d.fields && d.fields.length) body += `<h6>Draws on</h6><p>${d.fields.map(esc).join(", ")} field guides</p>`;
+        body += `<h6>Blockers</h6>${d.blockers.length ? `<ul>${d.blockers.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">None.</p>`}`;
+      }
+      const acts = a.isUser ? `<button type="button" class="primary" data-desk="review">Review Desk</button><button type="button" data-desk="board">Task board</button>`
+        : `<button type="button" class="primary" data-desk="terminal">Open terminal</button><button type="button" data-desk="board">Task board</button><button type="button" data-desk="face">Look at ${esc(a.name)}</button>`;
+      deskEl.innerHTML = head + body + `<div class="acts">${acts}</div>`;
+    }
+    async function openDesk(id, quiet) {
+      const a = AGENTS[id]; if (!a) return;
+      const req = ++deskReq; deskFor = id;
+      if (!quiet) { renderDesk(a, null, "Loading…"); deskEl.classList.add("on"); }
+      let d = null, msg = "";
+      try {
+        const names = Object.fromEntries(workers.map(w => [w.id, w.name]));
+        const r = await fetch(`/api/v5/desk/${a.isUser ? "apex" : id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ names }) });
+        if (r.ok) d = await r.json(); else msg = "Couldn't read the status right now.";
+      } catch (e) { msg = "Start DevSquad on your computer to see live status here."; }
+      if (req !== deskReq || deskFor !== id) return;
+      renderDesk(a, d, msg);
+    }
+    deskEl.addEventListener("click", e => {
+      const act = e.target.closest("[data-desk]")?.dataset.desk, id = deskFor; if (!act) return;
+      if (act === "close") closeDesk();
+      else if (act === "terminal" && typeof openTerminalSidecar === "function") openTerminalSidecar(id);
+      else if (act === "board") openWorkshop("board");
+      else if (act === "review") openReviewDesk();
+      else if (act === "face" && AGENTS[id]) faceTo(AGENTS[id]);
+    });
+    deskEl.addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); closeDesk(); host.focus({ preventScroll: true }); } });
     const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
     function hitAt(e) {
       const r = renderer.domElement.getBoundingClientRect();
@@ -5283,11 +6488,110 @@ def fetch_user_profile(user_id: str, db_pool=None):
     renderer.domElement.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
     renderer.domElement.addEventListener("pointerup", e => {
       if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;   // a drag, not a click
-      const u = hitAt(e); if (!u) return;
+      const u = hitAt(e); if (!u) { closeDesk(); return; }
       if (u.agentId) pick(u.agentId); else if (ACTIONS[u.action]) ACTIONS[u.action]();
     });
     renderer.domElement.addEventListener("pointermove", e => { if (e.buttons) return; renderer.domElement.style.cursor = hitAt(e) ? "pointer" : "grab"; });
-    controls.addEventListener("start", () => host.classList.add("used"));
+    controls.addEventListener("start", () => { host.classList.add("used"); fly = null; markView(null); });
+
+    // ---------- moving around ----------
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const VIEWS = {
+      overview: [V(-2.2, 6.8, 21.5), V(0, 2.1, 0)],
+      desks: [V(-2.6, 4.0, 8.6), V(-3, 0.9, -1.0)],
+      meeting: [V(6.4, 3.4, 3.4), V(8.5, 0.9, -4.7)],
+      lounge: [V(5.6, 3.0, 13.0), V(8.4, 0.8, 5.8)],
+      window: [V(-1.0, 1.72, 2.6), V(-1.0, 1.62, -6.0)],
+      walk: [V(4.6, 1.7, 4.8), V(-2.0, 1.32, -1.4)],
+      board: [V(X0 + 4.6, 1.85, -4.45), V(X0 + 0.2, 1.72, -4.45)],
+    };
+    const VIEW_KEYS = ["overview", "desks", "meeting", "lounge", "window", "walk", "board"];
+    const BOUNDS = { x: [-11.4, 11.4], y: [0.6, 3.6], z: [-7.4, 7.6] };
+    let fly = null;
+    const smooth = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+    function flyTo(pos, target, secs = 1.0) {
+      fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos.clone(), t1: target.clone(), t: 0, d: motionOn3d ? secs : 0.001 };
+      host.classList.add("used");
+    }
+    function markView(name) { host.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === name))); }
+    function goView(name) { const v = VIEWS[name]; if (!v) return; flyTo(v[0], v[1], 1.2); markView(name); }
+    const offset = () => camera.position.clone().sub(controls.target);
+    function zoomBy(f, secs = 0.35) {
+      const o = offset(), d = THREE.MathUtils.clamp(o.length() * f, controls.minDistance, controls.maxDistance);
+      flyTo(controls.target.clone().add(o.setLength(d)), controls.target.clone(), secs); markView(null);
+    }
+    function turnBy(angle, secs = 0.45) {
+      const o = offset().applyAxisAngle(V(0, 1, 0), angle);
+      flyTo(controls.target.clone().add(o), controls.target.clone(), secs); markView(null);
+    }
+    function lookAtSpot(point, dist) {
+      const o = offset(); o.y = Math.max(o.y, 0.8);
+      const target = point.clone(), d = Math.min(o.length(), dist);
+      flyTo(target.clone().add(o.setLength(d)), target, 0.9); markView(null);
+    }
+    // A three-quarter view of someone's face, from beside their monitor rather than behind it
+    function faceTo(ag) {
+      const r = ag.pos.rot + 0.75, head = V(ag.pos.x, ag.pose === "sit" ? 1.17 : 1.6, ag.pos.z);
+      flyTo(V(ag.pos.x + Math.sin(r) * 1.7, head.y + 0.1, ag.pos.z + Math.cos(r) * 1.7), head, 0.9); markView(null);
+    }
+    window.__office3dTank = () => ACTIONS.tank();
+    window.__office3dFace = id => { if (AGENTS[id] && AGENTS[id].pos) faceTo(AGENTS[id]); };
+    // Read-only snapshot of where everyone is, for checks and tools
+    window.__office3dPeople = () => team.map(t => ({ id: t.id, x: +(t.pos.x + t.offX).toFixed(3), z: +(t.pos.z + t.offZ).toFixed(3), pose: t.pose, trip: t.trip || null, rig: t.rig ? t.rig.look : null, clip: t.rig ? t.rig.current : null }));
+    host.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => goView(b.dataset.view)));
+    const help = host.querySelector("#office3dHelp"), helpBtn = host.querySelector('[data-act="help"]');
+    const toggleHelp = on => { help.classList.toggle("on", on); helpBtn.setAttribute("aria-expanded", String(on)); };
+    host.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
+      const act = b.dataset.act;
+      if (act === "left") turnBy(0.45); else if (act === "right") turnBy(-0.45);
+      else if (act === "in") zoomBy(0.7); else if (act === "out") zoomBy(1.42);
+      else if (act === "help") toggleHelp(!help.classList.contains("on"));
+    }));
+    // Double-click: a person to face them, the floor to walk over there
+    const floorPlane = new THREE.Plane(V(0, 1, 0), 0), floorHit = new THREE.Vector3();
+    renderer.domElement.addEventListener("dblclick", e => {
+      const u = hitAt(e);
+      if (u && u.agentId && AGENTS[u.agentId] && AGENTS[u.agentId].pos) { faceTo(AGENTS[u.agentId]); return; }
+      if (ray.ray.intersectPlane(floorPlane, floorHit)) {
+        floorHit.x = THREE.MathUtils.clamp(floorHit.x, ...BOUNDS.x); floorHit.z = THREE.MathUtils.clamp(floorHit.z, ...BOUNDS.z);
+        lookAtSpot(V(floorHit.x, 1.1, floorHit.z), 6);
+      }
+    });
+    renderer.domElement.addEventListener("pointerdown", () => { if (document.activeElement !== host) host.focus({ preventScroll: true }); });
+    // Keys work while the office has focus (click it first), never while typing or with a panel open
+    const held = new Set(), WALK = { w: "f", arrowup: "f", s: "b", arrowdown: "b", a: "l", arrowleft: "l", d: "r", arrowright: "r", q: "tl", e: "tr", "+": "in", "=": "in", "-": "out", _: "out" };
+    const typing = el => el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+    const panelOpen = () => [...document.querySelectorAll(".modal-overlay")].some(m => m.style.display === "flex" || m.style.display === "block");
+    window.addEventListener("keydown", e => {
+      if (!host.contains(document.activeElement) || typing(document.activeElement) || panelOpen() || e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (WALK[k]) { held.add(WALK[k]); fly = null; markView(null); host.classList.add("used"); e.preventDefault(); return; }
+      if (k === "escape" && deskFor) { closeDesk(); e.preventDefault(); return; }
+      const n = Number(e.key); if (n >= 1 && n <= 7) { goView(VIEW_KEYS[n - 1]); e.preventDefault(); return; }
+      if (k === "r" || k === "0") { goView("overview"); e.preventDefault(); return; }
+      if (k === "?" || k === "h") { toggleHelp(!help.classList.contains("on")); e.preventDefault(); return; }
+      if (k === "escape" && help.classList.contains("on")) toggleHelp(false);
+    });
+    window.addEventListener("keyup", e => { const m = WALK[e.key.toLowerCase()]; if (m) held.delete(m); });
+    window.addEventListener("blur", () => held.clear());
+    host.addEventListener("focusout", () => held.clear());
+    function moveByKeys(dt) {
+      if (!held.size) return;
+      const o = offset(), fwd = o.clone().negate(); fwd.y = 0; fwd.normalize();
+      const right = V(-fwd.z, 0, fwd.x), step = V(0, 0, 0), speed = 3.2 * dt;
+      if (held.has("f")) step.add(fwd); if (held.has("b")) step.sub(fwd);
+      if (held.has("r")) step.add(right); if (held.has("l")) step.sub(right);
+      if (step.lengthSq()) { step.setLength(speed); controls.target.add(step); camera.position.add(step); }
+      if (held.has("tl") || held.has("tr")) { o.applyAxisAngle(V(0, 1, 0), (held.has("tl") ? 1 : -1) * 1.3 * dt); camera.position.copy(controls.target).add(o); }
+      if (held.has("in") || held.has("out")) { const d = THREE.MathUtils.clamp(o.length() * (held.has("in") ? 1 - 1.4 * dt : 1 + 1.4 * dt), controls.minDistance, controls.maxDistance); camera.position.copy(controls.target).add(o.setLength(d)); }
+    }
+    // Keep the point you look at inside the building, however you move
+    const clampTarget = () => {
+      const t = controls.target, before = t.clone();
+      t.x = THREE.MathUtils.clamp(t.x, ...BOUNDS.x); t.y = THREE.MathUtils.clamp(t.y, ...BOUNDS.y); t.z = THREE.MathUtils.clamp(t.z, ...BOUNDS.z);
+      camera.position.add(t.clone().sub(before));
+      if (camera.position.y < 0.45) camera.position.y = 0.45;
+    };
 
     // ---------- loop ----------
     function resize() {
@@ -5302,10 +6606,14 @@ def fetch_user_profile(user_id: str, db_pool=None):
     function loop(now) {
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
-      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; }
+      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; if (slow % 15 === 0 && !document.hidden) refreshWallBoard(); if (deskFor && slow % 6 === 0) openDesk(deskFor, true); }
       if (isMeetingMode && clock > meetNext) { const seated = workers.filter(w => w.where === "meeting" && w.pose === "sit"); workers.forEach(w => { w.meetTalk3d = false; }); if (seated.length) seated[Math.floor(Math.random() * seated.length)].meetTalk3d = true; meetNext = clock + between(2.5, 5); }
       updatePeople(dt);
+      if (motionOn3d) updateTank(dt);
       if (motionOn3d) updateStreets(dt, isDark());
+      if (fly) { fly.t = Math.min(1, fly.t + dt / fly.d); const k = smooth(fly.t); camera.position.lerpVectors(fly.p0, fly.p1, k); controls.target.lerpVectors(fly.t0, fly.t1, k); if (fly.t >= 1) fly = null; }
+      moveByKeys(dt);
+      clampTarget();
       controls.update();
       renderer.render(scene, camera);
       updateLabels();
