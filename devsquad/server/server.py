@@ -7,6 +7,7 @@ import http.server
 import json
 import os
 import pathlib
+import re
 import threading
 import time
 import urllib.parse
@@ -37,6 +38,10 @@ from ..runtime.relay import AutonomousRelay
 from ..runtime.swarm import BugSwarm
 from .v5_api import PREFIX as V5_PREFIX, V5Api
 from ..core.replay import build_replay
+from ..core.export import Download
+
+
+MODELS_DIR = pathlib.Path(__file__).resolve().parent.parent / "web" / "models" / "people"
 
 
 class StudioHandler(http.server.BaseHTTPRequestHandler):
@@ -90,6 +95,8 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
             self._serve_json({"files": ProjectFiles(self.root).list()})
         elif path.startswith("/api/files/"):
             self._download_file(urllib.parse.unquote(path[len("/api/files/"):]))
+        elif path.startswith("/models/people/"):
+            self._serve_model(path[len("/models/people/"):])
         elif path in ("/", "/index.html", "/studio", "/office"):
             self._serve_studio_html()
         elif path == "/data/usage.json":
@@ -544,7 +551,19 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
 
     def _v5(self, method: str, path: str, payload: Dict):
         status, body = self._api().handle(method, path, payload)
-        self._serve_json(body, status=status)
+        if isinstance(body, Download):
+            self._send_download(body)
+        else:
+            self._serve_json(body, status=status)
+
+    def _send_download(self, file: Download):
+        self.send_response(200)
+        self.send_header("Content-Type", file.content_type)
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(file.filename)}")
+        self.send_header("Content-Length", str(len(file.data)))
+        self.end_headers()
+        self.wfile.write(file.data)
 
     def _upload_file(self, name: str, content_length: int):
         if content_length > MAX_FILE_BYTES:
@@ -568,6 +587,20 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Disposition", f"attachment; filename*=UTF-8''{urllib.parse.quote(safe)}")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def _serve_model(self, name: str):
+        """The 3D office's people: only the .glb files that ship in web/models/people."""
+        path = MODELS_DIR / name
+        if not re.fullmatch(r"[A-Za-z0-9_]{1,40}\.glb", name) or not path.is_file():
+            self.send_error(404, "Not Found")
+            return
+        data = path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", "model/gltf-binary")
+        self.send_header("Cache-Control", "max-age=86400")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
@@ -656,7 +689,12 @@ def _make_v5(root: pathlib.Path, relay: "Callable[[], Optional[AutonomousRelay]]
         finally:
             StudioHandler.board.finish()
 
-    return V5Api(root, provider, run_task)
+    def status():
+        p = provider()
+        return StatusReporter(StudioHandler.staging or StagingDeck(root), StudioHandler.board,
+                              provider_name=getattr(p, "provider_name", ""), model=getattr(p, "model", ""))
+
+    return V5Api(root, provider, run_task, staging=StudioHandler.staging, status=status)
 
 
 def start_studio_server(root: Optional[pathlib.Path] = None, port: int = 8080) -> http.server.ThreadingHTTPServer:

@@ -7,6 +7,7 @@ import asyncio
 import json
 import os
 import pathlib
+import re
 import urllib.parse
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional
@@ -32,6 +33,7 @@ from ..core.merge_arena import MergeConflictArena
 from ..core.roadmap import SpecRoadmapProjector
 from ..core.security_vault import SecurityVault
 from ..core.staging import StagingDeck
+from ..core.export import Download
 from ..core.visual_qa import VisualQAAuditor
 from ..core.worktree import WorktreeManager
 from ..core.ai_discovery import AIDiscoveryEngine
@@ -306,7 +308,28 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
         finally:
             status_board.finish()
 
-    v5 = V5Api(root, get_provider, run_task)
+    def status_reporter():
+        provider = get_provider()
+        return StatusReporter(staging, status_board, provider_name=provider.provider_name, model=provider.model)
+
+    v5 = V5Api(root, get_provider, run_task, staging=staging, status=status_reporter)
+
+    def v5_response(status: int, body: Any):
+        if isinstance(body, Download):
+            return Response(content=body.data, media_type=body.content_type, headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{urllib.parse.quote(body.filename)}",
+                "X-Content-Type-Options": "nosniff"})
+        return JSONResponse(body, status_code=status)
+
+    models_dir = pathlib.Path(__file__).resolve().parent.parent / "web" / "models" / "people"
+
+    @app.get("/models/people/{name}")
+    def person_model(name: str):
+        """The 3D office's people: only the .glb files that ship in web/models/people."""
+        path = models_dir / name
+        if not re.fullmatch(r"[A-Za-z0-9_]{1,40}\.glb", name) or not path.is_file():
+            return JSONResponse({"error": "Not found"}, status_code=404)
+        return Response(content=path.read_bytes(), media_type="model/gltf-binary", headers={"Cache-Control": "max-age=86400"})
 
     @app.get("/api/replay")
     def get_replay(session_id: str = ""):
@@ -317,13 +340,11 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     # Plain `def` so long runs (agents, test reruns, model downloads) go to a worker thread
     @app.get("/api/v5/{route:path}")
     def v5_get(route: str):
-        status, body = v5.handle("GET", "/api/v5/" + route)
-        return JSONResponse(body, status_code=status)
+        return v5_response(*v5.handle("GET", "/api/v5/" + route))
 
     @app.post("/api/v5/{route:path}")
     def v5_post(route: str, payload: Optional[Dict[str, Any]] = None):
-        status, body = v5.handle("POST", "/api/v5/" + route, payload or {})
-        return JSONResponse(body, status_code=status)
+        return v5_response(*v5.handle("POST", "/api/v5/" + route, payload or {}))
 
     @app.delete("/api/v5/{route:path}")
     def v5_delete(route: str):

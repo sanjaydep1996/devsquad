@@ -42,6 +42,27 @@ class TestStudioPage(unittest.TestCase):
         self.assertIn("a.offX = ease(a.offX, rx * lane", PAGE)
         self.assertNotIn("dz * 0.6", PAGE)   # the old sideways push that made two people circle
 
+    def test_the_wall_board_desk_card_and_exports_are_wired(self):
+        self.assertIn('data-view="board"', PAGE)
+        self.assertIn('fetch("/api/v5/board")', PAGE)
+        self.assertIn("/api/v5/desk/", PAGE)
+        self.assertIn('id="office3dDesk"', PAGE)
+        for kind in ("plan", "replay", "postmortem"):
+            self.assertIn(f"/api/v5/export/{kind}/", PAGE)
+        # The Flight Recorder shows real runs only: no made-up incident or timeline
+        self.assertNotIn("payment webhook", PAGE)
+        self.assertNotIn("Fallback mock timeline", PAGE)
+
+    def test_rigged_people_ship_with_their_licence_and_fall_back_to_drawn_people(self):
+        people = ROOT / "devsquad" / "web" / "models" / "people"
+        looks = set(re.findall(r'"((?:Male|Female)_Adult_\d\d)"', PAGE))
+        self.assertEqual(len(looks), 8)
+        for name in looks | {"anim_m", "anim_f"}:
+            self.assertTrue((people / f"{name}.glb").read_bytes().startswith(b"glTF"), name)
+        self.assertIn("Copyright (c) Microsoft Corporation", (people / "LICENSE-Rocketbox.md").read_text())
+        self.assertIn("team.forEach(a => dressUp(a).catch(() => {}))", PAGE)
+        self.assertIn("img-src 'self' data: blob:", PAGE)
+
     def test_the_three_copies_of_the_page_match(self):
         for copy in ("index.html", "docs/index.html"):
             self.assertEqual((ROOT / copy).read_text(encoding="utf-8"), PAGE, copy)

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>DevSquad Studio · Autonomous Multi-Agent Engineering Office</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' ws: wss: http://localhost:8080 http://127.0.0.1:8080 http://localhost:8000 http://127.0.0.1:8000 http://localhost:8088 http://127.0.0.1:8088 https://sanjaydep1996.github.io; img-src 'self' data: https:; object-src 'none'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' blob: ws: wss: http://localhost:8080 http://127.0.0.1:8080 http://localhost:8000 http://127.0.0.1:8000 http://localhost:8088 http://127.0.0.1:8088 https://sanjaydep1996.github.io; img-src 'self' data: blob: https:; object-src 'none'; base-uri 'self';">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1122'/%3E%3Cpath fill='%23FFB44C' d='M6 26V15l5-2.500V26zM13 26V7l7 3.500V26zM22 26V15l5 2.500V26z'/%3E%3C/svg%3E">
   <script>(function(){var t;try{t=localStorage.getItem('devsquad-theme')||localStorage.getItem('ucity-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t||'dark')})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -134,6 +134,29 @@
     #office3dHelp.on { display: block; }
     #office3dHelp b { display: block; margin-bottom: 4px; font-size: 12.5px; }
     #office3dHelp kbd { font: 600 10.5px var(--f-mono); padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.15); }
+    #office3dDesk { position: absolute; left: 12px; top: 56px; width: min(320px, calc(100% - 24px)); max-height: calc(100% - 124px); overflow-y: auto; padding: 12px 14px 14px; border-radius: 14px; background: var(--solid); color: var(--ink); border: 1px solid var(--line2); box-shadow: 0 18px 40px -18px rgba(0,0,0,.6); font: 500 12px/1.5 var(--f-ui); display: none; pointer-events: auto; z-index: 3; }
+    #office3dDesk.on { display: block; }
+    #office3dDesk header { display: flex; align-items: center; gap: 9px; }
+    #office3dDesk header i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+    #office3dDesk header b { display: block; font-size: 14px; line-height: 1.2; }
+    #office3dDesk header small { display: block; color: var(--dim); font-size: 11px; }
+    #office3dDesk .state { margin-left: auto; font: 600 10px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; background: var(--lot); color: var(--dim); white-space: nowrap; }
+    #office3dDesk .state.working { background: var(--ok-bg); color: var(--ok); }
+    #office3dDesk .x { flex: none; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--dim); font-size: 18px; cursor: pointer; }
+    #office3dDesk .x:hover { background: var(--hover); color: var(--ink); }
+    #office3dDesk h6 { margin: 11px 0 2px; font: 600 10px var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+    #office3dDesk p { margin: 0; }
+    #office3dDesk ul { margin: 2px 0 0; padding-left: 16px; }
+    #office3dDesk .card { margin-top: 3px; padding: 6px 9px; border-radius: 8px; background: var(--lot); border: 1px solid var(--line); }
+    #office3dDesk .card small { display: block; color: var(--dim); font-size: 11px; }
+    #office3dDesk .none { color: var(--dim); }
+    #office3dDesk .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    #office3dDesk .acts button { min-height: 32px; padding: 4px 11px; border-radius: 8px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font: 600 11.5px var(--f-ui); cursor: pointer; }
+    #office3dDesk .acts button:hover { background: var(--hover); }
+    #office3dDesk .acts button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .export-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); }
+    .export-links a { display: inline-flex; align-items: center; min-height: 28px; padding: 3px 10px; border-radius: 8px; border: 1px solid var(--line2); color: var(--ink); font-weight: 600; text-decoration: none; }
+    .export-links a:hover { background: var(--hover); }
     @media (max-width: 768px) { #office3dNav button { min-height: 38px; min-width: 38px; } #office3dNav .tools button { width: 38px; } #office3dHint { display: none; } }
     .company-title { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 18px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
     .token-badge { font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; color: var(--accent); padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--lot); }
@@ -1045,12 +1068,17 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <button class="term-toggle-btn" onclick="closeFlightRecorderModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
       </div>
       <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">
-        Immutable session timeline. Scrub backward in time to inspect file states or auto-generate a 5 Whys Root Cause Analysis (RCA).
+        Every step of a relay run, as it was recorded. Scrub through it, then write a post-mortem from the record and save it.
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+        <label for="frRunSelect" style="font-size:11px;color:var(--dim);">Run</label>
+        <select id="frRunSelect" onchange="loadFlightRun(this.value)" style="flex:1;min-width:0;background:var(--lot);border:1px solid var(--line);color:var(--ink);padding:6px 10px;border-radius:6px;font-size:11.5px;"><option value="">Loading runs…</option></select>
+        <span id="frExport" class="export-links"></span>
       </div>
       <div style="background:var(--solid);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <span style="font-size:11px;font-weight:700;color:var(--ink);">TIME MACHINE SCRUBBER: <span id="frCurrentStepLabel" style="color:var(--accent);">Step 3 of 4</span></span>
-          <button class="action-pill-btn primary" onclick="generatePostMortemReport()" style="font-size:11px;padding:4px 10px;">🚨 Generate 5 Whys RCA</button>
+          <button class="action-pill-btn primary" onclick="generatePostMortemReport()" style="font-size:11px;padding:4px 10px;">Write post-mortem</button>
         </div>
         <input type="range" id="frStepSlider" min="1" max="4" value="3" oninput="onScrubStepChange(this.value)" style="width:100%;cursor:pointer;">
       </div>
@@ -1096,7 +1124,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <div style="background:var(--lot);padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:9px;">
           <div><b>Your team</b><div style="font-size:11px;color:var(--dim);">Name your team and each teammate. Leave a box empty to keep the default.</div></div>
           <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--dim);">Team name<input id="teamNameInput" maxlength="24" placeholder="DevSquad Studio" autocomplete="off"></label>
-          <div class="name-grid"><label>Tech lead<input id="name_apex" maxlength="16" placeholder="Apex" autocomplete="off"></label><label>Backend<input id="name_alpha_be" maxlength="16" placeholder="Alpha BE" autocomplete="off"></label><label>Frontend<input id="name_beta_fe" maxlength="16" placeholder="Beta FE" autocomplete="off"></label><label>QA<input id="name_gamma_qa" maxlength="16" placeholder="Gamma QA" autocomplete="off"></label><label>Docs<input id="name_zeta_docs" maxlength="16" placeholder="Zeta" autocomplete="off"></label><label>DevOps<input id="name_delta_devops" maxlength="16" placeholder="Delta" autocomplete="off"></label></div>
+          <div class="name-grid"><label>Tech lead<input id="name_apex" maxlength="16" placeholder="Apex" autocomplete="off"></label><label>Backend<input id="name_alpha_be" maxlength="16" placeholder="Alpha BE" autocomplete="off"></label><label>Frontend<input id="name_beta_fe" maxlength="16" placeholder="Beta FE" autocomplete="off"></label><label>QA<input id="name_gamma_qa" maxlength="16" placeholder="Gamma QA" autocomplete="off"></label><label>Docs<input id="name_zeta_docs" maxlength="16" placeholder="Zeta" autocomplete="off"></label><label>DevOps<input id="name_delta_devops" maxlength="16" placeholder="Delta" autocomplete="off"></label><label>Your look in the 3D office<select id="youLookSelect" onchange="setYouLook(this.value)" style="background:var(--lot2);border:1px solid var(--line);color:var(--ink);padding:7px 9px;border-radius:7px;font:500 12.5px var(--f-ui);"><option value="a">Red henley and jeans</option><option value="b">Brown leather jacket</option></select></label></div>
           <div style="display:flex;gap:8px;align-items:center;">
             <button class="action-pill-btn primary" type="button" onclick="saveTeam()">Save names</button>
             <button class="action-pill-btn" type="button" onclick="resetTeam()">Reset to defaults</button>
@@ -1164,6 +1192,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
         <div><b>Total Tokens:</b> <span id="replayTotalTokens" style="color:var(--accent);">-</span></div>
         <div><b>Actual Cost:</b> <span id="replayActualCost" style="color:var(--ok);font-weight:700;">$0.00</span></div>
       </div>
+
+      <div id="replayExport" class="export-links" hidden></div>
 
       <!-- Scrubber & Controls -->
       <div style="background:var(--lot);padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:8px;">
@@ -2631,9 +2661,11 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (cp) cp.classList.toggle("collapsed");
     }
 
+    function setYouLook(v) { try { localStorage.setItem("devsquad_you_look", v === "b" ? "b" : "a"); } catch (e) {} if (window.__office3dDressYou) window.__office3dDressYou(); }
     function openSettingsModal() {
       const modal = document.getElementById("settingsModal");
       if (modal) modal.style.display = "flex";
+      try { const look = document.getElementById("youLookSelect"); if (look) look.value = localStorage.getItem("devsquad_you_look") === "b" ? "b" : "a"; } catch (e) {}
       const savedMode = localStorage.getItem("devcity_data_mode") || "real";
       const anonymize = localStorage.getItem("devcity_anonymize") === "true";
       const autoSafety = localStorage.getItem("devcity_auto_safety") === "true";
@@ -4203,25 +4235,39 @@ def fetch_user_profile(user_id: str, db_pool=None):
       document.getElementById("flightRecorderModal").style.display = "none";
     }
 
+    let currentFlightRun = "";
     async function loadFlightTimeline() {
-      try {
-        const res = await fetch("/api/v1/flight-recorder/timeline?session_id=default");
-        const data = res.ok ? await res.json() : null;
-        if (data && data.timeline && data.timeline.length > 0) {
-          currentFlightTimeline = data.timeline;
-          setupFlightScrubber(currentFlightTimeline.length);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback mock timeline
-      currentFlightTimeline = [
-        { step: 1, agent: "apex", action: "parse_prd_dag", file_path: "devsquad/core/roadmap.py", status: "ok", diff: "+++ b/devsquad/core/roadmap.py\n+class RoadmapProjector:\n+    def parse(self): pass" },
-        { step: 2, agent: "alpha_be", action: "implement_route", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+@app.get('/api/roadmap')\n+def get_roadmap(): return {}" },
-        { step: 3, agent: "gamma_qa", action: "run_test_suite", file_path: "tests/test_features.py", status: "error", diff: "--- a/tests/test_features.py\n+++ b/tests/test_features.py\n-assert res.status == 200\n+assert res.status == 500" },
-        { step: 4, agent: "zeta_sec", action: "quarantine_patch", file_path: "devsquad/server/server.py", status: "ok", diff: "+++ b/devsquad/server/server.py\n+# Quarantined revert applied" }
-      ];
-      setupFlightScrubber(currentFlightTimeline.length);
+      const select = document.getElementById("frRunSelect");
+      let runs = [];
+      try { const r = await fetch("/api/sessions"); if (r.ok) runs = (await r.json()).sessions || []; } catch (e) {}
+      select.innerHTML = runs.length ? runs.map(s => `<option value="${escHtml(s.session_id)}">${escHtml(s.session_id)} (${s.step_count} steps)</option>`).join("") : '<option value="">No runs recorded yet</option>';
+      if (!runs.length) {
+        currentFlightRun = ""; currentFlightTimeline = [];
+        document.getElementById("frExport").innerHTML = "";
+        document.getElementById("frCurrentStepLabel").textContent = "No runs yet";
+        document.getElementById("frActiveFilesBox").innerHTML = '<div style="font-size:12px;color:var(--dim);">No runs recorded yet. Run a relay and every step it takes shows up here.</div>';
+        document.getElementById("frDiffPreviewBox").innerHTML = "";
+        return;
+      }
+      loadFlightRun(currentFlightRun && runs.some(s => s.session_id === currentFlightRun) ? currentFlightRun : runs[0].session_id);
+    }
+    async function loadFlightRun(id) {
+      if (!id) return;
+      currentFlightRun = id; document.getElementById("frRunSelect").value = id;
+      const rid = encodeURIComponent(id);
+      document.getElementById("frExport").innerHTML = `<a href="/api/v5/export/postmortem/${rid}.md" download>Post-mortem (Markdown)</a><a href="/api/v5/export/postmortem/${rid}.pdf" download>Post-mortem (PDF)</a>`;
+      let timeline = [];
+      try { const r = await fetch(`/api/v1/flight-recorder/timeline?session_id=${rid}`); if (r.ok) timeline = (await r.json()).timeline || []; } catch (e) {}
+      if (!timeline.length) {
+        // Older runs have no recording, only their log: rebuild the steps from the replay
+        try {
+          const r = await fetch(`/api/replay?session_id=${rid}`);
+          if (r.ok) timeline = ((await r.json()).steps || []).map(st => ({ step: st.step_index, agent: st.agent_name, action: st.tool_name.split(":")[0], status: st.status === "failed" ? "error" : "ok", file_path: null, diff: "", payload: { message: st.tool_name } }));
+        } catch (e) {}
+      }
+      currentFlightTimeline = timeline;
+      if (timeline.length) setupFlightScrubber(timeline.length);
+      else { document.getElementById("frActiveFilesBox").innerHTML = '<div style="font-size:12px;color:var(--dim);">This run has no recorded steps.</div>'; document.getElementById("frDiffPreviewBox").innerHTML = ""; }
     }
 
     function setupFlightScrubber(totalSteps) {
@@ -4246,6 +4292,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       activeFilesBox.innerHTML = `
         <div style="font-weight:700;font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;">Workspace State at Step ${step}</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
+          ${Object.keys(activeFiles).length ? "" : `<div style="font-size:11.5px;color:var(--dim);">No file changes were recorded up to this step.${visibleEvents.length ? ` Latest: ${escHtml(visibleEvents[visibleEvents.length - 1].agent)}, ${escHtml(((visibleEvents[visibleEvents.length - 1].payload || {}).message) || visibleEvents[visibleEvents.length - 1].action)}` : ""}</div>`}
           ${Object.values(activeFiles).map(e => `
             <div style="background:var(--lot);padding:6px 10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;">
               <div>
@@ -4266,31 +4313,23 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     async function generatePostMortemReport() {
-      const diffPreviewBox = document.getElementById("frDiffPreviewBox");
-      diffPreviewBox.innerHTML = '<div style="color:var(--accent);font-size:11px;text-align:center;padding:16px;">Flight Recorder synthesizing 5 Whys Root Cause Analysis…</div>';
-
+      const box = document.getElementById("frDiffPreviewBox");
+      if (!currentFlightRun) { box.innerHTML = '<div style="font-size:12px;color:var(--dim);">Pick a run first. There are no recorded runs yet.</div>'; return; }
+      box.innerHTML = '<div style="color:var(--accent);font-size:11px;text-align:center;padding:16px;">Writing the post-mortem from the record…</div>';
       try {
-        const res = await fetch("/api/v1/flight-recorder/post-mortem", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ session_id: "default", failure_step: 3, summary: "AssertionError: Expected 200 got 500 in payment webhook" })
-        });
-        const data = res.ok ? await res.json() : null;
-        if (data && data.markdown_report) {
-          renderPostMortemMarkdown(data.markdown_report);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback post-mortem
-      renderPostMortemMarkdown(`# 🚨 Incident Post-Mortem & Flight Recorder RCA\n**Incident ID:** INC-893012\n**Trigger Step:** Step 3 | **Responsible Desk:** gamma_qa\n\n## 1. Executive Summary\nAssertionError: Expected 200 got 500 in payment webhook.\n\n## 2. 5 Whys Root Cause Analysis\n1. Why did the build fail? -> AssertionError in payment webhook.\n2. Why did the error trigger? -> Execution failed during step 3 by gamma_qa.\n3. Why was devsquad/server/server.py affected? -> Unvalidated AST parameter mapping.\n4. Why was this not caught earlier? -> Concurrency race bypassed test runner.\n5. Why is the architecture vulnerable? -> Missing invariant gate prior to desk merge.\n\n## 3. Remediation & Action Items\n- [ ] Auto-revert offending diff at step 3.\n- [ ] Add regression test fixture to tests/.\n- [ ] Update .devsquad/memory.json known pitfalls.`);
+        const res = await fetch(`/api/v5/export/postmortem/${encodeURIComponent(currentFlightRun)}.md`);
+        if (res.ok) { renderPostMortemMarkdown(await res.text()); return; }
+        box.innerHTML = `<div style="font-size:12px;color:var(--bad);">Couldn't write the post-mortem: ${escHtml((await res.json().catch(() => ({}))).error || res.status)}</div>`;
+      } catch (e) {
+        box.innerHTML = '<div style="font-size:12px;color:var(--bad);">The studio server isn\'t answering. Is it still running?</div>';
+      }
     }
 
     function renderPostMortemMarkdown(md) {
       const diffPreviewBox = document.getElementById("frDiffPreviewBox");
       diffPreviewBox.innerHTML = `
-        <div style="font-weight:700;font-size:11px;color:var(--ok);text-transform:uppercase;margin-bottom:8px;">✅ Generated Blameless Post-Mortem</div>
-        <pre style="font-family:var(--f-mono);font-size:9.5px;color:var(--ink);background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;max-height:240px;overflow-y:auto;line-height:1.4;">${escHtml(md)}</pre>
+        <div style="font-weight:700;font-size:11px;color:var(--ok);text-transform:uppercase;margin-bottom:8px;">Post-mortem, from the record</div>
+        <pre style="font-family:var(--f-mono);font-size:10.5px;color:var(--ink);background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;max-height:320px;overflow-y:auto;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;">${escHtml(md)}</pre>
       `;
     }
 
@@ -4533,6 +4572,11 @@ def fetch_user_profile(user_id: str, db_pool=None):
         return;
       }
 
+      // Runs recorded by the relay can be saved as Markdown or PDF
+      const exp = document.getElementById("replayExport"), rid = encodeURIComponent(sessionId);
+      exp.hidden = currentReplayData.source !== "DevSquad relay run";
+      exp.innerHTML = exp.hidden ? "" : `Save this run: <a href="/api/v5/export/replay/${rid}.md" download>Replay (Markdown)</a><a href="/api/v5/export/replay/${rid}.pdf" download>Replay (PDF)</a><a href="/api/v5/export/postmortem/${rid}.md" download>Post-mortem (Markdown)</a><a href="/api/v5/export/postmortem/${rid}.pdf" download>Post-mortem (PDF)</a>`;
+
       // Update Meta
       document.getElementById("replaySource").textContent = currentReplayData.source || "unknown";
       document.getElementById("replayTotalSteps").textContent = (currentReplayData.steps || []).length;
@@ -4728,6 +4772,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
     async function wsLoadBoard() {
       const r = await v5("board");
       if (!r.ok) { wsSay("wsBoardMsg", r.data.error || "Couldn't load the board.", "bad"); return; }
+      wsBoardCards = r.data.columns.flatMap(c => c.cards);
+      window.dispatchEvent(new Event("devsquad:board"));
       document.getElementById("wsBoard").innerHTML = r.data.columns.map(col => `
         <section class="ws-col" aria-label="${wsEsc(col.title)}">
           <h4>${wsEsc(col.title)}<span>${col.cards.length}</span></h4>
@@ -4756,7 +4802,10 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
     async function wsMove(id, status) { const r = await v5(`board/${id}/move`, "POST", { status }); if (!r.ok) wsSay("wsBoardMsg", r.data.error, "bad"); wsLoadBoard(); }
     async function wsDelete(id) { if (!confirm("Delete this card? Its file in .devsquad/tasks is removed.")) return; await v5(`board/${id}`, "DELETE"); wsLoadBoard(); }
+    let wsBoardCards = [];
     async function wsAssign(id, btn) {
+      const card = wsBoardCards.find(c => c.id === id) || {};
+      window.dispatchEvent(new CustomEvent("devsquad:assign", { detail: { id, owner: card.owner, title: card.title } }));
       wsBusy(btn, true, "Squad working…"); wsSay("wsBoardMsg", "The squad is working on this card. It moves to the Review Desk when they're done.");
       const files = typeof attachedFiles !== "undefined" ? [...attachedFiles] : [];
       const r = await v5(`board/${id}/assign`, "POST", { files });
@@ -4797,7 +4846,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
         </div>
         ${list("Risks", p.risks)}${list("Questions to answer before building", p.questions)}
         <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApprove(this)">Approve and add ${p.tasks.length} card${p.tasks.length === 1 ? "" : "s"} to the board</button>
-          <span class="ws-help">Source: ${wsEsc(p.source)}</span></div>`;
+          <span class="ws-help">Source: ${wsEsc(p.source)}</span></div>
+        <div class="ws-row"><span class="export-links">Save the plan as proposed: <a href="/api/v5/export/plan/${wsEsc(p.id)}.md" download>Markdown</a><a href="/api/v5/export/plan/${wsEsc(p.id)}.pdf" download>PDF</a></span></div>`;
       box.querySelectorAll("[data-i]").forEach(el => el.oninput = el.onchange = () => { wsCurrentPlan.tasks[+el.dataset.i][el.dataset.k] = el.value; });
     }
     async function wsApprove(btn) {
@@ -4957,13 +5007,14 @@ def fetch_user_profile(user_id: str, db_pool=None):
     // 3D office. Replaces the pixel canvas when Three.js loads; if it can't load (offline), the 2D office stays.
     import * as THREE from "three";
     import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
     import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
     const frame = document.querySelector(".office-canvas-frame");
     const host = document.createElement("div");
     host.id = "office3d";
-    host.innerHTML = '<div id="office3dLabels"></div><button type="button" id="office3dTime" aria-label="Day or night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span>Night</span></button><div id="office3dHint">Drag to look · right-drag to move · scroll to zoom · double-click to go there</div><div id="office3dNav"><div class="views" role="group" aria-label="Go to a part of the office"><button type="button" data-view="overview" aria-pressed="true" title="Whole office (1 or R)">Overview</button><button type="button" data-view="desks" aria-pressed="false" title="The team at their desks (2)">Desks</button><button type="button" data-view="meeting" aria-pressed="false" title="Meeting room (3)">Meeting room</button><button type="button" data-view="lounge" aria-pressed="false" title="Lounge (4)">Lounge</button><button type="button" data-view="window" aria-pressed="false" title="The view from the window (5)">Window</button><button type="button" data-view="walk" aria-pressed="false" title="Stand in the office at eye level (6)">Walk in</button></div><div class="tools" role="group" aria-label="Camera"><button type="button" data-act="left" aria-label="Turn left" title="Turn left (Q)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button type="button" data-act="right" aria-label="Turn right" title="Turn right (E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button><button type="button" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" data-act="out" aria-label="Zoom out" title="Zoom out (-)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button type="button" data-act="help" aria-label="How to move around" aria-expanded="false" aria-controls="office3dHelp" title="How to move around (?)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4"/><path d="M12 17h.01"/></svg></button></div></div><div id="office3dHelp" role="note"><b>Moving around the office</b>Drag to look around. Right-drag, or Shift and drag, to move.<br>Scroll or pinch to zoom toward the pointer.<br>Double-click a spot to go there, or a person to face them.<br>Click the office first, then: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk, <kbd>Q</kbd><kbd>E</kbd> to turn, <kbd>+</kbd><kbd>-</kbd> to zoom, <kbd>1</kbd>-<kbd>6</kbd> for the views, <kbd>R</kbd> for the whole office.</div>';
+    host.innerHTML = '<div id="office3dLabels"></div><button type="button" id="office3dTime" aria-label="Day or night"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span>Night</span></button><div id="office3dHint">Drag to look · right-drag to move · scroll to zoom · double-click to go there</div><div id="office3dNav"><div class="views" role="group" aria-label="Go to a part of the office"><button type="button" data-view="overview" aria-pressed="true" title="Whole office (1 or R)">Overview</button><button type="button" data-view="desks" aria-pressed="false" title="The team at their desks (2)">Desks</button><button type="button" data-view="meeting" aria-pressed="false" title="Meeting room (3)">Meeting room</button><button type="button" data-view="lounge" aria-pressed="false" title="Lounge (4)">Lounge</button><button type="button" data-view="window" aria-pressed="false" title="The view from the window (5)">Window</button><button type="button" data-view="walk" aria-pressed="false" title="Stand in the office at eye level (6)">Walk in</button><button type="button" data-view="board" aria-pressed="false" title="The task board on the wall (7)">Board</button></div><div class="tools" role="group" aria-label="Camera"><button type="button" data-act="left" aria-label="Turn left" title="Turn left (Q)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button type="button" data-act="right" aria-label="Turn right" title="Turn right (E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button><button type="button" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" data-act="out" aria-label="Zoom out" title="Zoom out (-)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button><button type="button" data-act="help" aria-label="How to move around" aria-expanded="false" aria-controls="office3dHelp" title="How to move around (?)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4"/><path d="M12 17h.01"/></svg></button></div></div><div id="office3dHelp" role="note"><b>Moving around the office</b>Drag to look around. Right-drag, or Shift and drag, to move.<br>Scroll or pinch to zoom toward the pointer.<br>Click a desk or a person to see what they&rsquo;re working on. Double-click a spot to go there, or a person to face them.<br>Click the office first, then: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk, <kbd>Q</kbd><kbd>E</kbd> to turn, <kbd>+</kbd><kbd>-</kbd> to zoom, <kbd>1</kbd>-<kbd>7</kbd> for the views, <kbd>R</kbd> for the whole office.</div><div id="office3dDesk" role="dialog" aria-label="Desk status"></div>';
     frame.appendChild(host);
     const labelsEl = host.querySelector("#office3dLabels");
 
@@ -5277,16 +5328,53 @@ def fetch_user_profile(user_id: str, db_pool=None):
     for (let z = Z0; z <= Z1 + 0.01; z += 4) box(RW, 0.09, 0.07, M.black, 0, WH + 0.02, z, { cast: false, receive: false });
     box(RW, 0.14, 0.14, M.black, 0, WH + 0.02, Z1, { cast: false, receive: false });
 
-    // Whiteboard (opens Blast Radius)
-    const wbTex = canvasTex(512, 256, (g, w, h) => {
-      g.fillStyle = "#FDFDFB"; g.fillRect(0, 0, w, h);
-      g.lineWidth = 4; g.lineCap = "round";
-      [["#2563C8", 40, 60, 190, 60], ["#2563C8", 40, 96, 150, 96], ["#E5484D", 40, 132, 230, 132], ["#0E8A5C", 300, 70, 300, 190], ["#0E8A5C", 300, 190, 460, 190], ["#B4580A", 320, 170, 360, 120], ["#B4580A", 360, 120, 400, 140], ["#B4580A", 400, 140, 450, 80]].forEach(s => { g.strokeStyle = s[0]; g.beginPath(); g.moveTo(s[1], s[2]); g.lineTo(s[3], s[4]); g.stroke(); });
-      g.fillStyle = "#1D1F27"; g.font = "600 22px sans-serif"; g.fillText("Blast radius", 40, 200);
-    });
-    const whiteboard = box(0.06, 1.5, 3, M.metal, X0 + 0.19, 1.75, -4.4, { cast: false });
-    whiteboard.material = [new THREE.MeshStandardMaterial({ map: wbTex, roughness: 0.3 }), M.metal, M.metal, M.metal, M.metal, M.metal];
-    whiteboard.userData.action = "whiteboard"; pickables.push(whiteboard);
+    // The task board on the wall: the Workshop's real board, as sticky notes on a whiteboard (opens the board)
+    const kanbanC = document.createElement("canvas"); kanbanC.width = 1700; kanbanC.height = 800;
+    const kanbanTex = new THREE.CanvasTexture(kanbanC); kanbanTex.colorSpace = THREE.SRGBColorSpace; kanbanTex.anisotropy = 8;
+    const whiteboard = box(0.06, 1.6, 3.4, M.metal, X0 + 0.19, 1.72, -4.45, { cast: false });
+    whiteboard.material = [new THREE.MeshStandardMaterial({ map: kanbanTex, roughness: 0.35 }), M.metal, M.metal, M.metal, M.metal, M.metal];
+    whiteboard.userData.action = "board"; pickables.push(whiteboard);
+    box(0.08, 0.05, 3.2, M.metal, X0 + 0.24, 0.9, -4.45, { cast: false });
+    const KANBAN_COLS = [["backlog", "Backlog", "#2563C8"], ["in_progress", "In progress", "#B4580A"], ["review", "Review Desk", "#7C3AED"], ["merged", "Merged", "#0E8A5C"]];
+    const pastel = hex => { const n = parseInt(String(hex || "#999999").slice(1), 16); return `rgb(${[16, 8, 0].map(b => Math.round(((n >> b) & 255) * 0.45 + 255 * 0.55)).join(",")})`; };
+    function wrapText(g, text, maxW, lines) {
+      const out = []; let line = "";
+      for (const word of String(text).split(/\s+/)) {
+        const trial = line ? line + " " + word : word;
+        if (g.measureText(trial).width > maxW && line) { out.push(line); line = word; } else line = trial;
+        if (out.length === lines) break;
+      }
+      if (out.length < lines && line) out.push(line);
+      if (out.length === lines && g.measureText(out[lines - 1]).width > maxW - 20) out[lines - 1] = out[lines - 1].replace(/\s*\S*$/, "") + "…";
+      return out;
+    }
+    function drawKanban(cols, note) {
+      const g = kanbanC.getContext("2d"), W = 1700, H = 800, colW = (W - 80) / 4;
+      g.fillStyle = "#FBFBF8"; g.fillRect(0, 0, W, H);
+      g.fillStyle = "#1D2333"; g.font = "700 50px 'Bricolage Grotesque', Arial, sans-serif"; g.textBaseline = "alphabetic"; g.fillText("Task board", 40, 72);
+      const total = cols.reduce((n, c) => n + c.cards.length, 0);
+      if (note || !total) { g.fillStyle = "#596173"; g.font = "500 30px Arial, sans-serif"; g.fillText(note || "No cards yet. Plan some work in the Workshop.", 330, 70); }
+      KANBAN_COLS.forEach(([id, title, ink], i) => {
+        const col = cols.find(c => c.id === id) || { cards: [] }, x = 40 + i * colW;
+        if (i) { g.fillStyle = "#D9DCE2"; g.fillRect(x - 12, 120, 3, H - 150); }
+        g.fillStyle = ink; g.font = "700 32px Arial, sans-serif"; g.fillText(`${title}  ${col.cards.length}`, x + 8, 158);
+        g.fillRect(x + 8, 170, colW - 40, 4);
+        col.cards.slice(0, 4).forEach((c, j) => {
+          const owner = AGENTS[c.owner], y = 192 + j * 146, w = colW - 46, h = 132;
+          let spin = 0; for (const ch of c.id) spin = (spin * 31 + ch.charCodeAt(0)) % 997;
+          g.save(); g.translate(x + 10 + w / 2, y + h / 2); g.rotate(((spin % 7) - 3) * 0.006);
+          g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(-w / 2 + 4, -h / 2 + 6, w, h);
+          g.fillStyle = pastel(owner ? owner.shirtColor : "#B9BEC9"); g.fillRect(-w / 2, -h / 2, w, h);
+          g.fillStyle = "#1D1F27"; g.font = "600 27px Arial, sans-serif";
+          wrapText(g, c.title, w - 28, 3).forEach((l, k) => g.fillText(l, -w / 2 + 14, -h / 2 + 36 + k * 30));
+          g.fillStyle = "#3B4254"; g.font = "500 22px Arial, sans-serif"; g.fillText(owner ? owner.name : "Unassigned", -w / 2 + 14, h / 2 - 12);
+          g.restore();
+        });
+        if (col.cards.length > 4) { g.fillStyle = "#596173"; g.font = "600 24px Arial, sans-serif"; g.fillText(`+ ${col.cards.length - 4} more`, x + 12, H - 18); }
+      });
+      kanbanTex.needsUpdate = true;
+    }
+    drawKanban([], "Loading the board…");
 
     // Neon sign
     const signC = document.createElement("canvas"); signC.width = 1024; signC.height = 200;
@@ -5734,6 +5822,59 @@ def fetch_user_profile(user_id: str, db_pool=None):
       a.speed = 1.32 + (i % 4) * 0.07; a.offX = 0; a.offZ = 0; a.heading = null;
       if (a.isUser) { a.trip = "home"; a.idleSay = "Catching up on messages."; a.tripUntil = between(3, 6); a.with = null; }
     });
+    // ---------- Real people: rigged Microsoft Rocketbox avatars (MIT) with recorded motion ----------
+    const LOOKS = { apex: "Male_Adult_08", alpha_be: "Male_Adult_04", beta_fe: "Female_Adult_08", gamma_qa: "Male_Adult_12", zeta_docs: "Female_Adult_14", delta_devops: "Male_Adult_05" };
+    const YOU_LOOKS = { a: "Male_Adult_06", b: "Female_Adult_04" };
+    const youLook = () => { try { return YOU_LOOKS[localStorage.getItem("devsquad_you_look")] || YOU_LOOKS.a; } catch (e) { return YOU_LOOKS.a; } };
+    const gltfLoader = new GLTFLoader(), clipSets = {};
+    const loadGlb = url => new Promise((res, rej) => gltfLoader.load(url, res, undefined, rej));
+    const clipsFor = look => { const g = look.startsWith("Female") ? "f" : "m"; return clipSets[g] || (clipSets[g] = loadGlb(`models/people/anim_${g}.glb`).then(r => Object.fromEntries(r.animations.map(c => [c.name, c])))); };
+    async function dressUp(a) {
+      const look = a.isUser ? youLook() : LOOKS[a.id];
+      if (!look || (a.rig && a.rig.look === look)) return;
+      const [g, clips] = await Promise.all([loadGlb(`models/people/${look}.glb`), clipsFor(look)]);
+      const model = g.scene;
+      model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+      if (a.rig) a.p3.root.remove(a.rig.model);
+      a.p3.body.visible = false;
+      a.p3.root.add(model);
+      const mixer = new THREE.AnimationMixer(model);
+      const actions = Object.fromEntries(Object.entries(clips).map(([n, c]) => [n, mixer.clipAction(c)]));
+      const bone = n => model.getObjectByName(n);
+      a.rig = { model, mixer, actions, look, current: null, speed: 0, hands: [bone("Bip01_L_Hand"), bone("Bip01_R_Hand")], head: bone("Bip01_Head") };
+    }
+    team.forEach(a => dressUp(a).catch(() => {}));
+    window.__office3dDressYou = () => { const y = team.find(t => t.isUser); if (y) dressUp(y).catch(() => {}); };
+    // Which recorded motion fits what someone is doing
+    function clipFor(a) {
+      if (a.pose === "walk") return "walk";
+      if (a.pose === "sit") return a.trip === "sofa" ? "sofa" : "sit";
+      return { coffee: "drink", board: "present", pickup: "present", checkin: "talk", watch: "listen", present: "present", home: a.isUser ? "phone" : "idle" }[a.trip] || "idle";
+    }
+    function rigPose(a, dt) {
+      const r = a.rig, want = clipFor(a);
+      if (r.current !== want && r.actions[want]) {
+        const next = r.actions[want];
+        next.reset(); next.time = (a.phase * 7.3) % next.getClip().duration; next.setEffectiveWeight(1); next.play();
+        if (r.current) r.actions[r.current].crossFadeTo(next, 0.45, false);
+        r.current = want;
+      }
+      // Walk at the pace they actually move, so feet don't slide
+      const px = r.lastX ?? a.pos.x, pz = r.lastZ ?? a.pos.z; r.lastX = a.pos.x; r.lastZ = a.pos.z;
+      r.speed += (Math.hypot(a.pos.x - px, a.pos.z - pz) / Math.max(dt, 1e-3) - r.speed) * Math.min(1, dt * 6);
+      if (r.actions.walk) r.actions.walk.setEffectiveTimeScale(THREE.MathUtils.clamp(r.speed / 1.35, 0.45, 1.25));
+      r.model.position.y = a.pose === "sit" && a.trip === "sofa" ? -0.07 : 0;
+      r.mixer.update(motionOn3d ? dt : 0);
+      // Typing: small quick hand movements on top of the sitting motion while on a real task
+      if (a.pose === "sit" && !a.trip && a.where !== "meeting" && busy(a)) {
+        const t = clock * 13 + a.phase;
+        r.hands.forEach((h, i) => { if (h) h.rotateZ(Math.sin(t + i * 1.9) * 0.09); });
+      }
+      const p = a.p3, k = Math.min(1, dt * 10), on = busy(a) ? 1 : 0;
+      p.root.position.set(a.pos.x + a.offX, 0, a.pos.z + a.offZ); p.root.rotation.y = a.pos.rot;
+      p.ring.material.opacity = ease(p.ring.material.opacity, on * (0.65 + 0.3 * Math.sin(clock * 4)), k);
+      if (a.screen) { const atDesk = a.pose === "sit" && !a.trip && a.where !== "meeting"; a.screen.material.emissiveIntensity = ease(a.screen.material.emissiveIntensity, on ? 1.5 : atDesk ? 0.6 : 0.12, k); a.lamp.intensity = ease(a.lamp.intensity, on ? 2.2 : 0, k); }
+    }
     // ---------- You: the director walks the floor instead of standing in one spot ----------
     const you = team.find(a => a.isUser);
     const HEAD = { x: 11.0, z: TABLE.z, rot: -Math.PI / 2, zone: "room" };
@@ -5774,6 +5915,27 @@ def fetch_user_profile(user_id: str, db_pool=None):
       send(a, plan.goal, plan.sit ? "sit" : "stand");
     }
     const busy = a => a.state === "writing" || a.state === "reading";
+    // A card that moves into In progress sends its owner (Apex for unassigned cards) to the board, then back to their desk
+    const pickedCards = new Set();
+    function pickUp(ownerId, title, cardId) {
+      if (cardId) { if (pickedCards.has(cardId)) return; pickedCards.add(cardId); }
+      const a = AGENTS[ownerId] && !AGENTS[ownerId].isUser ? AGENTS[ownerId] : AGENTS.apex;
+      if (a && a.pos && a.where !== "meeting") a.pickup = String(title || "the card");
+    }
+    let wallSeen = null, wallSig = "";
+    async function refreshWallBoard() {
+      let cols = null, note = "";
+      try { const r = await fetch("/api/v5/board"); if (r.ok) cols = (await r.json()).columns; } catch (e) {}
+      if (!Array.isArray(cols)) { cols = []; note = "Start DevSquad on your computer to see your board here."; }
+      const doing = cols.find(c => c.id === "in_progress");
+      if (doing) { if (wallSeen) doing.cards.filter(c => !wallSeen.has(c.id)).forEach(c => pickUp(c.owner, c.title, c.id)); wallSeen = new Set(doing.cards.map(c => c.id)); }
+      const sig = note + JSON.stringify(cols.map(c => c.cards.map(k => [k.id, k.title, k.owner])));
+      if (sig !== wallSig) { wallSig = sig; drawKanban(cols, note); }
+    }
+    window.addEventListener("devsquad:board", refreshWallBoard);
+    window.addEventListener("devsquad:assign", e => { const d = e.detail || {}; pickUp(d.owner, d.title, d.id); });
+    refreshWallBoard();
+    const pickupSpot = a => ({ x: X0 + 1.15, z: -5.6 + (workers.indexOf(a) % 3) * 1.1, rot: -Math.PI / 2, zone: "left" });
     function send(a, goal, pose, after) {
       a.route = pathBetween(a.pos, goal); a.goal = goal; a.goalPose = pose; a.after = after; a.pose = "walk";
     }
@@ -5785,8 +5947,12 @@ def fetch_user_profile(user_id: str, db_pool=None):
         if (a.isUser) updateYou(a);
         else if (wantsMeeting && a.where !== "meeting") { a.where = "meeting"; a.trip = null; send(a, { x: MEET[idx][0], z: MEET[idx][1], rot: MEET[idx][2], zone: "room" }, "sit"); }
         else if (!wantsMeeting && a.where === "meeting") { a.where = null; send(a, a.home, "sit"); }
+        else if (!a.isUser && a.pickup && !a.route && !a.where) {
+          a.trip = "pickup"; a.idleSay = `Picking up "${a.pickup.length > 40 ? a.pickup.slice(0, 38) + "…" : a.pickup}".`; a.pickup = null; a.tripUntil = Infinity;
+          send(a, pickupSpot(a), "stand", () => { a.tripUntil = clock + 3.2; });
+        }
         else if (!a.isUser && !a.route && !a.where) {
-          if (a.trip && (clock > a.tripUntil || busy(a))) { a.trip = null; a.idleSay = null; send(a, a.home, "sit"); a.nextTrip = clock + between(25, 70); }
+          if (a.trip && (clock > a.tripUntil || (busy(a) && a.trip !== "pickup"))) { a.trip = null; a.idleSay = null; send(a, a.home, "sit"); a.nextTrip = clock + between(25, 70); }
           else if (!a.trip && a.pose === "sit" && !busy(a) && motionOn3d && clock > a.nextTrip && away < 2 && !(you.with === a.id && (you.trip === "checkin" || you.trip === "watch"))) {
             const options = SPOTS.filter(s => !workers.some(w => w.trip === s.name) && you.trip !== s.name);
             const s = pickOne(options);
@@ -5814,7 +5980,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
             if (d <= step) { a.pos.x = t.x; a.pos.z = t.z; a.route.shift(); step -= d; }
             else { a.pos.x += dx / d * step; a.pos.z += dz / d * step; a.targetRot = Math.atan2(dx, dz); step = 0; }
           }
-          if (!a.route.length) { a.route = null; a.pose = a.goalPose; a.targetRot = a.goal.rot; a.pos.zone = a.goal.zone; a.heading = null; }
+          if (!a.route.length) { a.route = null; a.pose = a.goalPose; a.targetRot = a.goal.rot; a.pos.zone = a.goal.zone; a.heading = null; if (a.after) { const done = a.after; a.after = null; done(); } }
         }
         const last = a.route && a.route[a.route.length - 1], left = last ? Math.hypot(last.x - a.pos.x, last.z - a.pos.z) : 0;
         const lane = a.route && a.heading && left > 0.9 ? 0.27 : 0, rx = a.heading ? -a.heading[1] : 0, rz = a.heading ? a.heading[0] : 0;
@@ -5840,6 +6006,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
     const ease = (cur, to, k) => cur + (to - cur) * k;
     function pose(a, dt) {
+      if (a.rig) { rigPose(a, dt); return; }
       const p = a.p3, k = Math.min(1, dt * 10), t = clock * 1 + a.phase;
       let bodyY = 0, thigh = [0, 0], knee = [0, 0], sh = [0.06, 0.06], el = [-0.12, -0.12], lean = 0, headX = 0, headY = 0;
       if (a.pose === "walk") {
@@ -5860,7 +6027,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       } else {
         const sway = Math.sin(t * 0.8) * 0.03; lean = sway;
         if (a.trip === "coffee") { sh = [0.05, -0.75]; el = [-0.1, -1.5 + Math.sin(t * 0.9) * 0.25]; }
-        else if (a.trip === "board") { sh = [0.05, -1.9 + Math.sin(t * 2.2) * 0.2]; el = [-0.1, -0.5]; }
+        else if (a.trip === "board" || a.trip === "pickup") { sh = [0.05, -1.9 + Math.sin(t * 2.2) * 0.2]; el = [-0.1, -0.5]; }
         else if (a.trip === "checkin") { lean = 0.1; headX = 0.22; sh = [0.05, -0.55 + Math.sin(t * 3) * 0.22]; el = [-0.1, -1.1 + Math.sin(t * 2.3) * 0.2]; }
         else if (a.trip === "watch") { lean = 0.08; headX = 0.28; sh = [-0.35, -0.35]; el = [-1.5, -1.5]; headY = Math.sin(t * 0.35) * 0.1; }
         else if (a.trip === "present") { sh = [-0.25 + Math.sin(t * 1.7) * 0.25, -0.95 + Math.sin(t * 2.4) * 0.35]; el = [-0.5, -0.8]; headY = Math.sin(t * 0.6) * 0.55; }
@@ -5918,7 +6085,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
         el.style.visibility = s.ok ? "" : "hidden";
         el.style.transform = `translate(-50%,-100%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
         el.classList.toggle("sel", selectedAgentId === a.id); el.classList.toggle("on", busy(a));
-        const urgent = a.state === "awaiting_input", text = urgent || selectedAgentId === a.id ? (a.trip && !busy(a) && a.idleSay) || a.speech : null;
+        const urgent = a.state === "awaiting_input", text = urgent || selectedAgentId === a.id || a.trip === "pickup" ? (a.trip && (a.trip === "pickup" || !busy(a)) && a.idleSay) || a.speech : null;
         if (text && s.ok && (!shown || urgent)) {
           shown = true; if (bubble.textContent !== text) bubble.textContent = text.length > 60 ? text.slice(0, 58) + "…" : text;
           bubble.classList.toggle("urgent", urgent); bubble.style.display = "block";
@@ -5929,8 +6096,57 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     // ---------- clicks ----------
-    const ACTIONS = { whiteboard: () => openBlastRadiusModal(), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
-    function pick(id) { selectAgent(id); if (id !== "you" && typeof openTerminalSidecar === "function") openTerminalSidecar(id); }
+    const ACTIONS = { board: () => openWorkshop("board"), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
+    function pick(id) { selectAgent(id); openDesk(id); }
+    // ---------- desk card: what someone is working on, from the board and the recorded status ----------
+    const deskEl = host.querySelector("#office3dDesk");
+    let deskFor = null, deskReq = 0;
+    const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const ago = ts => { const m = Math.round((Date.now() / 1000 - ts) / 60); return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+    function closeDesk() { deskFor = null; deskEl.classList.remove("on"); }
+    function renderDesk(a, d, msg) {
+      const state = d ? d.state : a.isUser ? "" : busy(a) ? "working" : "";
+      const head = `<header><i style="background:${esc(a.shirtColor)}"></i><div><b>${esc(a.name)}</b><small>${esc(a.role)}</small></div>${state ? `<span class="state ${state === "working" ? "working" : ""}">${esc(state)}</span>` : ""}<button type="button" class="x" data-desk="close" aria-label="Close">&times;</button></header>`;
+      let body = msg ? `<p class="none" style="margin-top:10px;">${esc(msg)}</p>` : "";
+      if (d && a.isUser) {
+        body += `<h6>Waiting on you</h6>${d.decisions.length ? `<ul>${d.decisions.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">Nothing. The Review Desk is clear.</p>`}`;
+        body += `<h6>Blockers</h6>${d.blockers.length ? `<ul>${d.blockers.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">None.</p>`}`;
+      } else if (d) {
+        const c = d.cards;
+        body += `<h6>Right now</h6><p>${esc(d.working_on)}</p>`;
+        body += `<h6>Their card</h6>${c.current ? `<div class="card">${esc(c.current.title)}<small>In progress${c.current.task_id ? ` · run ${esc(c.current.task_id)}` : ""}</small></div>` : `<p class="none">No card in progress.</p>`}`;
+        if (c.next) body += `<div class="card">${esc(c.next.title)}<small>Next up${c.backlog > 1 ? ` · ${c.backlog - 1} more in the backlog` : ""}</small></div>`;
+        if (c.review) body += `<p class="none" style="margin-top:4px;">${c.review} card${c.review > 1 ? "s" : ""} waiting on the Review Desk.</p>`;
+        body += `<h6>Last run</h6>${d.last_run ? `<p>"${esc(d.last_run.goal)}": ${esc(d.last_run.outcome)}, ${esc(ago(d.last_run.when))}.</p>` : `<p class="none">No runs yet.</p>`}`;
+        body += `<h6>ETA</h6><p>${esc(d.eta)}</p>`;
+        body += `<h6>Blockers</h6>${d.blockers.length ? `<ul>${d.blockers.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">None.</p>`}`;
+      }
+      const acts = a.isUser ? `<button type="button" class="primary" data-desk="review">Review Desk</button><button type="button" data-desk="board">Task board</button>`
+        : `<button type="button" class="primary" data-desk="terminal">Open terminal</button><button type="button" data-desk="board">Task board</button><button type="button" data-desk="face">Look at ${esc(a.name)}</button>`;
+      deskEl.innerHTML = head + body + `<div class="acts">${acts}</div>`;
+    }
+    async function openDesk(id, quiet) {
+      const a = AGENTS[id]; if (!a) return;
+      const req = ++deskReq; deskFor = id;
+      if (!quiet) { renderDesk(a, null, "Loading…"); deskEl.classList.add("on"); }
+      let d = null, msg = "";
+      try {
+        const names = Object.fromEntries(workers.map(w => [w.id, w.name]));
+        const r = await fetch(`/api/v5/desk/${a.isUser ? "apex" : id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ names }) });
+        if (r.ok) d = await r.json(); else msg = "Couldn't read the status right now.";
+      } catch (e) { msg = "Start DevSquad on your computer to see live status here."; }
+      if (req !== deskReq || deskFor !== id) return;
+      renderDesk(a, d, msg);
+    }
+    deskEl.addEventListener("click", e => {
+      const act = e.target.closest("[data-desk]")?.dataset.desk, id = deskFor; if (!act) return;
+      if (act === "close") closeDesk();
+      else if (act === "terminal" && typeof openTerminalSidecar === "function") openTerminalSidecar(id);
+      else if (act === "board") openWorkshop("board");
+      else if (act === "review") openReviewDesk();
+      else if (act === "face" && AGENTS[id]) faceTo(AGENTS[id]);
+    });
+    deskEl.addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); closeDesk(); host.focus({ preventScroll: true }); } });
     const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
     function hitAt(e) {
       const r = renderer.domElement.getBoundingClientRect();
@@ -5943,7 +6159,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     renderer.domElement.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
     renderer.domElement.addEventListener("pointerup", e => {
       if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;   // a drag, not a click
-      const u = hitAt(e); if (!u) return;
+      const u = hitAt(e); if (!u) { closeDesk(); return; }
       if (u.agentId) pick(u.agentId); else if (ACTIONS[u.action]) ACTIONS[u.action]();
     });
     renderer.domElement.addEventListener("pointermove", e => { if (e.buttons) return; renderer.domElement.style.cursor = hitAt(e) ? "pointer" : "grab"; });
@@ -5958,8 +6174,9 @@ def fetch_user_profile(user_id: str, db_pool=None):
       lounge: [V(5.6, 3.0, 13.0), V(8.4, 0.8, 5.8)],
       window: [V(-1.0, 1.72, 2.6), V(-1.0, 1.62, -6.0)],
       walk: [V(4.6, 1.7, 4.8), V(-2.0, 1.32, -1.4)],
+      board: [V(X0 + 4.6, 1.85, -4.45), V(X0 + 0.2, 1.72, -4.45)],
     };
-    const VIEW_KEYS = ["overview", "desks", "meeting", "lounge", "window", "walk"];
+    const VIEW_KEYS = ["overview", "desks", "meeting", "lounge", "window", "walk", "board"];
     const BOUNDS = { x: [-11.4, 11.4], y: [0.6, 3.6], z: [-7.4, 7.6] };
     let fly = null;
     const smooth = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
@@ -5990,7 +6207,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
     window.__office3dFace = id => { if (AGENTS[id] && AGENTS[id].pos) faceTo(AGENTS[id]); };
     // Read-only snapshot of where everyone is, for checks and tools
-    window.__office3dPeople = () => team.map(t => ({ id: t.id, x: +(t.pos.x + t.offX).toFixed(3), z: +(t.pos.z + t.offZ).toFixed(3), pose: t.pose, trip: t.trip || null }));
+    window.__office3dPeople = () => team.map(t => ({ id: t.id, x: +(t.pos.x + t.offX).toFixed(3), z: +(t.pos.z + t.offZ).toFixed(3), pose: t.pose, trip: t.trip || null, rig: t.rig ? t.rig.look : null, clip: t.rig ? t.rig.current : null }));
     host.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => goView(b.dataset.view)));
     const help = host.querySelector("#office3dHelp"), helpBtn = host.querySelector('[data-act="help"]');
     const toggleHelp = on => { help.classList.toggle("on", on); helpBtn.setAttribute("aria-expanded", String(on)); };
@@ -6019,7 +6236,8 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (!host.contains(document.activeElement) || typing(document.activeElement) || panelOpen() || e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
       if (WALK[k]) { held.add(WALK[k]); fly = null; markView(null); host.classList.add("used"); e.preventDefault(); return; }
-      const n = Number(e.key); if (n >= 1 && n <= 6) { goView(VIEW_KEYS[n - 1]); e.preventDefault(); return; }
+      if (k === "escape" && deskFor) { closeDesk(); e.preventDefault(); return; }
+      const n = Number(e.key); if (n >= 1 && n <= 7) { goView(VIEW_KEYS[n - 1]); e.preventDefault(); return; }
       if (k === "r" || k === "0") { goView("overview"); e.preventDefault(); return; }
       if (k === "?" || k === "h") { toggleHelp(!help.classList.contains("on")); e.preventDefault(); return; }
       if (k === "escape" && help.classList.contains("on")) toggleHelp(false);
@@ -6058,7 +6276,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     function loop(now) {
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
-      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; }
+      if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; if (slow % 15 === 0 && !document.hidden) refreshWallBoard(); if (deskFor && slow % 6 === 0) openDesk(deskFor, true); }
       if (isMeetingMode && clock > meetNext) { const seated = workers.filter(w => w.where === "meeting" && w.pose === "sit"); workers.forEach(w => { w.meetTalk3d = false; }); if (seated.length) seated[Math.floor(Math.random() * seated.length)].meetTalk3d = true; meetNext = clock + between(2.5, 5); }
       updatePeople(dt);
       if (motionOn3d) updateStreets(dt, isDark());
