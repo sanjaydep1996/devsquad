@@ -3,5 +3,5 @@
 
 """DevSquad: Local-first autonomous AI engineering studio for real-world codebases."""
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __author__ = "Sanjaydeep Gowrishankar"

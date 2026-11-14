@@ -57,7 +57,7 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     root = (root_dir or pathlib.Path.cwd()).resolve()
     app = FastAPI(
         title="DevSquad Studio API",
-        version="0.5.0",
+        version="0.5.1",
         description="Local-first autonomous AI engineering studio and multi-agent development team.",
     )
 

@@ -1,13 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "devsquad"
-version = "0.5.0"
+version = "0.5.1"
 description = "Local-first autonomous AI engineering studio and multi-agent development team for real-world codebases."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Sanjaydeep Gowrishankar", email = "30902986+sanjaydep1996@users.noreply.github.com" }]
 requires-python = ">=3.10"
 dependencies = []
@@ -38,6 +39,9 @@ devsquad = "devsquad.cli:main"
 [project.urls]
 Homepage = "https://github.com/sanjaydep1996/devsquad"
 Issues = "https://github.com/sanjaydep1996/devsquad/issues"
+
+[tool.setuptools.packages.find]
+include = ["devsquad*"]
 
 [tool.setuptools.package-data]
 devsquad = ["web/*.html", "web/models/people/*", "knowledge/*.md"]
