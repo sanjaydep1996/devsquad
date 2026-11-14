@@ -18,6 +18,10 @@ from ..core.export import Download, as_download, plan_markdown, postmortem_markd
 from ..core.files import ProjectFiles
 from ..core.flaky_detector import FlakyTestDetector
 from ..core.knowledge import AGENT_FIELDS, KnowledgeBase
+from ..core.code_review import CodeReviewer
+from ..core.lessons import LessonBook
+from ..core.research import ResearchDesk, research_markdown
+from ..core.shipping import ShipError, Shipper
 from ..core.planner import Planner
 from ..core.replay import build_replay
 from ..core.setup_check import SetupCheck
@@ -68,13 +72,15 @@ class V5Api:
         route = path[len(PREFIX):].strip("/")
         try:
             return self._route(method, route, payload)
-        except (BoardError, BootstrapError, ValueError) as e:
+        except (BoardError, BootstrapError, ShipError, ValueError) as e:
             return 400, {"ok": False, "error": str(e)}
 
     def _route(self, method: str, route: str, p: Dict[str, Any]) -> Result:
         card = re.fullmatch(r"board/([a-z0-9][a-z0-9-]{0,80})(?:/(move|assign))?", route)
         plan = re.fullmatch(r"plan/(plan-[a-f0-9]{8})(?:/(approve))?", route)
-        export = re.fullmatch(r"export/(plan|replay|postmortem)/([A-Za-z0-9_-]{1,80})\.(md|pdf)", route)
+        export = re.fullmatch(r"export/(plan|replay|postmortem|research)/([A-Za-z0-9_-]{1,80})\.(md|pdf)", route)
+        staged = re.fullmatch(r"(ship|review)/([A-Za-z0-9_-]{1,80})(?:/(lesson))?", route)
+        research = re.fullmatch(r"research/(research-[a-f0-9]{8})", route)
         desk = re.fullmatch(r"desk/([a-z_]{1,20})", route)
 
         if route == "setup" and method == "GET":
@@ -124,6 +130,32 @@ class V5Api:
         if desk and method == "POST":
             return self._desk(desk.group(1), p)
 
+        if staged:
+            task = self.staging.load_task(staged.group(2))
+            if not task:
+                return 404, {"ok": False, "error": "That run isn't on the Review Desk."}
+            if staged.group(1) == "ship" and not staged.group(3):
+                shipper = Shipper(self.root)
+                if method == "GET":
+                    return 200, shipper.preview(task)
+                if method == "POST":
+                    result = shipper.ship(task, p.get("confirm") is True)
+                    task.artifacts["SHIPPED"] = result.get("pr_url") or result["branch"]
+                    self.staging.save_task(task)
+                    return 200, result
+            if staged.group(1) == "review" and staged.group(3) == "lesson" and method == "POST":
+                lesson = LessonBook(self.root).record(task.goal, task.task_id, str(p.get("verdict", "")), str(p.get("reason", "")))
+                if p.get("reject") is True and task.status != "applied":
+                    task.status = "rejected"
+                    self.staging.save_task(task)
+                return 200, {"ok": True, "lesson": lesson, "status": task.status}
+        if route == "research" and method == "POST":
+            return 201, ResearchDesk(self.root).plan(str(p.get("question", "")), self.provider())
+        if research and method == "GET":
+            return 200, ResearchDesk(self.root).get(research.group(1))
+        if route == "code-review" and method == "POST":
+            return 200, CodeReviewer(self.root, staging=self.staging).review(str(p.get("target") or "working"))
+
         if route == "knowledge" and method == "GET":
             return 200, {"fields": KnowledgeBase(self.root).fields(), "agents": AGENT_FIELDS}
         if route == "knowledge/brief" and method == "POST":
@@ -141,6 +173,9 @@ class V5Api:
 
     def _export(self, kind: str, ident: str, fmt: str) -> Result:
         """A plan, a run's replay or a run's post-mortem, as a Markdown or PDF download."""
+        if kind == "research":
+            plan = ResearchDesk(self.root).get(ident)
+            return 200, as_download(research_markdown(plan), f"devsquad-{ident}", fmt, f"Research: {plan['question']}"[:90])
         if kind == "plan":
             plan = self.planner.get(ident)
             return 200, as_download(plan_markdown(plan), f"devsquad-{ident}", fmt, f"Plan: {plan.get('goal', '')}"[:90])

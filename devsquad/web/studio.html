@@ -154,6 +154,26 @@
     #office3dDesk .acts button { min-height: 32px; padding: 4px 11px; border-radius: 8px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font: 600 11.5px var(--f-ui); cursor: pointer; }
     #office3dDesk .acts button:hover { background: var(--hover); }
     #office3dDesk .acts button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .find-list { display: flex; flex-direction: column; gap: 8px; }
+    .find { border: 1px solid var(--line); border-left: 4px solid var(--line2); border-radius: 10px; padding: 9px 12px; background: var(--lot); font-size: 12.5px; }
+    .find.high { border-left-color: var(--bad); } .find.medium { border-left-color: var(--warn, #F5A524); } .find.low { border-left-color: var(--dim); }
+    .find header { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+    .find code { font: 500 11px var(--f-mono); }
+    .find pre { margin: 6px 0 0; padding: 6px 8px; border-radius: 6px; background: var(--solid); font: 500 11px var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .find .acts { display: flex; gap: 6px; margin-top: 8px; }
+    .find.dismissed { opacity: .45; } .find.accepted { box-shadow: inset 0 0 0 1px var(--accent); }
+    .sev { font: 700 10px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; padding: 1px 7px; border-radius: 999px; background: var(--lot2); }
+    .sev.high { color: var(--bad); background: var(--bad-bg); } .sev.medium { color: #B87300; background: rgba(245,165,36,.15); }
+    .teach { margin: 10px 0; padding: 10px 12px; border: 1px dashed var(--line2); border-radius: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+    .teach .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .teach textarea { width: 100%; min-height: 54px; resize: vertical; background: var(--lot2); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 7px 9px; font: 500 12.5px var(--f-ui); }
+    #tourCard { position: fixed; z-index: 4000; width: min(360px, calc(100vw - 32px)); padding: 16px 18px 14px; border-radius: 16px; background: var(--solid); color: var(--ink); border: 1px solid var(--accent); box-shadow: 0 24px 60px -20px rgba(0,0,0,.7); font: 500 13px/1.55 var(--f-ui); display: none; }
+    #tourCard.on { display: block; }
+    #tourCard h4 { margin: 0 0 6px; font: 700 15px var(--f-display, var(--f-ui)); }
+    #tourCard p { margin: 0; color: var(--ink); }
+    #tourCard .tour-foot { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+    #tourCard .tour-foot span { margin-right: auto; font: 600 11px var(--f-mono); color: var(--dim); }
+    .tour-hl { outline: 3px solid var(--accent) !important; outline-offset: 3px; border-radius: 10px; position: relative; z-index: 3999; }
     .export-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); }
     .export-links a { display: inline-flex; align-items: center; min-height: 28px; padding: 3px 10px; border-radius: 8px; border: 1px solid var(--line2); color: var(--ink); font-weight: 600; text-decoration: none; }
     .export-links a:hover { background: var(--hover); }
@@ -424,6 +444,7 @@
         <div class="tb-menu">
           <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-quality" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-quality">Quality<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="tb-menu-panel" id="menu-quality" role="menu" aria-labelledby="menuBtn-quality" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="openCodeReviewModal"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg><span><b>Code review</b><small>Gamma reviews a change against the guides</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openFlakyChamberModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Flaky Tests</b><small>Rerun a test to catch flakiness</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openBisectModal"><svg class="i" aria-hidden="true"><use href="#i-activity"/></svg><span><b>Git Bisect</b><small>Find the commit that broke a test</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openVisualQAModal"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Visual QA</b><small>Accessibility and layout checks on your pages</small></span></button>
@@ -434,6 +455,7 @@
         <div class="tb-menu">
           <button type="button" class="action-pill-btn tb-menu-btn" id="menuBtn-tools" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-tools">Tools<svg class="tb-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="tb-menu-panel" id="menu-tools" role="menu" aria-labelledby="menuBtn-tools" hidden>
+            <button type="button" role="menuitem" tabindex="-1" data-fn="startTour"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span><b>Take the tour</b><small>A two-minute walk through the studio</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openFlightRecorderModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Flight Recorder</b><small>Step through what each run did</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openReplayModal"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg><span><b>Replay</b><small>Replay a past agent session</small></span></button>
             <button type="button" role="menuitem" tabindex="-1" data-fn="openTerminalSidecar" data-arg="apex"><svg class="i" aria-hidden="true"><use href="#i-terminal"/></svg><span><b>Terminal</b><small>The agents' command line</small></span></button>
@@ -700,6 +722,7 @@
         <button class="ws-tab" role="tab" data-tab="plan" onclick="wsTab('plan')">Plan, then build</button>
         <button class="ws-tab" role="tab" data-tab="app" onclick="wsTab('app')">New app</button>
         <button class="ws-tab" role="tab" data-tab="devops" onclick="wsTab('devops')">DevOps desk</button>
+        <button class="ws-tab" role="tab" data-tab="research" onclick="wsTab('research')">Research desk</button>
         <button class="ws-tab" role="tab" data-tab="know" onclick="wsTab('know')">Know-how</button>
         <button class="ws-tab" role="tab" data-tab="setup" onclick="wsTab('setup')">Setup <span class="dot" id="wsSetupDot"></span></button>
       </div>
@@ -746,6 +769,15 @@
         <div id="wsDevops"></div>
       </div>
 
+      <div class="ws-pane" id="ws-research" role="tabpanel">
+        <p class="ws-help">Ask what you want to learn from your users. Apex and Zeta pick the right method from the Research guide and write a study you can run: who to talk to, how many, the script, and how to make sense of the results.</p>
+        <form class="ws-row" onsubmit="event.preventDefault(); wsResearch();">
+          <input class="chat-input" id="wsResearchQ" maxlength="300" placeholder="For example: Why do people drop off at checkout?" aria-label="Research question">
+          <button class="action-pill-btn primary" type="submit" id="wsResearchBtn">Plan the study</button>
+        </form>
+        <div class="ws-msg" id="wsResearchMsg" role="status"></div>
+        <div id="wsResearch" class="ws-list"></div>
+      </div>
       <div class="ws-pane" id="ws-know" role="tabpanel">
         <p class="ws-help">Each teammate keeps field guides with fundamentals and decision rules. When a task is assigned, they look up what fits and decide from it, naming the guide. Add your own guides as Markdown files in <code>.devsquad/knowledge/</code>.</p>
         <form class="ws-row" onsubmit="event.preventDefault(); wsKnowBrief();">
@@ -763,6 +795,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Code review agent -->
+  <div class="modal-overlay" id="codeReviewModal">
+    <div class="retro-modal-box" style="max-width:860px;width:95%;max-height:88vh;display:flex;flex-direction:column;gap:10px;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Code review</h3>
+        <button class="term-toggle-btn" onclick="closeCodeReviewModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ws-help" style="margin:0;">Gamma reads only the lines a change adds and checks them against the Security, Testing, Backend, Frontend, DevOps and Docs guides. Every finding names the guide it comes from.</p>
+      <form class="ws-row" onsubmit="event.preventDefault(); runCodeReview();">
+        <select id="crKind" aria-label="What to review" onchange="document.getElementById('crTarget').placeholder = {working:'(nothing needed)', branch:'Branch name, for example feat/invites', pr:'Pull request number, for example 42', staged:'Run id, for example task-1a2b3c4d'}[this.value]">
+          <option value="working">My uncommitted changes</option><option value="branch">A branch</option><option value="pr">A pull request</option><option value="staged">A run on the Review Desk</option>
+        </select>
+        <input class="chat-input" id="crTarget" placeholder="(nothing needed)" aria-label="Branch, pull request or run">
+        <button class="action-pill-btn primary" type="submit" id="crBtn">Review</button>
+      </form>
+      <div class="ws-msg" id="crMsg" role="status"></div>
+      <div id="crFindings" class="find-list" style="overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Ship from the Review Desk -->
+  <div class="modal-overlay" id="shipModal">
+    <div class="retro-modal-box" style="max-width:720px;width:95%;max-height:88vh;display:flex;flex-direction:column;gap:10px;">
+      <div class="modal-head">
+        <h3><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>Ship this change</h3>
+        <button class="term-toggle-btn" onclick="closeShipModal()" aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+      <div id="shipBody" style="overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+  <div id="tourCard" role="dialog" aria-live="polite" aria-label="Studio tour"></div>
 
   <!-- Multi-Tool Memory Lake Modal -->
   <div class="modal-overlay" id="memoryModal">
@@ -3115,20 +3179,28 @@ def fetch_user_profile(user_id: str, db_pool=None):
         }).join("") || '<div style="color:var(--dim);font-size:11px;">No file modifications.</div>';
 
         detailEl.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="flex:1 1 260px;min-width:0;">
               <div style="font-size:14px;font-weight:700;color:var(--ink);">${escHtml(t.goal)}</div>
               <div style="font-size:11px;color:var(--dim);margin-top:2px;">
                 Task ID: <code>${escHtml(t.task_id)}</code> · Branch: <code>${escHtml(t.git_branch)}</code> · Status: <b>${escHtml(t.status)}</b>
               </div>
             </div>
-            <div style="display:flex;gap:6px;">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
               <button class="action-pill-btn" onclick="openBlastRadiusModal('${t.task_id}')" style="font-size:11px;"><svg class="i" style="width:12px;height:12px;" aria-hidden="true"><use href="#i-grid"/></svg>Blast Radius</button>
+              <button class="action-pill-btn" onclick="openCodeReviewModal('staged:${t.task_id}')" style="font-size:11px;">Review code</button>
+              <button class="action-pill-btn" onclick="openShipModal('${t.task_id}')" style="font-size:11px;">Ship…</button>
               <button class="action-pill-btn" onclick="rollbackTask('${t.task_id}')" style="font-size:11px;">Rollback</button>
               <button class="action-pill-btn primary" onclick="applyTask('${t.task_id}')" style="font-size:11px;">Apply to Workspace</button>
             </div>
           </div>
           ${testBanner}
+          <div class="teach">
+            <b>Teach the team</b>
+            <div class="row"><label><input type="radio" name="lessonVerdict" value="keep"> Keep doing this</label><label><input type="radio" name="lessonVerdict" value="avoid"> Don't do this again</label><label><input type="checkbox" id="lessonReject"> Also reject this change</label></div>
+            <textarea id="lessonReason" maxlength="400" placeholder="Why? For example: Never log the reset token, even in debug." aria-label="Why"></textarea>
+            <div class="row"><button class="action-pill-btn primary" onclick="saveLesson('${t.task_id}')" style="font-size:11px;">Save as a lesson</button><span class="ws-msg" id="lessonMsg" role="status"></span></div>
+          </div>
           <div style="font-size:11.5px;font-weight:700;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);">
             Quarantined Diffs (${(t.diffs || []).length} files)
           </div>
@@ -4832,6 +4904,125 @@ def fetch_user_profile(user_id: str, db_pool=None):
       wsSay("wsBoardMsg", r.ok ? `Added ${r.data.imported} issue${r.data.imported === 1 ? "" : "s"}. ${r.data.already_on_board} already on the board.` : r.data.error, r.ok ? "ok" : "bad");
       wsLoadBoard();
     }
+
+    // Research desk
+    async function wsResearch() {
+      const q = document.getElementById("wsResearchQ").value.trim(), btn = document.getElementById("wsResearchBtn"), box = document.getElementById("wsResearch");
+      if (!q) { wsSay("wsResearchMsg", "Write the question you want answered first.", "bad"); return; }
+      wsBusy(btn, true, "Planning…"); wsSay("wsResearchMsg", "");
+      const r = await v5("research", "POST", { question: q });
+      wsBusy(btn, false);
+      if (!r.ok) { wsSay("wsResearchMsg", r.data.error, "bad"); box.innerHTML = ""; return; }
+      const p = r.data, li = items => `<ul>${items.map(x => `<li>${wsEsc(x)}</li>`).join("")}</ul>`;
+      box.innerHTML = `
+        <div class="ws-section"><h5>${wsEsc(p.method_name)}: ${wsEsc(p.sample)}, ${wsEsc(p.timeline)}</h5><p class="ws-help" style="margin:0;">${wsEsc(p.why)}</p></div>
+        <div class="ws-section"><h5>Who to recruit</h5>${li(p.participants)}</div>
+        ${p.script.map(part => `<div class="ws-section"><h5>${wsEsc(part.part)}</h5>${li(part.items)}</div>`).join("")}
+        ${p.tailored && p.tailored.length ? `<div class="ws-section"><h5>Questions tailored to this study</h5>${li(p.tailored)}</div>` : ""}
+        <div class="ws-section"><h5>Making sense of it</h5>${li(p.synthesis)}<p class="ws-help" style="margin:0;">${wsEsc(p.success_metric)}</p></div>
+        <div class="ws-row"><span class="export-links">Save the study: <a href="/api/v5/export/research/${wsEsc(p.id)}.md" download>Markdown</a><a href="/api/v5/export/research/${wsEsc(p.id)}.pdf" download>PDF</a></span></div>`;
+    }
+
+    // Code review agent
+    function openCodeReviewModal(target) {
+      document.getElementById("codeReviewModal").style.display = "flex";
+      if (typeof target === "string" && target.startsWith("staged:")) { document.getElementById("crKind").value = "staged"; document.getElementById("crTarget").value = target.slice(7); runCodeReview(); }
+    }
+    function closeCodeReviewModal() { document.getElementById("codeReviewModal").style.display = "none"; }
+    async function runCodeReview() {
+      const kind = document.getElementById("crKind").value, val = document.getElementById("crTarget").value.trim(), btn = document.getElementById("crBtn");
+      const target = kind === "working" ? "working" : kind === "pr" ? "pr:" + val.replace(/\D/g, "") : kind === "staged" ? "staged:" + val : val;
+      if (kind !== "working" && !val) { wsSay("crMsg", "Fill in which one to review.", "bad"); return; }
+      wsBusy(btn, true, "Gamma is reviewing…"); wsSay("crMsg", "");
+      const r = await v5("code-review", "POST", { target });
+      wsBusy(btn, false);
+      const box = document.getElementById("crFindings");
+      if (!r.ok) { wsSay("crMsg", r.data.error, "bad"); box.innerHTML = ""; return; }
+      wsSay("crMsg", r.data.summary, r.data.counts.high ? "bad" : "ok");
+      box.innerHTML = r.data.findings.map(f => `
+        <article class="find ${f.severity}" data-id="${wsEsc(f.id)}">
+          <header><span class="sev ${f.severity}">${wsEsc(f.severity)}</span><code>${wsEsc(f.file)}${f.line ? ":" + f.line : ""}</code><span class="ws-help">${wsEsc(f.source)}</span></header>
+          <div style="margin-top:4px;">${wsEsc(f.message)}</div>
+          ${f.snippet ? `<pre>${wsEsc(f.snippet)}</pre>` : ""}
+          <div class="acts"><button class="ws-mini" onclick="this.closest('.find').classList.add('accepted'); this.closest('.find').classList.remove('dismissed'); this.textContent='To fix';">Accept</button><button class="ws-mini" onclick="this.closest('.find').classList.add('dismissed'); this.closest('.find').classList.remove('accepted');">Dismiss</button></div>
+        </article>`).join("") || '<div class="ws-help">Nothing to flag in the added lines.</div>';
+    }
+
+    // Ship from the Review Desk: preview first, then commit on a new branch, push and open a PR
+    function closeShipModal() { document.getElementById("shipModal").style.display = "none"; }
+    async function openShipModal(taskId) {
+      const body = document.getElementById("shipBody");
+      document.getElementById("shipModal").style.display = "flex";
+      body.innerHTML = '<div class="ws-help">Checking git and GitHub…</div>';
+      const r = await v5(`ship/${encodeURIComponent(taskId)}`);
+      if (!r.ok) { body.innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error)}</div>`; return; }
+      const p = r.data;
+      body.innerHTML = `
+        <p class="ws-help" style="margin:0;">This commits the change on a new branch in a separate worktree, pushes it to <code>${wsEsc(p.remote || "origin")}</code> and opens a pull request. Your working copy, current branch and uncommitted work are not touched.</p>
+        <div class="ws-section"><h5>Branch <code>${wsEsc(p.branch)}</code></h5><div class="ws-help">Commit: ${wsEsc(p.commit_message)}</div><ul>${p.files.map(f => `<li><code>${wsEsc(f.path)}</code> +${f.additions} / -${f.deletions}</li>`).join("")}</ul></div>
+        ${p.tests_passed ? "" : '<div class="ws-msg bad">Its tests did not pass. Ship only if you have checked it yourself.</div>'}
+        <div class="ws-section"><h5>Pull request: ${wsEsc(p.pr_title)}</h5><pre style="white-space:pre-wrap;font:500 11px var(--f-mono);margin:0;max-height:180px;overflow:auto;">${wsEsc(p.pr_body)}</pre></div>
+        ${p.problems.map(x => `<div class="ws-msg bad">${wsEsc(x)}</div>`).join("")}
+        <div class="ws-row"><button class="action-pill-btn primary" id="shipGo" ${p.ready ? "" : "disabled"} onclick="shipNow('${wsEsc(taskId)}', this)">${p.can_open_pr ? "Push and open the pull request" : "Push the branch"}</button><button class="action-pill-btn" onclick="closeShipModal()">Cancel</button></div>
+        <div class="ws-msg" id="shipMsg" role="status"></div>`;
+    }
+    async function shipNow(taskId, btn) {
+      wsBusy(btn, true, "Shipping…");
+      const r = await v5(`ship/${encodeURIComponent(taskId)}`, "POST", { confirm: true });
+      wsBusy(btn, false);
+      const msg = document.getElementById("shipMsg");
+      if (!r.ok) { msg.className = "ws-msg bad"; msg.textContent = r.data.error; return; }
+      btn.disabled = true;
+      msg.className = "ws-msg ok";
+      msg.innerHTML = r.data.pr_url ? `Pushed ${wsEsc(r.data.branch)} (${wsEsc(r.data.commit)}) and opened <a href="${wsEsc(r.data.pr_url)}" target="_blank" rel="noopener">the pull request</a>.` : `Pushed ${wsEsc(r.data.branch)} (${wsEsc(r.data.commit)}). ${wsEsc(r.data.note)}`;
+    }
+
+    // Teach the team: a review verdict and its reason become a rule in the field guides
+    async function saveLesson(taskId) {
+      const verdict = document.querySelector('input[name="lessonVerdict"]:checked')?.value, reason = document.getElementById("lessonReason").value.trim();
+      const reject = document.getElementById("lessonReject").checked, msg = document.getElementById("lessonMsg");
+      if (!verdict) { msg.className = "ws-msg bad"; msg.textContent = "Choose keep or avoid."; return; }
+      const r = await v5(`review/${encodeURIComponent(taskId)}/lesson`, "POST", { verdict, reason, reject });
+      msg.className = "ws-msg " + (r.ok ? "ok" : "bad");
+      msg.textContent = r.ok ? `Saved to the ${r.data.lesson.field} guide (${r.data.lesson.file}). ${r.data.lesson.owners.map(o => wsName(o)).join(", ")} will use it from now on.${r.data.status === "rejected" ? " The change is marked rejected." : ""}` : r.data.error;
+      if (r.ok) { document.getElementById("lessonReason").value = ""; if (r.data.status === "rejected" && typeof loadReviewTasks === "function") loadReviewTasks(); }
+    }
+
+    // Guided first-run tour
+    const TOUR = [
+      { title: "Welcome to DevSquad Studio", text: "This is your AI team's office. Everything runs on your computer with free local models. Let's take two minutes to look around.", view: "overview" },
+      { title: "Meet the team", text: "Six teammates sit at these desks. Click a desk or a person any time to see what they're working on, their next card, last run and blockers.", view: "desks" },
+      { title: "The task board", text: "Your Workshop board is on this wall. When a card moves to In progress, its owner walks over to pick it up.", view: "board" },
+      { title: "Plan, then build", text: "Open the Workshop to plan a feature, research your users, or see the field guides the team decides from.", el: "[onclick*=\"openWorkshop\"]" },
+      { title: "You decide what ships", text: "Every change waits on the Review Desk. Apply it, teach the team why you kept or rejected it, run a code review, or ship it as a pull request.", el: "[onclick*=\"openReviewDesk\"]" },
+      { title: "Run a relay", text: "Give the squad a task here. Apex plans, Alpha codes, Gamma tests and Delta prepares the branch.", el: "[onclick*=\"openRelayModal\"]" },
+      { title: "Take a break", text: "The meeting room, the lounge and the reef tank are there when you need them. Click the tank for a closer look.", view: "lounge" },
+      { title: "That's it", text: "Find this tour again under Tools. Settings is where you rename the team and pick your own look.", view: "overview" },
+    ];
+    let tourStep = -1, tourHl = null;
+    function startTour() { tourStep = 0; showTourStep(); }
+    function endTour() {
+      tourStep = -1; document.getElementById("tourCard").classList.remove("on");
+      if (tourHl) tourHl.classList.remove("tour-hl"); tourHl = null;
+      try { localStorage.setItem("devsquad_toured", "1"); } catch (e) {}
+    }
+    function showTourStep() {
+      const st = TOUR[tourStep], card = document.getElementById("tourCard");
+      if (!st) { endTour(); return; }
+      if (tourHl) tourHl.classList.remove("tour-hl"); tourHl = null;
+      if (st.view) document.querySelector(`#office3d [data-view="${st.view}"]`)?.click();
+      const el = st.el ? [...document.querySelectorAll(st.el)].find(x => x.offsetParent) : null;
+      if (el) { el.classList.add("tour-hl"); tourHl = el; }
+      card.innerHTML = `<h4>${escHtml(st.title)}</h4><p>${escHtml(st.text)}</p><div class="tour-foot"><span>${tourStep + 1} of ${TOUR.length}</span><button class="action-pill-btn" onclick="endTour()">Skip</button>${tourStep ? '<button class="action-pill-btn" onclick="tourStep--; showTourStep();">Back</button>' : ""}<button class="action-pill-btn primary" onclick="tourStep++; showTourStep();">${tourStep === TOUR.length - 1 ? "Done" : "Next"}</button></div>`;
+      card.classList.add("on");
+      const r = el ? el.getBoundingClientRect() : null, w = card.offsetWidth, h = card.offsetHeight;
+      const left = r ? Math.min(Math.max(16, r.left), innerWidth - w - 16) : Math.max(16, (innerWidth - w) / 2);
+      const top = r ? (r.bottom + 12 + h < innerHeight ? r.bottom + 12 : Math.max(16, r.top - h - 12)) : innerHeight - h - 110;
+      card.style.left = left + "px"; card.style.top = Math.max(16, top) + "px";
+      card.querySelector(".primary").focus({ preventScroll: true });
+    }
+    document.addEventListener("keydown", e => { if (tourStep >= 0 && e.key === "Escape") endTour(); });
+    window.addEventListener("load", () => { let seen = true; try { seen = localStorage.getItem("devsquad_toured") === "1"; } catch (e) {} if (!seen) setTimeout(() => { if (tourStep < 0 && document.getElementById("office3d")) startTour(); }, 3500); });
 
     // Know-how: the field guides each teammate refers to
     async function wsLoadKnow() {

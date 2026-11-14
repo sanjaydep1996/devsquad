@@ -271,7 +271,24 @@ Click **Workshop** in the topbar. Everything below works in template mode and ge
 - When a task is assigned, each agent looks up the entries that fit (local keyword matching, free and offline), puts them in its prompt, and records its decisions with the guide each came from. You see them in the run log ("Drawing on…"), in the run's `decisions.md`, in every plan, and on the desk card.
 - This works in template mode too, so the team decides sensibly even with no AI connected. Add your own team's rules as Markdown files in `.devsquad/knowledge/`, and the agents use them alongside the built-in ones.
 
-### 7. 📄 Agents read PDFs and images
+### 7. 🔬 Research desk
+- Ask what you want to learn from your users ("Why do people drop off at checkout?"). The method is chosen from the Research guide: interviews, a usability test, a survey, card sorting, a diary study or an A/B test, with the sample size and timeline.
+- You get a study you can run: who to recruit, the session script, how to make sense of the results and how you'll know it worked. Save it as Markdown or PDF. A local model, if you have one, adds questions tailored to your study.
+
+### 8. 🎓 The team learns from your reviews
+- In the Review Desk, **Teach the team**: say whether to keep doing something or avoid it, and why. The reason becomes a rule in `.devsquad/knowledge/learned-<field>.md`, and the agents use it from the next task, naming the review it came from. You can reject the change at the same time.
+
+### 9. 🚀 Ship from the Review Desk
+- **Ship…** shows exactly what will happen first: the branch, the files, the commit message and the pull request text (with the run's decisions and test result). Nothing happens until you confirm.
+- It commits in a separate git worktree, pushes the branch and opens the pull request with `gh`. Your working copy, current branch and uncommitted work are never touched.
+
+### 10. 🧪 Code review agent
+- **Quality → Code review** (or **Review code** in the Review Desk): Gamma reviews your uncommitted changes, a branch, a pull request or a staged run. It reads only the added lines and flags secrets, string-built SQL and shell commands, weak password hashing, disabled TLS checks, unsafe HTML, swallowed errors, missing timeouts, images without alt text, clickable divs, `:latest` images, TODOs and code changes without tests. Each finding names its field guide; accept or dismiss it.
+
+### 11. 🧭 Guided tour
+- On your first visit an eight-step tour shows the team, the board, the Workshop, the Review Desk and the lounge. Take it again any time from **Tools → Take the tour**.
+
+### 12. 📄 Agents read PDFs and images
 - The text inside PDFs is extracted (standard library only) and given to the agents. Scanned PDFs are pictures of text and can't be read yet.
 - Images and mockups are described by a local vision model such as `llava` when one is installed.
 

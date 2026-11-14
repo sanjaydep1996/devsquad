@@ -70,6 +70,10 @@ class TestStudioPage(unittest.TestCase):
         self.assertIn('makeFish("clown")', PAGE)
         self.assertIn('makeFish("tang")', PAGE)
 
+    def test_review_loop_and_tour_are_wired(self):
+        for needle in ('v5(`ship/', '{ confirm: true }', '/lesson`', 'v5("code-review"', 'v5("research"', 'data-tab="research"', "function startTour", '"devsquad_toured"', "openShipModal('${t.task_id}')"):
+            self.assertIn(needle, PAGE)
+
     def test_the_three_copies_of_the_page_match(self):
         for copy in ("index.html", "docs/index.html"):
             self.assertEqual((ROOT / copy).read_text(encoding="utf-8"), PAGE, copy)

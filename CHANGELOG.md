@@ -21,6 +21,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Task board on the office wall**: the Workshop board drawn as sticky notes; a card moving to In progress sends its owner to the board and back to their desk. New **Board** view (key 7).
 - **Desk card**: click a desk or a person for their card, next card, last run, ETA and blockers (`POST /api/v5/desk/<id>`).
 - **Know-how: field guides** (`devsquad/knowledge/*.md`, `devsquad/core/knowledge.py`): fundamentals and decision rules in eight fields, Research included. Agents look up what fits each task, decide from it and name the guide: in the run log, `decisions.md`, plans and desk cards. Projects can add their own in `.devsquad/knowledge/`. New Workshop tab and `/api/v5/knowledge` routes.
+- **Research desk** (`devsquad/core/research.py`): a research question becomes a runnable study (method, sample, script, synthesis), exportable as Markdown or PDF.
+- **Lessons from reviews** (`devsquad/core/lessons.py`): Teach the team in the Review Desk writes your reason as a field-guide rule the agents use next time.
+- **Ship from the Review Desk** (`devsquad/core/shipping.py`): preview, then commit in a separate worktree, push and open a PR with `gh`, only after you confirm.
+- **Code review agent** (`devsquad/core/code_review.py`): Gamma reviews added lines in uncommitted changes, a branch, a PR or a staged run, against the field guides.
+- **Guided first-run tour**, also under Tools.
 - **Reef tank** in the 3D office, beside the server rack: two clownfish at their anemone and two blue tangs.
 - **Your own people**: a model in `.devsquad/people/` (kept out of git) replaces the shipped one with the same name.
 - **Export as Markdown or PDF**: plans, run replays and post-mortems (`GET /api/v5/export/<plan|replay|postmortem>/<id>.<md|pdf>`), with a standard-library PDF writer (`devsquad/core/export.py`).
