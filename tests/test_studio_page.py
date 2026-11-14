@@ -63,6 +63,13 @@ class TestStudioPage(unittest.TestCase):
         self.assertIn("team.forEach(a => dressUp(a).catch(() => {}))", PAGE)
         self.assertIn("img-src 'self' data: blob:", PAGE)
 
+    def test_know_how_tab_and_reef_tank_are_on_the_page(self):
+        self.assertIn('data-tab="know"', PAGE)
+        self.assertIn('v5("knowledge/brief"', PAGE)
+        self.assertIn("Decisions the team took from their field guides", PAGE)
+        self.assertIn('makeFish("clown")', PAGE)
+        self.assertIn('makeFish("tang")', PAGE)
+
     def test_the_three_copies_of_the_page_match(self):
         for copy in ("index.html", "docs/index.html"):
             self.assertEqual((ROOT / copy).read_text(encoding="utf-8"), PAGE, copy)

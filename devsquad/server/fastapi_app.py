@@ -326,7 +326,8 @@ def create_app(root_dir: Optional[pathlib.Path] = None) -> Any:
     @app.get("/models/people/{name}")
     def person_model(name: str):
         """The 3D office's people: only the .glb files that ship in web/models/people."""
-        path = models_dir / name
+        own = root / ".devsquad" / "people" / name   # a customised person, kept out of git
+        path = own if own.is_file() else models_dir / name
         if not re.fullmatch(r"[A-Za-z0-9_]{1,40}\.glb", name) or not path.is_file():
             return JSONResponse({"error": "Not found"}, status_code=404)
         return Response(content=path.read_bytes(), media_type="model/gltf-binary", headers={"Cache-Control": "max-age=86400"})

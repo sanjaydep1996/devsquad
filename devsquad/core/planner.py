@@ -8,6 +8,8 @@ import pathlib
 import re
 import time
 import uuid
+
+from .knowledge import KnowledgeBase
 from typing import Any, Dict, List, Optional
 
 from .taskboard import OWNERS, TaskBoard
@@ -99,6 +101,13 @@ class Planner:
             else:
                 plan = self._template_plan(goal, f"The model's plan couldn't be used ({failure}), so this is the standard task list.")
         plan.update({"id": f"plan-{uuid.uuid4().hex[:8]}", "goal": goal, "status": "proposed", "created": time.time()})
+        # Each owner decides from their field guides, with the guide named, even with no AI connected
+        kb, seen, decisions = KnowledgeBase(self.root), set(), []
+        for owner in ["apex"] + [t.get("owner") or "" for t in plan["tasks"]]:
+            if owner and owner not in seen:
+                seen.add(owner)
+                decisions += [d for d in kb.decide(owner, goal, k=2) if d["decision"] not in {x["decision"] for x in decisions}]
+        plan["decisions"] = decisions[:10]
         self._save(plan)
         return plan
 

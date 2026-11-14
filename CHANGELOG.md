@@ -20,6 +20,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Realistic, rigged people** in the 3D office: eight Microsoft Rocketbox avatars (MIT, notice in `devsquad/web/models/people/`) converted to glTF, with recorded walk, sit, typing, talk, listen, present, coffee and phone motion. You can pick your look in Settings. The drawn people remain the fallback.
 - **Task board on the office wall**: the Workshop board drawn as sticky notes; a card moving to In progress sends its owner to the board and back to their desk. New **Board** view (key 7).
 - **Desk card**: click a desk or a person for their card, next card, last run, ETA and blockers (`POST /api/v5/desk/<id>`).
+- **Know-how: field guides** (`devsquad/knowledge/*.md`, `devsquad/core/knowledge.py`): fundamentals and decision rules in eight fields, Research included. Agents look up what fits each task, decide from it and name the guide: in the run log, `decisions.md`, plans and desk cards. Projects can add their own in `.devsquad/knowledge/`. New Workshop tab and `/api/v5/knowledge` routes.
+- **Reef tank** in the 3D office, beside the server rack: two clownfish at their anemone and two blue tangs.
+- **Your own people**: a model in `.devsquad/people/` (kept out of git) replaces the shipped one with the same name.
 - **Export as Markdown or PDF**: plans, run replays and post-mortems (`GET /api/v5/export/<plan|replay|postmortem>/<id>.<md|pdf>`), with a standard-library PDF writer (`devsquad/core/export.py`).
 
 ### Changed

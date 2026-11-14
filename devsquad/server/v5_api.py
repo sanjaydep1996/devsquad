@@ -17,6 +17,7 @@ from ..core.doc_reader import describe_image
 from ..core.export import Download, as_download, plan_markdown, postmortem_markdown, replay_markdown
 from ..core.files import ProjectFiles
 from ..core.flaky_detector import FlakyTestDetector
+from ..core.knowledge import AGENT_FIELDS, KnowledgeBase
 from ..core.planner import Planner
 from ..core.replay import build_replay
 from ..core.setup_check import SetupCheck
@@ -123,6 +124,15 @@ class V5Api:
         if desk and method == "POST":
             return self._desk(desk.group(1), p)
 
+        if route == "knowledge" and method == "GET":
+            return 200, {"fields": KnowledgeBase(self.root).fields(), "agents": AGENT_FIELDS}
+        if route == "knowledge/brief" and method == "POST":
+            agent, goal = str(p.get("agent", "")), str(p.get("goal", ""))[:400]
+            if agent not in AGENT_FIELDS:
+                raise ValueError("Pick one of the team.")
+            kb = KnowledgeBase(self.root)
+            return 200, {"agent": agent, "fields": AGENT_FIELDS[agent], "entries": [e.as_dict() for e in kb.brief(agent, goal)], "decisions": kb.decide(agent, goal)}
+
         if route == "flaky" and method == "POST":
             result = FlakyTestDetector(self.root).run_real(str(p.get("command", "")), runs=int(p.get("runs") or 10))
             return (400 if result["status"] == "error" else 200), result
@@ -159,7 +169,7 @@ class V5Api:
         last = tasks[0] if tasks else None
         slim = lambda c: {k: c.get(k) for k in ("id", "title", "status", "issue", "issue_url", "task_id")} if c else None
         return 200, {
-            "id": agent_id, "name": person.get("name") or TEAM[agent_id][0], "role": TEAM[agent_id][1],
+            "id": agent_id, "name": person.get("name") or TEAM[agent_id][0], "role": TEAM[agent_id][1], "fields": AGENT_FIELDS.get(agent_id, []),
             "state": person.get("state", "idle"), "working_on": person.get("working_on", ""), "last_done": person.get("last_done", ""),
             "eta": report.get("eta", ""), "blockers": report.get("blockers", []), "decisions": report.get("decisions", []),
             "cards": {"current": slim(current), "next": slim(backlog[0] if backlog else None), "backlog": len(backlog),

@@ -593,7 +593,9 @@ class StudioHandler(http.server.BaseHTTPRequestHandler):
 
     def _serve_model(self, name: str):
         """The 3D office's people: only the .glb files that ship in web/models/people."""
-        path = MODELS_DIR / name
+        # A person you've customised (in .devsquad/people/, kept out of git) wins over the shipped one
+        own = self.root / ".devsquad" / "people" / name
+        path = own if own.is_file() else MODELS_DIR / name
         if not re.fullmatch(r"[A-Za-z0-9_]{1,40}\.glb", name) or not path.is_file():
             self.send_error(404, "Not Found")
             return

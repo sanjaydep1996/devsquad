@@ -50,5 +50,18 @@ class TestAutonomousRelay(unittest.TestCase):
         self.assertTrue(any(ag == "Delta" for ag, _ in events))
 
 
+    def test_each_agent_works_from_its_field_guides(self):
+        prompts = []
+        real = self.provider.complete
+        self.provider.complete = lambda prompt, **kw: (prompts.append(prompt), real(prompt, **kw))[1]
+        events = []
+        relay = AutonomousRelay(provider=self.provider, root=self.root, event_callback=lambda a, e, d: events.append((a, e, d.get("message", ""))))
+        task = relay.run_task(goal="Add login with password reset by email", target_file="src/feature.py", test_file="tests/test_feature.py")
+        drawing = [m for a, e, m in events if e == "DRAWING_ON"]
+        self.assertTrue(any("Store passwords properly" in m for m in drawing))
+        self.assertIn("Security guide", task.artifacts["decisions.md"])
+        self.assertTrue(any("FUNDAMENTALS TO APPLY" in p for p in prompts))
+
+
 if __name__ == "__main__":
     unittest.main()

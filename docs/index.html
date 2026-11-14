@@ -700,6 +700,7 @@
         <button class="ws-tab" role="tab" data-tab="plan" onclick="wsTab('plan')">Plan, then build</button>
         <button class="ws-tab" role="tab" data-tab="app" onclick="wsTab('app')">New app</button>
         <button class="ws-tab" role="tab" data-tab="devops" onclick="wsTab('devops')">DevOps desk</button>
+        <button class="ws-tab" role="tab" data-tab="know" onclick="wsTab('know')">Know-how</button>
         <button class="ws-tab" role="tab" data-tab="setup" onclick="wsTab('setup')">Setup <span class="dot" id="wsSetupDot"></span></button>
       </div>
 
@@ -745,6 +746,16 @@
         <div id="wsDevops"></div>
       </div>
 
+      <div class="ws-pane" id="ws-know" role="tabpanel">
+        <p class="ws-help">Each teammate keeps field guides with fundamentals and decision rules. When a task is assigned, they look up what fits and decide from it, naming the guide. Add your own guides as Markdown files in <code>.devsquad/knowledge/</code>.</p>
+        <form class="ws-row" onsubmit="event.preventDefault(); wsKnowBrief();">
+          <select id="wsKnowAgent" aria-label="Teammate"></select>
+          <input class="chat-input" id="wsKnowGoal" maxlength="400" placeholder="Try a task, for example: Add login with password reset" aria-label="Task to look up">
+          <button class="action-pill-btn primary" type="submit">What would they draw on?</button>
+        </form>
+        <div id="wsKnowBrief"></div>
+        <div id="wsKnow" class="ws-list"></div>
+      </div>
       <div class="ws-pane" id="ws-setup" role="tabpanel">
         <div class="ws-msg" id="wsSetupMsg" role="status"></div>
         <div id="wsSetup" class="ws-list"></div>
@@ -4764,6 +4775,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (tab === "board") { document.getElementById("wsCardOwner").innerHTML = wsOwnerOptions(""); wsLoadBoard(); }
       if (tab === "plan") { const n = typeof attachedFiles !== "undefined" ? attachedFiles.size : 0; document.getElementById("wsPlanFiles").textContent = n ? `Apex will read ${n} attached file${n > 1 ? "s" : ""}.` : "Tip: attach briefs, PDFs or mockups in Files first, and Apex will read them."; }
       if (tab === "setup") wsLoadSetup();
+      if (tab === "know") wsLoadKnow();
     }
 
     // Board
@@ -4821,6 +4833,24 @@ def fetch_user_profile(user_id: str, db_pool=None):
       wsLoadBoard();
     }
 
+    // Know-how: the field guides each teammate refers to
+    async function wsLoadKnow() {
+      const sel = document.getElementById("wsKnowAgent");
+      if (!sel.options.length) sel.innerHTML = WS_OWNERS.filter(Boolean).map(o => `<option value="${o}">${wsEsc(wsName(o))}</option>`).join("");
+      const r = await v5("knowledge");
+      if (!r.ok) { document.getElementById("wsKnow").innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error || "Couldn't load the field guides.")}</div>`; return; }
+      document.getElementById("wsKnow").innerHTML = r.data.fields.map(f => `
+        <details class="ws-section"><summary><b>${wsEsc(f.field)}</b> <span class="ws-help">${f.entries.length} entries · used by ${f.agents.map(a => wsEsc(wsName(a))).join(", ") || "nobody yet"}</span></summary>
+          <ul>${f.entries.map(e => `<li><b>${wsEsc(e.title)}</b>${e.source === "project" ? ' <span class="ws-chip">yours</span>' : ""}: ${wsEsc(e.decide)}</li>`).join("")}</ul></details>`).join("");
+    }
+    async function wsKnowBrief() {
+      const agent = document.getElementById("wsKnowAgent").value, goal = document.getElementById("wsKnowGoal").value.trim(), box = document.getElementById("wsKnowBrief");
+      if (!goal) { box.innerHTML = '<div class="ws-msg bad">Type a task first.</div>'; return; }
+      const r = await v5("knowledge/brief", "POST", { agent, goal });
+      if (!r.ok) { box.innerHTML = `<div class="ws-msg bad">${wsEsc(r.data.error)}</div>`; return; }
+      box.innerHTML = `<div class="ws-section"><h5>${wsEsc(wsName(agent))} would decide (fields: ${r.data.fields.map(wsEsc).join(", ")})</h5>${r.data.decisions.length ? `<ul>${r.data.decisions.map(d => `<li>${wsEsc(d.decision)} <span class="ws-help">(${wsEsc(d.source)})</span></li>`).join("")}</ul>` : '<p class="ws-help">Nothing in their guides fits this task. Add a guide in .devsquad/knowledge/ to teach them.</p>'}</div>`;
+    }
+
     // Plan, then build
     async function wsPropose() {
       const goal = document.getElementById("wsGoal").value.trim();
@@ -4844,6 +4874,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
           </div>
           <div class="ws-row"><button class="ws-mini" onclick="wsCurrentPlan.tasks.push({title:'', owner:'alpha_be', detail:''}); wsRenderPlan();">Add a task</button></div>
         </div>
+        ${p.decisions && p.decisions.length ? `<div class="ws-section"><h5>Decisions the team took from their field guides</h5><ul>${p.decisions.map(d => `<li><b>${wsEsc(wsName(d.owner))}</b>: ${wsEsc(d.decision)} <span class="ws-help">(${wsEsc(d.source)})</span></li>`).join("")}</ul></div>` : ""}
         ${list("Risks", p.risks)}${list("Questions to answer before building", p.questions)}
         <div class="ws-row"><button class="action-pill-btn primary" onclick="wsApprove(this)">Approve and add ${p.tasks.length} card${p.tasks.length === 1 ? "" : "s"} to the board</button>
           <span class="ws-help">Source: ${wsEsc(p.source)}</span></div>
@@ -5510,6 +5541,112 @@ def fetch_user_profile(user_id: str, db_pool=None):
     const rackLeds = [];
     for (let i = 0; i < 9; i++) { box(0.72, 0.012, 0.012, M.darkMetal, 11.2, 0.3 + i * 0.2, 0.745, { cast: false }); const l = box(0.04, 0.04, 0.01, new THREE.MeshBasicMaterial({ color: "#3DDC97" }), 10.92, 0.36 + i * 0.2, 0.748, { cast: false }); rackLeds.push(l); }
 
+    // ---------- Reef tank beside the rack: a pair of clownfish at their anemone and two blue tangs ----------
+    const TANK = { x: 11.5, z: -0.25, len: 1.3, depth: 0.5, base: 0.74, h: 0.58 };
+    const tankG = new THREE.Group(); tankG.position.set(TANK.x, 0, TANK.z); world.add(tankG);
+    const cabinet = box(TANK.depth + 0.04, TANK.base, TANK.len + 0.04, new THREE.MeshStandardMaterial({ color: "#2B2420", roughness: 0.55 }), 0, TANK.base / 2, 0, { parent: tankG, r: 0.015 });
+    cabinet.userData.action = "tank"; pickables.push(cabinet);
+    box(0.005, TANK.base - 0.12, 0.004, M.darkMetal, -TANK.depth / 2 - 0.022, TANK.base / 2, 0, { parent: tankG, cast: false });
+    const W0 = TANK.base, W1 = TANK.base + TANK.h, inner = { x: TANK.depth / 2 - 0.02, z: TANK.len / 2 - 0.02 };
+    const glassMat = new THREE.MeshPhysicalMaterial({ color: "#DDF3FF", roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(TANK.depth, TANK.h, TANK.len), glassMat); glass.position.y = W0 + TANK.h / 2; glass.renderOrder = 3; tankG.add(glass);
+    glass.userData.action = "tank"; pickables.push(glass);
+    const water = new THREE.Mesh(new THREE.BoxGeometry(TANK.depth - 0.02, TANK.h - 0.08, TANK.len - 0.02), new THREE.MeshStandardMaterial({ color: "#1E7FC8", transparent: true, opacity: 0.28, depthWrite: false, roughness: 0.1 }));
+    water.position.y = W0 + (TANK.h - 0.08) / 2 + 0.005; water.renderOrder = 2; tankG.add(water);
+    [[0, W0 + 0.004], [0, W1 - 0.004]].forEach(([, y]) => box(TANK.depth + 0.012, 0.012, TANK.len + 0.012, M.black, 0, y, 0, { parent: tankG, cast: false }));
+    // Deep-blue back panel, like a real reef tank, so the water reads as water
+    const backTex = canvasTex(64, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#1F6FB8"); gr.addColorStop(0.55, "#0D3F7A"); gr.addColorStop(1, "#06213F"); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(TANK.len - 0.02, TANK.h - 0.02), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false }));
+    back.rotation.y = -Math.PI / 2; back.position.set(TANK.depth / 2 - 0.012, W0 + TANK.h / 2, 0); tankG.add(back);
+    // Hood with the reef light
+    box(TANK.depth + 0.03, 0.06, TANK.len + 0.03, M.black, 0, W1 + 0.03, 0, { parent: tankG });
+    box(TANK.depth - 0.06, 0.008, TANK.len - 0.1, new THREE.MeshBasicMaterial({ color: "#CFE6FF", toneMapped: false }), 0, W1 - 0.002, 0, { parent: tankG, cast: false, receive: false });
+    const reefLight = new THREE.PointLight("#9CCBFF", 2.2, 1.6, 2); reefLight.position.set(0, W1 - 0.05, 0); tankG.add(reefLight);
+    // Sand, live rock, corals and the anemone the clownfish live in
+    const sandTex = canvasTex(256, 256, (g, w, h) => { g.fillStyle = "#C9B994"; g.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++) { g.fillStyle = ["#B8A782", "#DCCFAF", "#A8976F", "#E6DCC2"][i % 4]; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); } }, [2, 4]);
+    box(TANK.depth - 0.02, 0.05, TANK.len - 0.02, new THREE.MeshStandardMaterial({ map: sandTex, roughness: 1 }), 0, W0 + 0.025, 0, { parent: tankG, cast: false });
+    const rockMat = new THREE.MeshStandardMaterial({ color: "#8E7A86", roughness: 0.95, flatShading: true });
+    [[0.05, -0.38, 0.13, 0.09], [-0.02, -0.22, 0.1, 0.07], [0.07, 0.3, 0.12, 0.08], [0.0, 0.46, 0.08, 0.06], [-0.08, 0.05, 0.07, 0.05]].forEach(([x, z, r, hgt]) => {
+      const m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 0), rockMat); m.position.set(x, W0 + 0.05 + hgt * 0.5, z); m.scale.y = hgt / r; m.rotation.set(rnd() * 3, rnd() * 3, 0); tankG.add(m);
+    });
+    const coral = (x, z, color, n, len) => {
+      const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, emissive: color, emissiveIntensity: 0.12 });
+      for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, b = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.011, len * (0.7 + rnd() * 0.5), 6), mat); b.position.set(x + Math.sin(a) * 0.02, W0 + 0.1 + len * 0.3, z + Math.cos(a) * 0.02); b.rotation.set(Math.cos(a) * 0.5, 0, Math.sin(a) * 0.5); tankG.add(b); }
+    };
+    coral(0.06, -0.38, "#FF6F91", 7, 0.12); coral(0.07, 0.3, "#FFB347", 6, 0.1); coral(-0.04, 0.5, "#B388FF", 5, 0.09);
+    const anemone = new THREE.Group(); anemone.position.set(0.02, W0 + 0.1, -0.14); tankG.add(anemone);
+    const tentMat = new THREE.MeshStandardMaterial({ color: "#E8D9A0", roughness: 0.6, emissive: "#B8A060", emissiveIntensity: 0.15 });
+    const tentacles = [];
+    for (let i = 0; i < 46; i++) {
+      const a = i * 2.4, r = 0.012 + (i % 7) * 0.008, t = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.005, 0.07, 5), tentMat);
+      t.geometry.translate(0, 0.035, 0); t.position.set(Math.sin(a) * r, 0, Math.cos(a) * r); t.rotation.set(Math.cos(a) * 0.5 * (r / 0.06), 0, -Math.sin(a) * 0.5 * (r / 0.06)); anemone.add(t); tentacles.push(t);
+    }
+    // Fish: patterned bodies along their length, with fins and eyes
+    function fishTex(paint) { return canvasTex(256, 128, paint); }
+    const clownTex = fishTex((g, w, h) => {
+      g.fillStyle = "#FF6A13"; g.fillRect(0, 0, w, h);
+      // Three white bands edged in black (nose at the left of the texture, tail at the right)
+      [[0.28, 0.07], [0.52, 0.09], [0.82, 0.05]].forEach(([at, wid]) => { g.fillStyle = "#151515"; g.fillRect((at - wid / 2 - 0.018) * w, 0, (wid + 0.036) * w, h); g.fillStyle = "#FFFFFF"; g.fillRect((at - wid / 2) * w, 0, wid * w, h); });
+    });
+    const tangTex = fishTex((g, w, h) => {
+      g.fillStyle = "#1E4FE0"; g.fillRect(0, 0, w, h);
+      // The black "palette" on each side, with the blue showing through its middle
+      [h * 0.25, h * 0.75].forEach(cy => {
+        g.fillStyle = "#0B0F1E"; g.beginPath(); g.ellipse(w * 0.55, cy - h * 0.06, w * 0.34, h * 0.12, -0.08, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "#2A62F2"; g.beginPath(); g.ellipse(w * 0.5, cy - h * 0.04, w * 0.14, h * 0.045, -0.08, 0, Math.PI * 2); g.fill();
+      });
+      g.fillStyle = "#F6C41A"; g.fillRect(w * 0.9, 0, w * 0.1, h);
+    });
+    function makeFish(kind) {
+      const clown = kind === "clown", L = clown ? 0.085 : 0.13, tall = clown ? 0.42 : 0.62, thick = clown ? 0.3 : 0.18;
+      const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
+      const geo = new THREE.SphereGeometry(0.5, 24, 16); geo.rotateZ(-Math.PI / 2);   // poles at nose (+x) and tail (-x): the texture runs nose to tail
+      const mat = new THREE.MeshStandardMaterial({ map: clown ? clownTex : tangTex, roughness: 0.45, metalness: 0.05 });
+      const torso = new THREE.Mesh(geo, mat); torso.scale.set(L, L * tall, L * thick); body.add(torso);
+      const finMat = new THREE.MeshStandardMaterial({ color: clown ? "#FF7A1F" : "#F6C41A", roughness: 0.6, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+      const edgeMat = new THREE.MeshStandardMaterial({ color: clown ? "#111" : "#0B0F1E", side: THREE.DoubleSide });
+      const tri = (pts, m) => { const s2 = new THREE.Shape(); s2.moveTo(...pts[0]); pts.slice(1).forEach(q => s2.lineTo(...q)); return new THREE.Mesh(new THREE.ShapeGeometry(s2), m); };
+      const tail = new THREE.Group(); tail.position.x = -L * 0.48; body.add(tail);
+      tail.add(tri([[0, 0], [-L * 0.42, L * 0.26], [-L * 0.34, 0], [-L * 0.42, -L * 0.26]], finMat));
+      if (clown) { const rim = tri([[-L * 0.36, L * 0.24], [-L * 0.42, L * 0.26], [-L * 0.36, 0], [-L * 0.42, -L * 0.26], [-L * 0.36, -L * 0.24], [-L * 0.31, 0]], edgeMat); rim.position.z = 0.0005; tail.add(rim); }
+      const dorsal = tri([[L * 0.25, L * tall * 0.42], [-L * 0.05, L * tall * 0.78], [-L * 0.4, L * tall * 0.3]], clown ? finMat : edgeMat); body.add(dorsal);
+      const belly = tri([[L * 0.05, -L * tall * 0.42], [-L * 0.18, -L * tall * 0.62], [-L * 0.36, -L * tall * 0.28]], clown ? finMat : edgeMat); body.add(belly);
+      const pecs = [1, -1].map(side => { const f = tri([[0, 0], [-L * 0.2, L * 0.1], [-L * 0.16, -L * 0.06]], finMat); f.position.set(L * 0.18, -L * 0.05, side * L * thick * 0.48); f.rotation.y = side * 0.5; body.add(f); return f; });
+      const eyeMat = new THREE.MeshStandardMaterial({ color: "#050505", roughness: 0.2 }), ringMat = new THREE.MeshStandardMaterial({ color: clown ? "#F5F0E0" : "#1E4FE0" });
+      [1, -1].forEach(side => { const e = new THREE.Mesh(new THREE.SphereGeometry(L * 0.075, 10, 8), eyeMat); e.position.set(L * 0.33, L * tall * 0.1, side * L * thick * 0.4); body.add(e); const r2 = new THREE.Mesh(new THREE.SphereGeometry(L * 0.095, 10, 8), ringMat); r2.position.copy(e.position); r2.position.z -= side * 0.002; body.add(r2); });
+      tankG.add(g);
+      return { g, body, tail, pecs, L, kind, phase: rnd() * 10, pos: new THREE.Vector3(), vel: new THREE.Vector3(1, 0, 0) };
+    }
+    // Clownfish stay close to their anemone; the tangs cruise the length of the tank
+    const fishes = [makeFish("clown"), makeFish("clown"), makeFish("tang"), makeFish("tang")];
+    const fishAt = (f, t) => {
+      const lo = { y: W0 + 0.1, x: -inner.x + 0.06, z: -inner.z + 0.1 }, hi = { y: W1 - 0.12, x: inner.x - 0.06, z: inner.z - 0.1 };
+      if (f.kind === "clown") {
+        const c = anemone.position, k = t * 0.55 + f.phase;
+        return new THREE.Vector3(c.x + Math.sin(k * 1.3) * 0.07, c.y + 0.1 + Math.sin(k * 0.9) * 0.04 + (f.phase > 5 ? 0.04 : 0), c.z + Math.cos(k) * 0.13);
+      }
+      const k = t * 0.16 + f.phase;
+      return new THREE.Vector3(THREE.MathUtils.lerp(lo.x, hi.x, 0.5 + 0.45 * Math.sin(k * 1.7)), THREE.MathUtils.lerp(lo.y, hi.y, 0.5 + 0.42 * Math.sin(k * 1.1 + 1)), THREE.MathUtils.lerp(lo.z, hi.z, 0.5 + 0.48 * Math.sin(k)));
+    };
+    let tankClock = 0;
+    const ahead = new THREE.Vector3();
+    function updateTank(dt) {
+      tankClock += dt;
+      fishes.forEach(f => {
+        const now = fishAt(f, tankClock), next = fishAt(f, tankClock + 0.25);
+        f.g.position.copy(now);
+        ahead.subVectors(next, now); const speed = ahead.length() / 0.25;
+        if (speed > 1e-4) { ahead.normalize(); const yaw = Math.atan2(-ahead.z, ahead.x), pitch = Math.asin(THREE.MathUtils.clamp(ahead.y, -0.5, 0.5)); f.yaw = f.yaw === undefined ? yaw : f.yaw + Math.atan2(Math.sin(yaw - f.yaw), Math.cos(yaw - f.yaw)) * Math.min(1, dt * 4); f.g.rotation.set(0, f.yaw, pitch * 0.6, "YZX"); }
+        const beat = tankClock * (f.kind === "clown" ? 14 : 9) + f.phase;
+        f.tail.rotation.y = Math.sin(beat) * (0.35 + speed * 2);
+        f.body.rotation.y = Math.sin(beat - 1) * 0.06;
+        f.pecs.forEach((pc, i) => { pc.rotation.x = Math.sin(beat * 1.3 + i) * 0.5; });
+      });
+      tentacles.forEach((t, i) => { t.rotation.x += Math.sin(tankClock * 1.6 + i) * 0.0025; t.rotation.z += Math.cos(tankClock * 1.3 + i * 0.7) * 0.0025; });
+      reefLight.intensity = 2.0 + Math.sin(tankClock * 0.7) * 0.25;
+    }
+    updateTank(0);
+
     // Coffee counter (opens the watercooler)
     const counter = box(0.75, 0.92, 2.6, M.white, X0 + 0.55, 0.46, 6.4, { r: 0.02 });
     counter.userData.action = "coffee"; pickables.push(counter);
@@ -6096,7 +6233,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
     }
 
     // ---------- clicks ----------
-    const ACTIONS = { board: () => openWorkshop("board"), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
+    const ACTIONS = { tank: () => { flyTo(V(TANK.x - 1.55, 1.12, TANK.z + 0.35), V(TANK.x, TANK.base + 0.27, TANK.z), 1.1); markView(null); }, board: () => openWorkshop("board"), meeting: () => openMergeArenaModal(), rack: () => openChaosLabModal(), coffee: () => openWatercoolerModal() };
     function pick(id) { selectAgent(id); openDesk(id); }
     // ---------- desk card: what someone is working on, from the board and the recorded status ----------
     const deskEl = host.querySelector("#office3dDesk");
@@ -6119,6 +6256,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
         if (c.review) body += `<p class="none" style="margin-top:4px;">${c.review} card${c.review > 1 ? "s" : ""} waiting on the Review Desk.</p>`;
         body += `<h6>Last run</h6>${d.last_run ? `<p>"${esc(d.last_run.goal)}": ${esc(d.last_run.outcome)}, ${esc(ago(d.last_run.when))}.</p>` : `<p class="none">No runs yet.</p>`}`;
         body += `<h6>ETA</h6><p>${esc(d.eta)}</p>`;
+        if (d.fields && d.fields.length) body += `<h6>Draws on</h6><p>${d.fields.map(esc).join(", ")} field guides</p>`;
         body += `<h6>Blockers</h6>${d.blockers.length ? `<ul>${d.blockers.slice(0, 3).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p class="none">None.</p>`}`;
       }
       const acts = a.isUser ? `<button type="button" class="primary" data-desk="review">Review Desk</button><button type="button" data-desk="board">Task board</button>`
@@ -6205,6 +6343,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       const r = ag.pos.rot + 0.75, head = V(ag.pos.x, ag.pose === "sit" ? 1.17 : 1.6, ag.pos.z);
       flyTo(V(ag.pos.x + Math.sin(r) * 1.7, head.y + 0.1, ag.pos.z + Math.cos(r) * 1.7), head, 0.9); markView(null);
     }
+    window.__office3dTank = () => ACTIONS.tank();
     window.__office3dFace = id => { if (AGENTS[id] && AGENTS[id].pos) faceTo(AGENTS[id]); };
     // Read-only snapshot of where everyone is, for checks and tools
     window.__office3dPeople = () => team.map(t => ({ id: t.id, x: +(t.pos.x + t.offX).toFixed(3), z: +(t.pos.z + t.offZ).toFixed(3), pose: t.pose, trip: t.trip || null, rig: t.rig ? t.rig.look : null, clip: t.rig ? t.rig.current : null }));
@@ -6279,6 +6418,7 @@ def fetch_user_profile(user_id: str, db_pool=None):
       if (Math.floor(clock) !== slow) { slow = Math.floor(clock); let on = true; try { on = localStorage.getItem("devcity_animations") !== "false"; } catch (e) {} motionOn3d = on && !matchMedia("(prefers-reduced-motion: reduce)").matches; rackLeds.forEach((l, i) => l.material.color.set((slow * 7 + i * 3) % 5 ? "#3DDC97" : "#FFB44C")); drawClock(); drawCost(); beacon.visible = isDark() && slow % 2 === 0; if (slow % 15 === 0 && !document.hidden) refreshWallBoard(); if (deskFor && slow % 6 === 0) openDesk(deskFor, true); }
       if (isMeetingMode && clock > meetNext) { const seated = workers.filter(w => w.where === "meeting" && w.pose === "sit"); workers.forEach(w => { w.meetTalk3d = false; }); if (seated.length) seated[Math.floor(Math.random() * seated.length)].meetTalk3d = true; meetNext = clock + between(2.5, 5); }
       updatePeople(dt);
+      if (motionOn3d) updateTank(dt);
       if (motionOn3d) updateStreets(dt, isDark());
       if (fly) { fly.t = Math.min(1, fly.t + dt / fly.d); const k = smooth(fly.t); camera.position.lerpVectors(fly.p0, fly.p1, k); controls.target.lerpVectors(fly.t0, fly.t1, k); if (fly.t >= 1) fly = null; }
       moveByKeys(dt);

@@ -43,6 +43,7 @@ DevSquad combines real terminal execution with a **3D office** you can walk into
 
 - **Real people**: the team are rigged, realistic people from Microsoft's Rocketbox library (MIT licence), with recorded motion for walking, sitting at a desk, typing, talking, listening, presenting, drinking coffee and reading a phone. Pick your own look in Settings. Where the models can't load, the drawn people are used instead.
 - **The task board is on the wall**: the Workshop's real board, as sticky notes on the whiteboard. When a card moves to In progress, its owner walks over to pick it up, then goes back to their desk to work on it.
+- **A reef tank** beside the server rack: a pair of clownfish living in their anemone and two blue tangs cruising the tank, under a blue reef light. Click it for a close look.
 - **Click a desk or a person** for their status: their card, what's next, their last run, the ETA and any blockers, from the same recorded facts as the chat's status answers.
 
 <p align="center">
@@ -265,7 +266,12 @@ Click **Workshop** in the topbar. Everything below works in template mode and ge
 ### 5. ✅ Setup
 - Checks for Ollama, the recommended coding model (`qwen2.5-coder:7b`), an optional vision model, git and pytest, and says the next step for each gap. Models can be downloaded from the panel.
 
-### 6. 📄 Agents read PDFs and images
+### 6. 🧭 Know-how: agents decide from field guides
+- Each teammate keeps field guides with fundamentals and a decision rule per entry: **Architecture**, **Backend**, **Frontend**, **Testing**, **DevOps**, **Security**, **Docs** and **Research** (which user-research method answers which question, interview guides, usability tests, synthesis, success metrics).
+- When a task is assigned, each agent looks up the entries that fit (local keyword matching, free and offline), puts them in its prompt, and records its decisions with the guide each came from. You see them in the run log ("Drawing on…"), in the run's `decisions.md`, in every plan, and on the desk card.
+- This works in template mode too, so the team decides sensibly even with no AI connected. Add your own team's rules as Markdown files in `.devsquad/knowledge/`, and the agents use them alongside the built-in ones.
+
+### 7. 📄 Agents read PDFs and images
 - The text inside PDFs is extracted (standard library only) and given to the agents. Scanned PDFs are pictures of text and can't be read yet.
 - Images and mockups are described by a local vision model such as `llava` when one is installed.
 

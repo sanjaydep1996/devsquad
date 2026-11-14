@@ -40,7 +40,7 @@ Homepage = "https://github.com/sanjaydep1996/devsquad"
 Issues = "https://github.com/sanjaydep1996/devsquad/issues"
 
 [tool.setuptools.package-data]
-devsquad = ["web/*.html", "web/models/people/*"]
+devsquad = ["web/*.html", "web/models/people/*", "knowledge/*.md"]
 
 [tool.ruff]
 line-length = 100

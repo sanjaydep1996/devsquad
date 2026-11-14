@@ -52,6 +52,8 @@ def plan_markdown(plan: Dict[str, Any]) -> str:
         lines.append(f"{i}. **{t.get('title', '')}** ({TEAM_NAMES.get(t.get('owner') or '', t.get('owner'))})")
         if t.get("detail"):
             lines.append(f"   {t['detail']}")
+    if plan.get("decisions"):
+        lines += ["", "## Decisions from the field guides", ""] + [f"- **{TEAM_NAMES.get(d.get('owner', ''), d.get('owner'))}**: {d.get('decision')} ({d.get('source')})" for d in plan["decisions"]]
     for title, key in (("Risks", "risks"), ("Questions to answer before building", "questions")):
         items = plan.get(key) or []
         lines += ["", f"## {title}", ""] + ([f"- {x}" for x in items] or ["- None recorded."])
