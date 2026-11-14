@@ -15,7 +15,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **PDF and image reading** (`devsquad/core/doc_reader.py`): PDF text extraction with the standard library; image descriptions from a local vision model.
 - `/api/v5/` routes shared by the standard and FastAPI servers (`devsquad/server/v5_api.py`), behind the same local-only guard.
 
+- **Walk into the 3D office**: view presets (Overview, Desks, Meeting room, Lounge, Window, Walk in), turn and zoom buttons, zoom toward the pointer, right-drag to move, double-click to go to a spot or see a person's face, and keyboard controls (W A S D, Q E, + -, 1-6, R), with a help card.
+- **Session Replay of relay runs**: `/api/replay` replays a run step by step from the flight recorder, or from its log for older runs. Replay returned 404 before.
+
 ### Changed
+- **More realistic people**: one smooth head shape with eyes that blink, eyelids, brows, nose, ears and mouth; hair that follows a real hairline; shaped torso, hands and shoes; fabric and skin materials; weight shifts and a hip sway when walking.
+- **People don't walk through or circle each other**: walkers keep to their right and slow down behind someone going the same way. Name tags no longer pile up.
+- **You walk the floor**: checking in at desks, watching whoever is on a real task, coffee, whiteboard, window and sofa, and leading meetings from the head of the table.
+- **DEVSQUAD sign** is now light letters on a dark panel, readable by day and by night.
+- **Panels**: content is never squashed (the Roadmap's Mermaid graph was cut to one line); Review Desk, Settings and Visual QA fit on phones; Escape closes every panel.
 - **Tidier topbar**: the everyday actions stay in view and 16 other tools are grouped under Build, Quality and Tools menus (keyboard friendly). At 1280 to 1440 px the topbar is two rows instead of four or five, and on phones it is one row that scrolls sideways, so the office gets the space.
 - **README screenshots** now show the current 3D office (night and day) and the Workshop board.
 - **Flaky tests are real**: the runner now runs your test command repeatedly with a different hash seed per run and reports actual results. The old simulation is kept only as a deprecated function that says it ran nothing.

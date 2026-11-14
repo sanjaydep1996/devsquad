@@ -39,7 +39,7 @@ Current AI coding tools fall into two frustrating extremes:
   <img src="docs/screenshot-office-day.jpg" alt="The same office in day mode, with Apex's status on the right and the Build, Quality and Tools menus in the topbar" width="100%" />
 </p>
 
-DevSquad combines real terminal execution with a **3D office** you can orbit and zoom, switch between day and night, and click into (the **2D Pixel Office** is the fallback where WebGL isn't available). The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
+DevSquad combines real terminal execution with a **3D office** you can walk into (the **2D Pixel Office** is the fallback where WebGL isn't available). Jump to **Overview**, **Desks**, **Meeting room**, **Lounge**, **Window** or **Walk in** at eye level; drag to look, right-drag to move, scroll to zoom toward the pointer, and double-click a spot to go there or a person to see their face. With the office focused, **W A S D** or the arrow keys walk, **Q E** turn, **+ -** zoom and **1-6** pick a view. The team moves like people do: they keep right in the aisles, take coffee and whiteboard breaks, and **You** walk the floor checking in on whoever is working. The topbar keeps the everyday actions in view (**Workshop**, **Review Desk**, **Files**, **Run a relay**) and groups the other tools under **Build**, **Quality** and **Tools**:
 
 ### 1. 🔍 Interactive Blast-Radius Visualizer (On the Office Whiteboard)
 Click directly on the **Whiteboard** on the office back wall or click **Build → Blast Radius** in the topbar to inspect AST dependencies:
