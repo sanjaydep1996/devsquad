@@ -3,6 +3,12 @@
 All notable changes to DevSquad are documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-11-14
+
+### Fixed
+- `pip install -e .` and `pip install .` failed with "Multiple top-level packages discovered in a flat-layout: ['data', 'devsquad']". Only the `devsquad` package is packaged now, with its web page, people models and field guides.
+- The licence uses the current SPDX form (`license = "MIT"`), which removes the setuptools deprecation warning.
+
 ## [0.5.0] - 2026-11-13
 
 ### Added
